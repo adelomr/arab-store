@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تفاصيل التطبيق | متجر العرب</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="web-assets/app_icon.png?v=2026">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .app-detail-header {
+            display: flex;
+            gap: 30px;
+            align-items: flex-start;
+            padding: 2rem 0;
+            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .detail-icon {
+            width: 150px;
+            height: 150px;
+            border-radius: 30px;
+            object-fit: cover;
+            box-shadow: var(--glass-shadow);
+        }
+
+        .detail-info h1 {
+            font-size: 2.5rem;
+            margin-bottom: 5px;
+        }
+
+        .stats-row {
+            display: flex;
+            gap: 20px;
+            margin: 15px 0;
+            color: var(--text-secondary);
+        }
+
+        .stats-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stats-val {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .content-section {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 2rem;
+            box-shadow: var(--card-shadow);
+        }
+
+        .comments-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-top: 2rem;
+        }
+
+        .comment-card {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 20px;
+            color: var(--text-primary);
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+            transition: var(--transition);
+        }
+
+        .comment-card:hover {
+            border-color: var(--primary-color);
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .comment-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .comment-author {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: bold;
+        }
+
+        .comment-author img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+        }
+
+        .star-rating-input {
+            display: flex;
+            flex-direction: row-reverse;
+            justify-content: flex-end;
+            gap: 5px;
+            font-size: 1.5rem;
+            color: var(--text-secondary);
+            margin-bottom: 15px;
+        }
+
+        .star-rating-input input {
+            display: none;
+        }
+
+        .star-rating-input label {
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .star-rating-input label:hover,
+        .star-rating-input label:hover~label,
+        .star-rating-input input:checked~label {
+            color: var(--star-color);
+        }
+
+        @media (max-width: 768px) {
+            .app-detail-header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <img src="web-assets/app_icon.png?v=2026" alt="متجر العرب"
+                    style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;"> متجر العرب
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fa-solid fa-house"></i> الرئيسية</a></li>
+
+                <!-- Auth Section -->
+                <li id="auth-section">
+                    <button id="btn-login" class="btn btn-primary hidden">تسجيل الدخول <i
+                            class="fa-brands fa-google"></i></button>
+                    <div id="user-info" class="user-profile hidden">
+                        <img id="user-avatar" src="" alt="" class="user-avatar">
+                        <button id="btn-logout" class="btn btn-outline btn-sm"><i
+                                class="fa-solid fa-right-from-bracket"></i></button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="container">
+        <div id="loader" class="loader-container">
+            <span class="loader"></span>
+        </div>
+
+        <div id="app-content" style="display: none;">
+            <div class="app-detail-header">
+                <div style="position: relative; display: inline-block;">
+                    <img id="d-icon" src="" alt="Icon" class="detail-icon"
+                        onerror="this.src='https://via.placeholder.com/150?text=App'">
+                    <button id="d-share" class="btn btn-outline" title="مشاركة التطبيق"
+                        style="position: absolute; bottom: 0; right: 0; background-color: var(--bg-color); border-radius: 50%; width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; border: 2px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <i class="fa-solid fa-share-nodes"></i>
+                    </button>
+                </div>
+                <div class="detail-info">
+                    <h1 id="d-name" style="margin-bottom: 8px;">جاري التحميل...</h1>
+
+                    <div class="stats-row">
+                        <div class="stats-item">
+                            <span id="d-rating" class="stats-val">0.0 <i class="fa-solid fa-star"
+                                    style="color:var(--star-color);"></i></span>
+                            <span id="d-reviews">0 مراجعة</span>
+                        </div>
+                        <div class="stats-item">
+                            <span id="d-version" class="stats-val"></span>
+                            <span>الإصدار</span>
+                        </div>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 10px;">
+                        <a id="d-download" href="#" target="_blank" class="btn btn-primary btn-large"
+                            style="display: inline-block; padding: 12px 24px; font-size: 1.1rem; flex: 1; text-align: center;">
+                            <i class="fa-solid fa-download"></i> تحميل (APK)
+                        </a>
+                    </div>
+                </div>
+            </div>
+
+            <div class="app-screenshots-section" id="screenshots-section" style="display: none;">
+                <div class="screenshots-container" id="d-screenshots">
+                    <!-- Screenshots injected by JS -->
+                </div>
+            </div>
+
+            <!-- Description & Changelog -->
+            <div class="content-section">
+                <h3><i class="fa-solid fa-circle-info"></i> عن التطبيق</h3>
+                <p id="d-desc" style="white-space: pre-wrap; margin-top: 15px;"></p>
+
+                <div id="changelog-container" style="margin-top: 2rem; display: none;">
+                    <h3><i class="fa-solid fa-clock-rotate-left"></i> ما الجديد في هذا التحديث؟</h3>
+                    <div
+                        style="background: rgba(88, 166, 255, 0.1); border-right: 4px solid var(--primary-color); padding: 15px; border-radius: 8px; margin-top: 15px;">
+                        <p id="d-changelog" style="white-space: pre-wrap; margin: 0;"></p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ratings and Comments -->
+            <div class="content-section">
+                <h3><i class="fa-solid fa-comments"></i> التقييمات والمراجعات</h3>
+
+                <div id="add-review-section"
+                    style="margin-top: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 2rem; display: none;">
+                    <form id="form-review">
+                        <p style="margin-bottom: 10px; font-weight: bold;">أضف تقييمك:</p>
+                        <div class="star-rating-input">
+                            <input type="radio" id="star5" name="rating" value="5" required>
+                            <label for="star5" title="5 نجوم"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="star4" name="rating" value="4">
+                            <label for="star4" title="4 نجوم"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="star3" name="rating" value="3">
+                            <label for="star3" title="3 نجوم"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="star2" name="rating" value="2">
+                            <label for="star2" title="2 نجمتين"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="star1" name="rating" value="1">
+                            <label for="star1" title="نجمة واحدة"><i class="fa-solid fa-star"></i></label>
+                        </div>
+                        <textarea id="review-text"
+                            style="width: 100%; padding: 12px; border-radius: 8px; background: #0d1117; border: 1px solid var(--border-color); color: #f0f6fc; font-family: inherit; margin-bottom: 15px;"
+                            rows="3" placeholder="أخبرنا برأيك في التطبيق..." required></textarea>
+                        <button type="submit" class="btn btn-primary" style="background: var(--primary-gradient);">نشر
+                            التقييم</button>
+                    </form>
+                </div>
+
+                <div id="login-to-review"
+                    style="margin-top: 20px; text-align: center; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                    <p>يرجى تسجيل الدخول بكتابة تعليق وتقييم التطبيق.</p>
+                </div>
+
+                <div id="comments-list" class="comments-list">
+                    <!-- Comments injected by JS -->
+                </div>
+            </div>
+        </div>
+
+        <div id="error-msg" style="text-align: center; margin-top: 4rem; display: none;">
+            <h2><i class="fa-solid fa-triangle-exclamation" style="color: var(--danger-color);"></i> التطبيق غير موجود
+            </h2>
+            <p>تعذر العثور على التطبيق المطلوب.</p>
+        </div>
+
+        <!-- Lightbox Modal -->
+        <div id="lightbox" class="modal-lightbox">
+            <span class="close-lightbox" id="close-lightbox">&times;</span>
+            <img class="lightbox-content" id="lightbox-img">
+        </div>
+    </main>
+
+    <!-- JavaScript as module -->
+    <script type="module" src="js/app-details.js?v=1.1"></script>
+</body>
+
+</html>

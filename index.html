@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>متجر العرب</title>
+    <meta name="description" content="متجر تطبيقات احترافي لتحميل وتحديث التطبيقات بكل سهولة.">
+    <!-- Favicon -->
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="web-assets/app_icon.png?v=2026">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <img src="web-assets/app_icon.png?v=2026" alt="متجر العرب"
+                    style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
+                متجر العرب
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">الرئيسية</a></li>
+
+                <li id="admin-link-li" class="hidden"><a href="admin.html"
+                        style="color: var(--primary-color); font-weight: bold;"><i class="fa-solid fa-gauge"></i> لوحة
+                        التحكم</a></li>
+
+                <!-- Auth Section -->
+                <li id="auth-section">
+                    <button id="btn-login" class="btn btn-primary">تسجيل الدخول <i
+                            class="fa-brands fa-google"></i></button>
+                    <div id="user-info" class="user-profile hidden">
+                        <img id="user-avatar" src="" alt="صورة المستخدم" class="user-avatar">
+                        <span id="user-name"></span>
+                        <button id="btn-logout" class="btn btn-outline btn-sm"><i
+                                class="fa-solid fa-right-from-bracket"></i></button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container">
+                <h1>اكتشف أفضل التطبيقات</h1>
+                <p>متجر العرب هو وجهتك الأولى لتحميل أحدث التطبيقات الموثوقة والآمنة، مع نظام تحديثات ذكي وتقييمات
+                    حقيقية.</p>
+            </div>
+        </section>
+
+        <section class="container">
+            <h2 class="section-title"><i class="fa-solid fa-rocket"></i> أحدث التطبيقات</h2>
+            <div id="loader" class="loader-container">
+                <span class="loader"></span>
+            </div>
+            <div id="apps-grid" class="apps-grid">
+                <!-- Apps will be injected here via JS -->
+            </div>
+        </section>
+    </main>
+
+    <!-- JavaScript as module -->
+    <script type="module" src="js/store.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | متجر العرب</title>
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="web-assets/app_icon.png?v=2026">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css">
+    <style>
+        .admin-form {
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px;
+            box-shadow: var(--card-shadow);
+            max-width: 800px;
+            margin: 2rem auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 700;
+            color: var(--text-primary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            background: #f8f9fa;
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: var(--transition);
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            background: #ffffff;
+            box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
+        }
+
+        .admin-tabs {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 2.5rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            padding: 12px 24px;
+            background: #ffffff;
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            color: var(--text-secondary);
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .tab-btn:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        .tab-btn.active {
+            background: var(--primary-color);
+            border-color: var(--primary-color);
+            color: #ffffff;
+            box-shadow: 0 4px 12px rgba(26, 115, 232, 0.3);
+        }
+
+        .btn-danger {
+            background: var(--danger-color);
+            color: white;
+            border: none;
+        }
+
+        .btn-danger:hover {
+            background: #b91c1c;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(217, 48, 37, 0.3);
+        }
+
+        /* Progress Bar Styles */
+        .progress-container {
+            width: 100%;
+            background-color: #f1f1f1;
+            border-radius: 10px;
+            margin: 20px 0;
+            display: none;
+            overflow: hidden;
+            box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.1);
+        }
+
+        .progress-bar {
+            width: 0%;
+            height: 20px;
+            background: var(--primary-gradient);
+            text-align: center;
+            line-height: 20px;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: width 0.3s ease-in-out;
+            border-radius: 10px;
+        }
+
+        .upload-status-text {
+            text-align: center;
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+            margin-top: 5px;
+            display: none;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <img src="web-assets/app_icon.png?v=2026" alt="متجر العرب"
+                    style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
+                لوحة التحكم
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html"><i class="fa-solid fa-house"></i> العودة للمتجر</a></li>
+
+                <!-- Auth Section -->
+                <li id="auth-section">
+                    <button id="btn-login" class="btn btn-primary hidden">تسجيل الدخول <i
+                            class="fa-brands fa-google"></i></button>
+                    <div id="user-info" class="user-profile hidden">
+                        <img id="user-avatar" src="" alt="" class="user-avatar">
+                        <button id="btn-logout" class="btn btn-outline btn-sm"><i
+                                class="fa-solid fa-right-from-bracket"></i></button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="container" id="admin-content" style="display: none;">
+        <div style="text-align: center; margin-top: 2rem;">
+            <h2>مرحباً، أيها المدير!</h2>
+            <p style="color: var(--text-secondary);">من هنا يمكنك إدارة تطبيقاتك وتحديثاتها.</p>
+        </div>
+
+        <div class="admin-tabs">
+            <button class="tab-btn active" id="tab-add">إضافة تطبيق جديد</button>
+            <button class="tab-btn" id="tab-update">تحديث تطبيق موجود</button>
+            <button class="tab-btn" id="tab-delete">حذف تطبيق</button>
+        </div>
+
+        <!-- Add App Form -->
+        <div id="section-add" class="admin-form">
+            <h3><i class="fa-solid fa-plus-circle"></i> إضافة تطبيق</h3>
+            <form id="form-add">
+                <div class="form-group">
+                    <label>اسم التطبيق</label>
+                    <input type="text" id="app-name" class="form-control" placeholder="متجر العرب" required>
+                </div>
+
+                <div class="form-group">
+                    <label>معرف الحزمة (Package Name)</label>
+                    <input type="text" id="app-package" class="form-control" placeholder="com.arabstore.app" required>
+                </div>
+                <div class="form-group">
+                    <label>وصف قصير</label>
+                    <input type="text" id="app-short" class="form-control" placeholder="تطبيق إسلامي شامل..." required>
+                </div>
+                <div class="form-group">
+                    <label>وصف كامل</label>
+                    <textarea id="app-full" class="form-control" rows="4"
+                        placeholder="التطبيق يحتوي على القرآن والتفاسير..." required></textarea>
+                </div>
+                <!-- Manual size input removed, now automatic -->
+                <div class="form-group">
+                    <label>أيقونة التطبيق (صورة)</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="app-icon" class="hidden" accept="image/*" required>
+                        <button type="button" class="btn btn-outline"
+                            onclick="document.getElementById('app-icon').click()">
+                            <i class="fa-solid fa-image"></i> اختر الأيقونة
+                        </button>
+                        <div id="icon-preview" class="file-preview"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>صور التطبيق (Screenshots)</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="app-screenshots" class="hidden" multiple accept="image/*" required>
+                        <button type="button" class="btn btn-outline"
+                            onclick="document.getElementById('app-screenshots').click()">
+                            <i class="fa-solid fa-folder-open"></i> اختر الصور
+                        </button>
+                        <div id="screenshots-preview" class="file-preview"></div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ملف التطبيق (APK)</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="app-download" class="hidden" accept=".apk" required>
+                        <button type="button" class="btn btn-outline"
+                            onclick="document.getElementById('app-download').click()">
+                            <i class="fa-solid fa-folder-open"></i> اختر ملف APK
+                        </button>
+                        <div id="apk-info" class="file-info-text">لم يتم اختيار أي ملف بعد.</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>رقم الإصدار (Version Name)</label>
+                        <input type="text" id="app-version" class="form-control" placeholder="1.0.0" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>كود الإصدار (Version Code)</label>
+                        <input type="number" id="app-versioncode" class="form-control" placeholder="1" required>
+                    </div>
+                </div>
+                <div class="progress-container" id="add-progress-container">
+                    <div class="progress-bar" id="add-progress-bar">0%</div>
+                </div>
+                <div id="add-status" class="upload-status-text">جاري الرفع...</div>
+                <button type="submit" id="btn-save-app" class="btn btn-primary" style="width: 100%;">حفظ
+                    التطبيق</button>
+                <div id="add-loader" class="hidden" style="text-align: center; margin-top: 15px;"><span class="loader"
+                        style="width: 24px; height:24px; margin:0; border-width: 3px;"></span></div>
+            </form>
+        </div>
+
+        <!-- Update App Form -->
+        <div id="section-update" class="admin-form hidden">
+            <h3><i class="fa-solid fa-arrow-up-right-dots"></i> دفع تحديث جديد</h3>
+            <form id="form-update">
+                <div class="form-group">
+                    <label>اختر التطبيق</label>
+                    <select id="select-app" class="form-control" required>
+                        <option value="">جاري التحميل...</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>ملف التحديث الجديد (APK)</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="update-download" class="hidden" accept=".apk" required>
+                        <button type="button" class="btn btn-outline"
+                            onclick="document.getElementById('update-download').click()">
+                            <i class="fa-solid fa-folder-open"></i> اختر تحديث APK
+                        </button>
+                        <div id="update-apk-info" class="file-info-text">لم يتم اختيار أي ملف بعد.</div>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 15px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>رقم الإصدار الجديد</label>
+                        <input type="text" id="update-version" class="form-control" placeholder="1.0.1" required>
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>كود الإصدار الجديد</label>
+                        <input type="number" id="update-versioncode" class="form-control" placeholder="2" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>ما الجديد في هذا التحديث؟ (سجل التغييرات)</label>
+                    <textarea id="update-changelog" class="form-control" rows="3"
+                        placeholder="إضافة ميزة الخطب وإصلاح الأخطاء..." required></textarea>
+                </div>
+
+                <div class="progress-container" id="up-progress-container">
+                    <div class="progress-bar" id="up-progress-bar">0%</div>
+                </div>
+                <div id="up-status" class="upload-status-text">جاري رفع التحديث...</div>
+                <button type="submit" id="btn-publish-update" class="btn btn-primary"
+                    style="background: var(--primary-gradient); width: 100%;">نشر التحديث</button>
+                <div id="up-loader" class="hidden" style="text-align: center; margin-top: 15px;"><span class="loader"
+                        style="width: 24px; height:24px; margin:0; border-width: 3px;"></span></div>
+            </form>
+        </div>
+
+        <!-- Delete App Section -->
+        <div id="section-delete" class="admin-form hidden">
+            <h3><i class="fa-solid fa-trash-can" style="color: var(--danger-color);"></i> حذف تطبيق</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">تحذير: هذا الإجراء سيقوم بحذف التطبيق وجميع
+                بياناته نهائياً من المتجر.</p>
+            <form id="form-delete">
+                <div class="form-group">
+                    <label>اختر التطبيق المراد حذفه</label>
+                    <select id="select-delete-app" class="form-control" required>
+                        <option value="">جاري التحميل...</option>
+                    </select>
+                </div>
+                <button type="submit" class="btn btn-danger" style="width: 100%; font-weight: bold;">حذف التطبيق
+                    نهائياً</button>
+                <div id="del-loader" class="hidden" style="text-align: center; margin-top: 15px;"><span class="loader"
+                        style="width: 24px; height:24px; margin:0; border-width: 3px;"></span></div>
+            </form>
+        </div>
+
+    </main>
+    <div id="unauthorized-msg" style="text-align: center; margin-top: 4rem; display: none;">
+        <h2><i class="fa-solid fa-triangle-exclamation" style="color: var(--danger-color);"></i> غير مصرح لك بالدخول
+        </h2>
+        <p>هذه الصفحة مخصصة لمدير الموقع فقط.</p>
+    </div>
+
+    <!-- JavaScript as module -->
+    <script type="module" src="js/admin.js"></script>
+</body>
+
+</html>
