@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>إرسال تطبيق - متجر العرب</title>
+    <link rel="icon" type="image/png" href="web-assets/app_icon.png?v=2026">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+    <header>
+        <div class="container navbar">
+            <div class="logo">
+                <img src="web-assets/app_icon.png?v=2026" alt="متجر العرب"
+                    style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
+                متجر العرب
+            </div>
+            <ul class="nav-links">
+                <li><a href="index.html">الرئيسية</a></li>
+                <!-- Auth Section -->
+                <li id="auth-section">
+                    <button id="btn-login" type="button" class="btn btn-primary">تسجيل الدخول <i
+                            class="fa-brands fa-google"></i></button>
+                    <div id="user-info" class="user-profile hidden">
+                        <img id="user-avatar" src="" alt="صورة المستخدم" class="user-avatar">
+                        <span id="user-name"></span>
+                        <button id="btn-logout" type="button" class="btn btn-outline btn-sm"><i
+                                class="fa-solid fa-right-from-bracket"></i></button>
+                    </div>
+                </li>
+            </ul>
+        </div>
+    </header>
+
+    <main class="container">
+        <section class="hero" style="padding: 3rem 0;">
+            <h1>إرسال تطبيق جديد للمراجعة</h1>
+            <p>املأ البيانات أدناه لتقديم تطبيقك لمتجر العرب. سيتم مراجعة الطلب من قبل الإدارة قبل النشره.</p>
+        </section>
+
+        <section id="unauthorized-msg" class="loader-container" style="padding: 2rem;">
+            <i class="fa-solid fa-lock" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 1rem;"></i>
+            <p>يرجى تسجيل الدخول لتتمكن من إرسال تطبيقك.</p>
+        </section>
+
+        <section id="submit-content" class="hidden">
+            <form id="form-submit" class="app-card" style="max-width: 800px; margin: 0 auto; display: block;">
+                <h2 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-paper-plane"></i> بيانات التطبيق</h2>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label>اسم التطبيق:</label>
+                        <input type="text" id="app-name" required placeholder="مثال: متصفح العرب" style="width:100%; padding:12px; border:1px solid var(--border-color); border-radius:8px; margin-top:8px;">
+                    </div>
+                    <div>
+                        <label>اسم الحزمة (Package Name):</label>
+                        <input type="text" id="app-package" required placeholder="مثال: com.arab.browser" style="width:100%; padding:12px; border:1px solid var(--border-color); border-radius:8px; margin-top:8px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label>وصف قصير:</label>
+                    <input type="text" id="app-short" required placeholder="وصف يظهر في الرئيسية" style="width:100%; padding:12px; border:1px solid var(--border-color); border-radius:8px; margin-top:8px;">
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label>الوصف الكامل:</label>
+                    <textarea id="app-full" required rows="5" placeholder="وصف تفصيلي للتطبيق..." style="width:100%; padding:12px; border:1px solid var(--border-color); border-radius:8px; margin-top:8px; font-family:inherit;"></textarea>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
+                    <div>
+                        <label>الإصدار (Version):</label>
+                        <input type="text" id="app-version" required placeholder="1.0.0" style="width:100%; padding:12px; border:1px solid var(--border-color); border-radius:8px; margin-top:8px;">
+                    </div>
+                    <div>
+                        <label>كود الإصدار (Version Code):</label>
+                        <input type="number" id="app-versioncode" required placeholder="1" style="width:100%; padding:12px; border:1px solid var(--border-color); border-radius:8px; margin-top:8px;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label><i class="fa-solid fa-image"></i> أيقونة التطبيق (1:1):</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="app-icon" accept="image/*" required>
+                        <div id="icon-preview" class="file-preview"></div>
+                        <p class="file-info-text">يفضل أن تكون الأيقونة بحجم 512x512 بكسل.</p>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label><i class="fa-solid fa-images"></i> لقطات الشاشة (Screenshots):</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="app-screenshots" accept="image/*" multiple required>
+                        <div id="screenshots-preview" class="file-preview"></div>
+                        <p class="file-info-text">اختر 3 صور على الأقل توضح واجهة التطبيق.</p>
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px;">
+                    <label><i class="fa-solid fa-box-archive"></i> ملف التطبيق (APK):</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="app-download" accept=".apk" required>
+                        <div id="apk-info" class="file-info-text">لم يتم اختيار أي ملف بعد.</div>
+                    </div>
+                </div>
+
+                <div id="submit-progress-container" style="display:none; margin: 20px 0;">
+                    <div class="file-info-text" id="submit-status" style="margin-bottom:5px; font-weight:bold;">جاري الرفع...</div>
+                    <div style="width:100%; background:#eee; height:15px; border-radius:10px; overflow:hidden;">
+                        <div id="submit-progress-bar" style="width:0%; background:var(--primary-color); height:100%; transition: width 0.3s; text-align:center; color:white; font-size:10px; line-height:15px;">0%</div>
+                    </div>
+                </div>
+
+                <div id="submit-loader" class="loader-container hidden">
+                    <span class="loader"></span>
+                </div>
+
+                <button type="submit" id="btn-submit-app" class="btn btn-primary" style="width: 100%; padding: 15px; font-size: 1.1rem; margin-top: 20px;">
+                    <i class="fa-solid fa-cloud-arrow-up"></i> إرسال التطبيق للمراجعة
+                </button>
+            </form>
+        </section>
+    </main>
+
+    <script type="module" src="js/submit.js"></script>
+</body>
+</html>

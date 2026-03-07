@@ -135,61 +135,147 @@ observeAuthState((user, isAdmin) => {
 btnLogin.addEventListener('click', loginWithGoogle);
 btnLogout.addEventListener('click', logoutUser);
 
-// UI Tabs
-tabAdd.addEventListener('click', () => {
-    tabAdd.classList.add('active');
-    tabUpdate.classList.remove('active');
-    sectionAdd.classList.remove('hidden');
+const tabReview = document.getElementById('tab-review');
+const sectionReview = document.getElementById('section-review');
+const reviewList = document.getElementById('review-list');
+const reviewLoader = document.getElementById('review-loader');
+const noReviewsMsg = document.getElementById('no-reviews-msg');
+const reviewCountBadge = document.getElementById('review-count');
+
+// ... existing code ...
+
+// UI Tabs logic
+function hideAllSections() {
+    sectionAdd.classList.add('hidden');
     sectionUpdate.classList.add('hidden');
+    sectionDelete.classList.add('hidden');
+    sectionReview.classList.add('hidden');
+    [tabAdd, tabUpdate, tabDelete, tabReview].forEach(btn => btn.classList.remove('active'));
+}
+
+tabAdd.addEventListener('click', () => {
+    hideAllSections();
+    tabAdd.classList.add('active');
+    sectionAdd.classList.remove('hidden');
 });
 
 tabUpdate.addEventListener('click', () => {
+    hideAllSections();
     tabUpdate.classList.add('active');
-    tabAdd.classList.remove('active');
-    tabDelete.classList.remove('active');
     sectionUpdate.classList.remove('hidden');
-    sectionAdd.classList.add('hidden');
-    sectionDelete.classList.add('hidden');
     loadAppsDropdown();
 });
 
 tabDelete.addEventListener('click', () => {
+    hideAllSections();
     tabDelete.classList.add('active');
-    tabAdd.classList.remove('active');
-    tabUpdate.classList.remove('active');
     sectionDelete.classList.remove('hidden');
-    sectionAdd.classList.add('hidden');
-    sectionUpdate.classList.add('hidden');
     loadAppsDropdown();
 });
 
-// UI Tabs logic for Add tab (missing from previous edits but good to be explicit)
-tabAdd.addEventListener('click', () => {
-    tabAdd.classList.add('active');
-    tabUpdate.classList.remove('active');
-    tabDelete.classList.remove('active');
-    sectionAdd.classList.remove('hidden');
-    sectionUpdate.classList.add('hidden');
-    sectionDelete.classList.add('hidden');
+tabReview.addEventListener('click', () => {
+    hideAllSections();
+    tabReview.classList.add('active');
+    sectionReview.classList.remove('hidden');
+    loadPendingApps();
 });
 
-// Load Apps for the Update Dropdown
-async function loadAppsDropdown() {
+// Load Pending Apps for Review
+async function loadPendingApps() {
+    reviewLoader.classList.remove('hidden');
+    reviewList.innerHTML = '';
+    noReviewsMsg.classList.add('hidden');
+
     try {
-        const querySnapshot = await getDocs(collection(db, "apps"));
-        const options = '<option value="">-- اختر تطبيقاً --</option>';
-        let appOptions = '';
+        const querySnapshot = await getDocs(collection(db, "pending_apps"));
+        reviewLoader.classList.add('hidden');
+
+        if (querySnapshot.empty) {
+            noReviewsMsg.classList.remove('hidden');
+            reviewCountBadge.classList.add('hidden');
+            return;
+        }
+
+        reviewCountBadge.textContent = querySnapshot.size;
+        reviewCountBadge.classList.remove('hidden');
+
         querySnapshot.forEach((docSnap) => {
             const app = docSnap.data();
-            appOptions += `<option value="${docSnap.id}">${app.name} (v${app.version}) - ${app.installCount || 0} تثبيت</option>`;
-        });
+            const appId = docSnap.id;
 
-        selectApp.innerHTML = options + appOptions;
-        if (selectDeleteApp) selectDeleteApp.innerHTML = options + appOptions;
+            const card = document.createElement('div');
+            card.className = 'app-card';
+            card.style.flexDirection = 'row';
+            card.style.alignItems = 'flex-start';
+            card.innerHTML = `
+                <img src="${app.iconUrl}" style="width: 80px; height: 80px; border-radius: 12px; margin-left: 20px;">
+                <div style="flex: 1;">
+                    <h3 style="margin-bottom: 5px;">${app.name} <small style="color:var(--text-secondary); font-size:0.8rem;">(v${app.version})</small></h3>
+                    <p style="font-size: 0.85rem; color: var(--text-secondary); margin-bottom: 10px;">بواسطة: ${app.developer} (${app.developerEmail})</p>
+                    <p style="margin-bottom: 15px;">${app.shortDesc}</p>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary btn-sm btn-approve" data-id="${appId}"><i class="fa-solid fa-check"></i> قبول ونشر</button>
+                        <button class="btn btn-danger btn-sm btn-reject" data-id="${appId}"><i class="fa-solid fa-xmark"></i> رفض</button>
+                    </div>
+                </div>
+            `;
+            reviewList.appendChild(card);
+
+            // Approve handler
+            card.querySelector('.btn-approve').addEventListener('click', () => approveApp(appId, app));
+            // Reject handler
+            card.querySelector('.btn-reject').addEventListener('click', () => rejectApp(appId));
+        });
     } catch (error) {
-        console.error("Error loading apps:", error);
+        console.error("Error loading pending apps:", error);
+        reviewLoader.classList.add('hidden');
     }
 }
+
+async function approveApp(appId, appData) {
+    if (!confirm(`هل أنت متأكد من قبول ونشر تطبيق "${appData.name}"؟`)) return;
+
+    try {
+        // 1. Copy to main apps collection
+        const approvedData = { ...appData, status: 'approved', approvedAt: serverTimestamp() };
+        delete approvedData.submittedAt;
+
+        await setDoc(doc(db, "apps", appId), approvedData);
+        // 2. Delete from pending_apps
+        await deleteDoc(doc(db, "pending_apps", appId));
+
+        alert("تم قبول التطبيق ونشره بنجاح!");
+        loadPendingApps();
+    } catch (error) {
+        console.error("Error approving app:", error);
+        alert("حدث خطأ أثناء القبول: " + error.message);
+    }
+}
+
+async function rejectApp(appId) {
+    if (!confirm("هل أنت متأكد من رفض هذا الطلب وحذفه؟")) return;
+
+    try {
+        await deleteDoc(doc(db, "pending_apps", appId));
+        alert("تم رفض الطلب وحذفه.");
+        loadPendingApps();
+    } catch (error) {
+        console.error("Error rejecting app:", error);
+        alert("حدث خطأ أثناء الحذف: " + error.message);
+    }
+}
+
+// Load initial review count
+async function updateReviewCount() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "pending_apps"));
+        if (!querySnapshot.empty) {
+            reviewCountBadge.textContent = querySnapshot.size;
+            reviewCountBadge.classList.remove('hidden');
+        }
+    } catch (e) { }
+}
+updateReviewCount();
 
 // Populate Update Form when app is selected
 selectApp.addEventListener('change', async () => {
