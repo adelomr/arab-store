@@ -1,6 +1,5 @@
 {
   "hosting": {
-    "site": "apps-store-1",
     "public": ".",
     "ignore": [
       "firebase.json",
