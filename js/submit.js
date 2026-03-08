@@ -1,6 +1,6 @@
 import { db, storage } from './firebase-config.js';
 import { loginWithGoogle, logoutUser, observeAuthState } from './auth.js';
-import { collection, doc, setDoc, getDoc, updateDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, doc, setDoc, getDoc, updateDoc, serverTimestamp, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 // DOM Elements
@@ -19,11 +19,16 @@ const iconPreview = document.getElementById('icon-preview');
 const shotPreview = document.getElementById('screenshots-preview');
 const apkInfo = document.getElementById('apk-info');
 
-const loader = document.getElementById('submit-loader');
-const btnSubmit = document.getElementById('btn-submit-app');
-const progressBar = document.getElementById('submit-progress-bar');
 const progressContainer = document.getElementById('submit-progress-container');
+const progressBar = document.getElementById('submit-progress-bar');
 const statusText = document.getElementById('submit-status');
+const loader = document.getElementById('submit-loader');
+
+// New UI Elements for Mode Toggle
+const modeAddBtn = document.getElementById('mode-add');
+const modeUpdateBtn = document.getElementById('mode-update');
+const updateSelectionGroup = document.getElementById('update-selection-group');
+const selectUserApp = document.getElementById('select-user-app');
 
 let currentUser = null;
 let isAdminUser = false;
@@ -49,9 +54,13 @@ observeAuthState((user, isAdmin) => {
         submitContent.classList.remove('hidden');
         unauthorizedMsg.classList.add('hidden');
 
+        fetchAndPopulateUserApps(); // Pre-fetch for update mode
+
         if (isUpdateMode) {
-            loadExistingAppForUpdate();
+            setSubmitMode('update');
+            loadExistingAppForUpdate(appId, appCollection);
         } else {
+            setSubmitMode('add');
             loadCategoriesDropdown();
         }
     } else {
@@ -85,40 +94,146 @@ async function loadCategoriesDropdown(selectedCategory = "") {
     }
 }
 
-async function loadExistingAppForUpdate() {
+// Mode Switching Logic
+function setSubmitMode(mode) {
+    if (mode === 'update') {
+        isUpdateMode = true;
+        modeUpdateBtn.classList.add('active');
+        modeUpdateBtn.style.background = 'var(--primary-gradient)';
+        modeUpdateBtn.style.color = 'white';
+
+        modeAddBtn.classList.remove('active');
+        modeAddBtn.style.background = 'transparent';
+        modeAddBtn.style.color = 'var(--text-primary)';
+
+        updateSelectionGroup.classList.remove('hidden');
+
+        const titleEl = document.querySelector('#form-submit h2');
+        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-arrows-rotate"></i> تحديث تطبيق موجود`;
+        btnSubmit.innerHTML = `<i class="fa-solid fa-check-circle"></i> حفظ التغييرات`;
+
+        // Mark files optional
+        iconInput.required = false;
+        shotInput.required = false;
+        apkInput.required = false;
+    } else {
+        isUpdateMode = false;
+        modeAddBtn.classList.add('active');
+        modeAddBtn.style.background = 'var(--primary-gradient)';
+        modeAddBtn.style.color = 'white';
+
+        modeUpdateBtn.classList.remove('active');
+        modeUpdateBtn.style.background = 'transparent';
+        modeUpdateBtn.style.color = 'var(--text-primary)';
+
+        updateSelectionGroup.classList.add('hidden');
+
+        const titleEl = document.querySelector('#form-submit h2');
+        if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-paper-plane"></i> بيانات التطبيق`;
+        btnSubmit.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> إرسال التطبيق للمراجعة`;
+
+        resetForm();
+    }
+}
+
+if (modeAddBtn) modeAddBtn.addEventListener('click', () => setSubmitMode('add'));
+if (modeUpdateBtn) modeUpdateBtn.addEventListener('click', () => setSubmitMode('update'));
+
+function resetForm() {
+    formSubmit.reset();
+    iconPreview.innerHTML = "";
+    shotPreview.innerHTML = "";
+    apkInfo.textContent = "لم يتم اختيار أي ملف بعد.";
+    document.getElementById('app-package').disabled = false;
+    iconInput.required = true;
+    shotInput.required = true;
+    apkInput.required = true;
+}
+
+async function fetchAndPopulateUserApps() {
+    if (!currentUser) return;
+    try {
+        const userAppsMap = new Map();
+        const cols = ["apps", "pending_apps"];
+
+        for (const col of cols) {
+            const qUid = query(collection(db, col), where("developerUid", "==", currentUser.uid));
+            const snapUid = await getDocs(qUid);
+            snapUid.forEach(doc => userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: col }));
+
+            const qEmail = query(collection(db, col), where("developerEmail", "==", currentUser.email));
+            const snapEmail = await getDocs(qEmail);
+            snapEmail.forEach(doc => {
+                if (!userAppsMap.has(doc.id)) userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: col });
+            });
+
+            // Search by Name (last resort for old data)
+            const qName = query(collection(db, col), where("developer", "==", currentUser.displayName));
+            const snapName = await getDocs(qName);
+            snapName.forEach(doc => {
+                if (!userAppsMap.has(doc.id)) userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: col });
+            });
+        }
+
+        selectUserApp.innerHTML = '<option value="">-- اختر تطبيقاً للتعديل --</option>';
+        if (userAppsMap.size === 0) {
+            selectUserApp.innerHTML = '<option value="">لم نجد تطبيقات مرتبطة بهذا الحساب</option>';
+            return;
+        }
+
+        userAppsMap.forEach(app => {
+            const opt = document.createElement('option');
+            opt.value = app.id;
+            opt.dataset.collection = app.collection;
+            opt.textContent = `${app.name} (${app.packageName})`;
+            selectUserApp.appendChild(opt);
+        });
+    } catch (e) {
+        console.error("Error fetching user apps for dropdown:", e);
+    }
+}
+
+if (selectUserApp) {
+    selectUserApp.addEventListener('change', () => {
+        const selectedId = selectUserApp.value;
+        const selectedCol = selectUserApp.options[selectUserApp.selectedIndex].dataset.collection;
+        if (selectedId) {
+            loadExistingAppForUpdate(selectedId, selectedCol);
+        }
+    });
+}
+
+// Load existing app data for update
+async function loadExistingAppForUpdate(id, col) {
     try {
         loader.classList.remove('hidden');
-        const docRef = doc(db, appCollection, appId);
+        const docRef = doc(db, col, id);
         const docSnap = await getDoc(docRef);
 
         if (docSnap.exists()) {
             existingAppData = docSnap.data();
+            appId = id;
+            appCollection = col; // Update global collection to match selected app
+            isUpdateMode = true;
 
             // Fill Form Fields
             document.getElementById('app-name').value = existingAppData.name || "";
             document.getElementById('app-package').value = existingAppData.packageName || "";
-            document.getElementById('app-package').disabled = true; // Package Name shouldn't be changed after creation
+            document.getElementById('app-package').disabled = true;
             document.getElementById('app-short').value = existingAppData.shortDesc || "";
             document.getElementById('app-full').value = existingAppData.fullDesc || "";
             document.getElementById('app-version').value = existingAppData.version || "";
             document.getElementById('app-versioncode').value = existingAppData.versionCode || "";
 
-            // Update Title
-            const titleEl = document.querySelector('#form-submit h2');
-            if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> تحديث تطبيق: ${existingAppData.name}`;
-            btnSubmit.textContent = "حفظ التغييرات";
-
-            // Mark file inputs as NOT required in update mode
+            // Mark files optional
             iconInput.required = false;
             shotInput.required = false;
             apkInput.required = false;
 
-            // Previews for existing elements
-            if (existingAppData.iconUrl) {
-                iconPreview.innerHTML = `<img src="${existingAppData.iconUrl}" class="preview-thumb">`;
-            }
-            if (existingAppData.screenshots && Array.from(existingAppData.screenshots).length > 0) {
-                shotPreview.innerHTML = "";
+            // Previews
+            iconPreview.innerHTML = existingAppData.iconUrl ? `<img src="${existingAppData.iconUrl}" class="preview-thumb">` : "";
+            shotPreview.innerHTML = "";
+            if (existingAppData.screenshots) {
                 existingAppData.screenshots.forEach(url => {
                     const img = document.createElement('img');
                     img.src = url;
@@ -126,14 +241,9 @@ async function loadExistingAppForUpdate() {
                     shotPreview.appendChild(img);
                 });
             }
-            if (existingAppData.downloadUrl) {
-                apkInfo.textContent = `التطبيق الحالي مرفوع بالفعل (اختر ملفاً جديداً للتحديث).`;
-            }
+            apkInfo.textContent = `تطبيق "${existingAppData.name}" جاهز للتحديث.`;
 
             await loadCategoriesDropdown(existingAppData.category);
-        } else {
-            alert("عذراً، لم يتم العثور على هذا التطبيق.");
-            window.location.href = "user-apps.html";
         }
     } catch (e) {
         console.error("Error loading app for update:", e);

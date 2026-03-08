@@ -80,6 +80,18 @@ async function fetchUserApps(user) {
                     }
                 });
             }
+
+            // Query by Name (final fallback for very old data or manual entries)
+            const displayName = user.displayName;
+            if (displayName) {
+                const qName = query(collection(db, colName), where("developer", "==", displayName));
+                const snapName = await getDocs(qName);
+                snapName.forEach(doc => {
+                    if (!userAppsMap.has(doc.id)) {
+                        userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: colName });
+                    }
+                });
+            }
         }
 
         const userApps = Array.from(userAppsMap.values());
