@@ -34,7 +34,7 @@ observeAuthState((user, isAdmin) => {
         unauthorizedMsg.classList.add('hidden');
         appsGrid.classList.remove('hidden');
 
-        fetchUserApps(user.uid);
+        fetchUserApps(user);
     } else {
         btnLogin.classList.remove('hidden');
         userInfo.classList.add('hidden');
@@ -50,27 +50,39 @@ observeAuthState((user, isAdmin) => {
 if (btnLogin) btnLogin.addEventListener('click', loginWithGoogle);
 if (btnLogout) btnLogout.addEventListener('click', logoutUser);
 
-async function fetchUserApps(uid) {
+async function fetchUserApps(user) {
+    const uid = user.uid;
+    const email = user.email;
+
     try {
         loader.classList.remove('hidden');
         appsGrid.innerHTML = '';
 
-        const userApps = [];
+        const userAppsMap = new Map();
 
-        // Fetch from pending_apps
-        const qPending = query(collection(db, "pending_apps"), where("developerUid", "==", uid));
-        const pendingSnapshot = await getDocs(qPending);
-        pendingSnapshot.forEach(doc => {
-            userApps.push({ id: doc.id, ...doc.data(), collection: 'pending_apps' });
-        });
+        const collections = ["pending_apps", "apps"];
 
-        // Fetch from approved apps
-        const qApps = query(collection(db, "apps"), where("developerUid", "==", uid));
-        const appsSnapshot = await getDocs(qApps);
-        appsSnapshot.forEach(doc => {
-            userApps.push({ id: doc.id, ...doc.data(), collection: 'apps' });
-        });
+        for (const colName of collections) {
+            // Query by UID
+            const qUid = query(collection(db, colName), where("developerUid", "==", uid));
+            const snapUid = await getDocs(qUid);
+            snapUid.forEach(doc => {
+                userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: colName });
+            });
 
+            // Query by Email (fallback for older apps)
+            if (email) {
+                const qEmail = query(collection(db, colName), where("developerEmail", "==", email));
+                const snapEmail = await getDocs(qEmail);
+                snapEmail.forEach(doc => {
+                    if (!userAppsMap.has(doc.id)) {
+                        userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: colName });
+                    }
+                });
+            }
+        }
+
+        const userApps = Array.from(userAppsMap.values());
         loader.classList.add('hidden');
 
         if (userApps.length === 0) {
