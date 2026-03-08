@@ -182,6 +182,17 @@ function renderApp(app) {
             screenshotsContainer.appendChild(img);
         });
         screenshotsSection.style.display = 'block';
+
+        // Wire up arrow buttons
+        const scrollRight = document.getElementById('scroll-right');
+        const scrollLeft = document.getElementById('scroll-left');
+        const scrollAmount = 320;
+        if (scrollRight) scrollRight.addEventListener('click', () => {
+            screenshotsContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
+        });
+        if (scrollLeft) scrollLeft.addEventListener('click', () => {
+            screenshotsContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
+        });
     } else {
         screenshotsSection.style.display = 'none';
     }
