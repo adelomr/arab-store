@@ -163,16 +163,34 @@ async function fetchAndPopulateUserApps() {
 
             const qEmail = query(collection(db, col), where("developerEmail", "==", currentUser.email));
             const snapEmail = await getDocs(qEmail);
-            snapEmail.forEach(doc => {
-                if (!userAppsMap.has(doc.id)) userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: col });
-            });
+            for (const docSnap of snapEmail.docs) {
+                if (!userAppsMap.has(docSnap.id)) {
+                    const appData = docSnap.data();
+                    userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
+                    if (appData.developerUid !== currentUser.uid) {
+                        try {
+                            await updateDoc(doc(db, col, docSnap.id), { developerUid: currentUser.uid });
+                            console.log(`Self-healed UID for ${appData.name}`);
+                        } catch (e) { console.error("Self-healing failed", e); }
+                    }
+                }
+            }
 
             // Search by Name (last resort for old data)
             const qName = query(collection(db, col), where("developer", "==", currentUser.displayName));
             const snapName = await getDocs(qName);
-            snapName.forEach(doc => {
-                if (!userAppsMap.has(doc.id)) userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: col });
-            });
+            for (const docSnap of snapName.docs) {
+                if (!userAppsMap.has(docSnap.id)) {
+                    const appData = docSnap.data();
+                    userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
+                    if (appData.developerUid !== currentUser.uid) {
+                        try {
+                            await updateDoc(doc(db, col, docSnap.id), { developerUid: currentUser.uid });
+                            console.log(`Self-healed UID (by Name) for ${appData.name}`);
+                        } catch (e) { console.error("Self-healing failed", e); }
+                    }
+                }
+            }
         }
 
         selectUserApp.innerHTML = '<option value="">-- اختر تطبيقاً للتعديل --</option>';

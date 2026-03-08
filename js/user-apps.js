@@ -74,11 +74,20 @@ async function fetchUserApps(user) {
             if (email) {
                 const qEmail = query(collection(db, colName), where("developerEmail", "==", email));
                 const snapEmail = await getDocs(qEmail);
-                snapEmail.forEach(doc => {
-                    if (!userAppsMap.has(doc.id)) {
-                        userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: colName });
+                for (const docSnap of snapEmail.docs) {
+                    if (!userAppsMap.has(docSnap.id)) {
+                        const appData = docSnap.data();
+                        userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: colName });
+
+                        // Self-healing: Update UID if missing or different
+                        if (appData.developerUid !== uid) {
+                            try {
+                                await updateDoc(doc(db, colName, docSnap.id), { developerUid: uid });
+                                console.log(`Auto-fixed UID for app: ${appData.name}`);
+                            } catch (err) { console.error("Self-healing failed:", err); }
+                        }
                     }
-                });
+                }
             }
 
             // Query by Name (final fallback for very old data or manual entries)
@@ -86,11 +95,20 @@ async function fetchUserApps(user) {
             if (displayName) {
                 const qName = query(collection(db, colName), where("developer", "==", displayName));
                 const snapName = await getDocs(qName);
-                snapName.forEach(doc => {
-                    if (!userAppsMap.has(doc.id)) {
-                        userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: colName });
+                for (const docSnap of snapName.docs) {
+                    if (!userAppsMap.has(docSnap.id)) {
+                        const appData = docSnap.data();
+                        userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: colName });
+
+                        // Self-healing: Update UID
+                        if (appData.developerUid !== uid) {
+                            try {
+                                await updateDoc(doc(db, colName, docSnap.id), { developerUid: uid });
+                                console.log(`Auto-fixed UID (by Name) for: ${appData.name}`);
+                            } catch (err) { console.error("Self-healing failed:", err); }
+                        }
                     }
-                });
+                }
             }
         }
 
