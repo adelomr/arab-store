@@ -142,7 +142,23 @@ const reviewLoader = document.getElementById('review-loader');
 const noReviewsMsg = document.getElementById('no-reviews-msg');
 const reviewCountBadge = document.getElementById('review-count');
 
-// ... existing code ...
+// Load Apps for the Update/Delete Dropdowns
+async function loadAppsDropdown() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "apps"));
+        const options = '<option value="">-- اختر تطبيقاً --</option>';
+        let appOptions = '';
+        querySnapshot.forEach((docSnap) => {
+            const app = docSnap.data();
+            appOptions += `<option value="${docSnap.id}">${app.name} (v${app.version}) - ${app.installCount || 0} تثبيت</option>`;
+        });
+
+        if (selectApp) selectApp.innerHTML = options + appOptions;
+        if (selectDeleteApp) selectDeleteApp.innerHTML = options + appOptions;
+    } catch (error) {
+        console.error("Error loading apps:", error);
+    }
+}
 
 // UI Tabs logic
 function hideAllSections() {
