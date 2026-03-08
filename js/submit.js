@@ -33,8 +33,10 @@ observeAuthState((user) => {
     if (user) {
         btnLogin.classList.add('hidden');
         userInfo.classList.remove('hidden');
-        document.getElementById('user-avatar').src = user.photoURL;
-        document.getElementById('user-name').textContent = user.displayName;
+        const avatar = document.getElementById('user-avatar');
+        const name = document.getElementById('user-name');
+        if (avatar) avatar.src = user.photoURL;
+        if (name) name.textContent = user.displayName;
         submitContent.classList.remove('hidden');
         unauthorizedMsg.classList.add('hidden');
     } else {

@@ -17,8 +17,8 @@ observeAuthState((user, isAdmin) => {
     if (user) {
         btnLogin.classList.add('hidden');
         userInfo.classList.remove('hidden');
-        userName.textContent = user.displayName;
-        userAvatar.src = user.photoURL;
+        if (userName) userName.textContent = user.displayName;
+        if (userAvatar) userAvatar.src = user.photoURL;
 
         if (isAdmin) {
             adminLinkLi.classList.remove('hidden');

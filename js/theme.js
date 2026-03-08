@@ -1,26 +1,44 @@
-document.addEventListener('DOMContentLoaded', () => {
-    const themeToggle = document.getElementById('theme-toggle');
-    if (!themeToggle) return;
-
-    const html = document.documentElement;
-    const icon = themeToggle.querySelector('i');
-
-    // Toggle logic
-    themeToggle.addEventListener('click', () => {
-        html.classList.toggle('dark-mode');
-        const isDark = html.classList.contains('dark-mode');
-
-        if (isDark) {
-            if (icon) icon.classList.replace('fa-moon', 'fa-sun');
-            localStorage.setItem('theme', 'dark');
-        } else {
-            if (icon) icon.classList.replace('fa-sun', 'fa-moon');
-            localStorage.setItem('theme', 'light');
+(function () {
+    function initTheme() {
+        console.log("Theme script checking...");
+        const themeToggle = document.getElementById('theme-toggle');
+        if (!themeToggle) {
+            console.warn("Theme toggle button not found yet, retrying...");
+            return;
         }
-    });
 
-    // Sync icon on load (class is already applied by head script)
-    if (html.classList.contains('dark-mode')) {
-        if (icon) icon.classList.replace('fa-moon', 'fa-sun');
+        const html = document.documentElement;
+        const icon = themeToggle.querySelector('i');
+
+        function updateIcon(isDark) {
+            if (!icon) return;
+            if (isDark) {
+                icon.className = 'fa-solid fa-sun';
+            } else {
+                icon.className = 'fa-solid fa-moon';
+            }
+        }
+
+        // Initial sync
+        updateIcon(html.classList.contains('dark-mode'));
+
+        themeToggle.addEventListener('click', () => {
+            html.classList.toggle('dark-mode');
+            const isDark = html.classList.contains('dark-mode');
+            updateIcon(isDark);
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            console.log("Theme toggled. Dark mode:", isDark);
+        });
+
+        console.log("Theme toggle initialized successfully");
     }
-});
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initTheme);
+    } else {
+        initTheme();
+    }
+
+    // Backup for dynamic content
+    window.addEventListener('load', initTheme);
+})();
