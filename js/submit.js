@@ -166,8 +166,8 @@ formSubmit.addEventListener('submit', async (e) => {
         // 3. Upload APK
         statusText.textContent = "جاري رفع ملف APK...";
         // For admins, we upload to apps/... instead of submissions/...
-        const basePath = isAdminUser ? `apps/${pkgName}` : `submissions/${pkgName}`;
-        
+        // basePath is already defined above
+
         const downloadUrl = await uploadWithProgress(apkInput.files[0], `${basePath}/releases/${apkInput.files[0].name}`);
 
         const submissionData = {
