@@ -145,6 +145,10 @@ const reviewLoader = document.getElementById('review-loader');
 const noReviewsMsg = document.getElementById('no-reviews-msg');
 const reviewCountBadge = document.getElementById('review-count');
 
+const tabCategories = document.getElementById('tab-categories');
+const sectionCategories = document.getElementById('section-categories');
+const categoriesList = document.getElementById('categories-list');
+
 // Load Apps for the Update/Delete Dropdowns
 async function loadAppsDropdown() {
     try {
@@ -169,7 +173,8 @@ function hideAllSections() {
     sectionUpdate.classList.add('hidden');
     sectionDelete.classList.add('hidden');
     sectionReview.classList.add('hidden');
-    [tabAdd, tabUpdate, tabDelete, tabReview].forEach(btn => btn.classList.remove('active'));
+    sectionCategories.classList.add('hidden');
+    [tabAdd, tabUpdate, tabDelete, tabReview, tabCategories].forEach(btn => btn.classList.remove('active'));
 }
 
 tabAdd.addEventListener('click', () => {
@@ -383,6 +388,7 @@ document.getElementById('form-add').addEventListener('submit', async (e) => {
             packageName: pkgName,
             shortDesc: document.getElementById('app-short').value,
             fullDesc: document.getElementById('app-full').value,
+            category: document.getElementById('app-category').value,
             size: apkInfo.getAttribute('data-size') || "",
             iconUrl: iconUrl,
             screenshots: screenshotUrls,
@@ -495,5 +501,83 @@ document.getElementById('form-delete').addEventListener('submit', async (e) => {
         alert("خطأ أثناء الحذف: " + error.message);
     } finally {
         loader.classList.add('hidden');
+    }
+});
+
+// =============================================
+// CATEGORIES MANAGEMENT
+// =============================================
+
+async function loadCategories() {
+    categoriesList.innerHTML = '<span class="loader" style="display:inline-block;width:24px;height:24px;margin:0;border-width:3px;"></span>';
+    try {
+        const querySnapshot = await getDocs(collection(db, "categories"));
+        categoriesList.innerHTML = '';
+        if (querySnapshot.empty) {
+            categoriesList.innerHTML = '<p style="color:var(--text-secondary);">لا توجد فئات بعد. أضف أولى الفئات أعلاه.</p>';
+            return;
+        }
+        querySnapshot.forEach((docSnap) => {
+            const catName = docSnap.data().name;
+            const tag = document.createElement('div');
+            tag.style.cssText = 'display:inline-flex;align-items:center;gap:8px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:20px;padding:6px 14px;font-size:0.9rem;';
+            tag.innerHTML = `<span>${catName}</span><button type="button" data-id="${docSnap.id}" class="btn-del-cat" style="background:none;border:none;cursor:pointer;color:var(--danger-color);font-size:1rem;line-height:1;padding:0;" title="حذف"><i class="fa-solid fa-xmark"></i></button>`;
+            categoriesList.appendChild(tag);
+        });
+        document.querySelectorAll('.btn-del-cat').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (!confirm('هل تريد حذف هذه الفئة؟')) return;
+                await deleteDoc(doc(db, "categories", btn.dataset.id));
+                loadCategories();
+                populateCategoryDropdown(document.getElementById('app-category'));
+            });
+        });
+    } catch (e) {
+        categoriesList.innerHTML = '<p style="color:var(--danger-color);">خطأ في تحميل الفئات.</p>';
+        console.error(e);
+    }
+}
+
+export async function populateCategoryDropdown(selectEl) {
+    if (!selectEl) return;
+    try {
+        const querySnapshot = await getDocs(collection(db, "categories"));
+        selectEl.innerHTML = '<option value="">-- اختر الفئة --</option>';
+        querySnapshot.forEach((docSnap) => {
+            const opt = document.createElement('option');
+            opt.value = docSnap.data().name;
+            opt.textContent = docSnap.data().name;
+            selectEl.appendChild(opt);
+        });
+    } catch (e) {
+        selectEl.innerHTML = '<option value="">خطأ في تحميل الفئات</option>';
+    }
+}
+
+// Populate category dropdown on load
+populateCategoryDropdown(document.getElementById('app-category'));
+
+// Tab listener
+tabCategories.addEventListener('click', () => {
+    hideAllSections();
+    tabCategories.classList.add('active');
+    sectionCategories.classList.remove('hidden');
+    loadCategories();
+});
+
+// Add new category button
+document.getElementById('btn-add-category').addEventListener('click', async () => {
+    const input = document.getElementById('new-category-name');
+    const name = input.value.trim();
+    if (!name) { alert('يرجى كتابة اسم الفئة أولاً.'); return; }
+    try {
+        const id = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
+        await setDoc(doc(db, "categories", id), { name });
+        input.value = '';
+        loadCategories();
+        populateCategoryDropdown(document.getElementById('app-category'));
+        alert(`تمت إضافة فئة "${name}" بنجاح!`);
+    } catch (e) {
+        alert('خطأ: ' + e.message);
     }
 });

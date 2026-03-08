@@ -1,6 +1,6 @@
 import { db, storage } from './firebase-config.js';
 import { loginWithGoogle, logoutUser, observeAuthState } from './auth.js';
-import { collection, doc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, doc, setDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 // DOM Elements
@@ -49,6 +49,25 @@ observeAuthState((user) => {
 
 btnLogin.addEventListener('click', loginWithGoogle);
 btnLogout.addEventListener('click', logoutUser);
+
+// Load categories into the dropdown
+async function loadCategoriesDropdown() {
+    const selectEl = document.getElementById('app-category');
+    if (!selectEl) return;
+    try {
+        const querySnapshot = await getDocs(collection(db, "categories"));
+        selectEl.innerHTML = '<option value="">-- اختر الفئة --</option>';
+        querySnapshot.forEach((docSnap) => {
+            const opt = document.createElement('option');
+            opt.value = docSnap.data().name;
+            opt.textContent = docSnap.data().name;
+            selectEl.appendChild(opt);
+        });
+    } catch (e) {
+        if (selectEl) selectEl.innerHTML = '<option value="">خطأ في تحميل الفئات</option>';
+    }
+}
+loadCategoriesDropdown();
 
 // Preview Logic
 iconInput.addEventListener('change', () => {
@@ -150,6 +169,7 @@ formSubmit.addEventListener('submit', async (e) => {
             packageName: pkgName,
             shortDesc: document.getElementById('app-short').value,
             fullDesc: document.getElementById('app-full').value,
+            category: document.getElementById('app-category').value,
             size: apkInfo.getAttribute('data-size') || "",
             iconUrl: iconUrl,
             screenshots: screenshotUrls,
