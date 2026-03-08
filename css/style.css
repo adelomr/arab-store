@@ -4,6 +4,7 @@
     --bg-color: #f0f2f5;
     /* Subtle gray background */
     --card-bg: #ffffff;
+    --input-bg: #f8f9fa;
     --border-color: #dee2e6;
     --text-primary: #1a1b1e;
     --text-secondary: #5f6368;
@@ -18,16 +19,18 @@
 }
 
 :root.dark-mode {
-    --bg-color: #0d1117;
-    --card-bg: #161b22;
-    --border-color: #30363d;
-    --text-primary: #c9d1d9;
-    --text-secondary: #8b949e;
-    --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+    --bg-color: #0a0a0a;
+    --card-bg: #171717;
+    --input-bg: #262626;
+    --border-color: #333333;
+    --text-primary: #ededed;
+    --text-secondary: #a3a3a3;
+    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
 }
 
 :root.dark-mode header {
-    background: rgba(13, 17, 23, 0.95) !important;
+    background: rgba(10, 10, 10, 0.95) !important;
+    border-bottom: 1px solid var(--border-color);
 }
 
 * {
@@ -500,4 +503,36 @@ header {
     margin-top: 8px;
     font-size: 0.85rem;
     color: var(--text-secondary);
+}
+
+/* Forms */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.form-control {
+    width: 100%;
+    padding: 12px;
+    background: var(--input-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    color: var(--text-primary);
+    font-family: inherit;
+    transition: var(--transition);
+    margin-top: 4px;
+    /* for labels without form-group separation */
+}
+
+.form-control:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: var(--card-bg);
+    box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
 }
