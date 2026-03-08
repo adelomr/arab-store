@@ -61,40 +61,40 @@
                 <h2 style="margin-bottom: 1.5rem;"><i class="fa-solid fa-paper-plane"></i> بيانات التطبيق</h2>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
+                    <div class="form-group" style="margin-bottom: 0;">
                         <label>اسم التطبيق:</label>
                         <input type="text" id="app-name" required placeholder="مثال: متصفح العرب" class="form-control">
                     </div>
-                    <div>
+                    <div class="form-group" style="margin-bottom: 0;">
                         <label>اسم الحزمة (Package Name):</label>
                         <input type="text" id="app-package" required placeholder="مثال: com.arab.browser"
                             class="form-control">
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
+                <div class="form-group">
                     <label>وصف قصير:</label>
                     <input type="text" id="app-short" required placeholder="وصف يظهر في الرئيسية" class="form-control">
                 </div>
 
-                <div style="margin-bottom: 20px;">
+                <div class="form-group">
                     <label>الوصف الكامل:</label>
                     <textarea id="app-full" required rows="5" placeholder="وصف تفصيلي للتطبيق..."
                         class="form-control"></textarea>
                 </div>
 
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 20px;">
-                    <div>
+                    <div class="form-group" style="margin-bottom: 0;">
                         <label>الإصدار (Version):</label>
                         <input type="text" id="app-version" required placeholder="1.0.0" class="form-control">
                     </div>
-                    <div>
+                    <div class="form-group" style="margin-bottom: 0;">
                         <label>كود الإصدار (Version Code):</label>
                         <input type="number" id="app-versioncode" required placeholder="1" class="form-control">
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
+                <div class="form-group">
                     <label><i class="fa-solid fa-image"></i> أيقونة التطبيق (1:1):</label>
                     <div class="file-upload-wrapper">
                         <input type="file" id="app-icon" accept="image/*" required>
@@ -103,7 +103,7 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
+                <div class="form-group">
                     <label><i class="fa-solid fa-images"></i> لقطات الشاشة (Screenshots):</label>
                     <div class="file-upload-wrapper">
                         <input type="file" id="app-screenshots" accept="image/*" multiple required>
@@ -112,7 +112,7 @@
                     </div>
                 </div>
 
-                <div style="margin-bottom: 20px;">
+                <div class="form-group">
                     <label><i class="fa-solid fa-box-archive"></i> ملف التطبيق (APK):</label>
                     <div class="file-upload-wrapper">
                         <input type="file" id="app-download" accept=".apk" required>
