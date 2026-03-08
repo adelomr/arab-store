@@ -75,7 +75,7 @@
         }
 
         .comment-card {
-            background: #ffffff;
+            background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 12px;
             padding: 20px;
@@ -86,7 +86,7 @@
 
         .comment-card:hover {
             border-color: var(--primary-color);
-            background: #ffffff;
+            background: var(--bg-color);
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         }
 
@@ -254,16 +254,15 @@
                             <input type="radio" id="star1" name="rating" value="1">
                             <label for="star1" title="نجمة واحدة"><i class="fa-solid fa-star"></i></label>
                         </div>
-                        <textarea id="review-text"
-                            style="width: 100%; padding: 12px; border-radius: 8px; background: #0d1117; border: 1px solid var(--border-color); color: #f0f6fc; font-family: inherit; margin-bottom: 15px;"
-                            rows="3" placeholder="أخبرنا برأيك في التطبيق..." required></textarea>
+                        <textarea id="review-text" class="form-control" style="margin-bottom: 15px;" rows="3"
+                            placeholder="أخبرنا برأيك في التطبيق..." required></textarea>
                         <button type="submit" class="btn btn-primary" style="background: var(--primary-gradient);">نشر
                             التقييم</button>
                     </form>
                 </div>
 
                 <div id="login-to-review"
-                    style="margin-top: 20px; text-align: center; padding: 20px; background: rgba(0,0,0,0.2); border-radius: 12px;">
+                    style="margin-top: 20px; text-align: center; padding: 20px; background: var(--bg-color); border: 1px dashed var(--border-color); border-radius: 12px;">
                     <p>يرجى تسجيل الدخول بكتابة تعليق وتقييم التطبيق.</p>
                 </div>
 
