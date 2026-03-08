@@ -102,6 +102,69 @@
             margin-top: 5px;
             display: none;
         }
+
+        .dashboard-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 20px;
+            margin-top: 2rem;
+            padding-bottom: 2rem;
+        }
+
+        .dash-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 30px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: var(--transition);
+            position: relative;
+            box-shadow: var(--card-shadow);
+        }
+
+        .dash-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--primary-color);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+        }
+
+        .dash-card i {
+            font-size: 3rem;
+            color: var(--primary-color);
+            margin-bottom: 15px;
+        }
+
+        .dash-card h3 {
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .dash-card p {
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        .badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: var(--danger-color);
+            color: white;
+            padding: 2px 8px;
+            border-radius: 12px;
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .back-btn {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+        }
     </style>
 </head>
 
@@ -142,101 +205,100 @@
             <p style="color: var(--text-secondary);">من هنا يمكنك إدارة تطبيقاتك وتحديثاتها.</p>
         </div>
 
-        <div class="admin-tabs">
-            <button class="tab-btn active" id="tab-add">إضافة تطبيق جديد</button>
-            <button class="tab-btn" id="tab-review">مراجعة الطلبات <span id="review-count"
-                    class="version-badge hidden">0</span></button>
-            <button class="tab-btn" id="tab-update">تحديث تطبيق موجود</button>
-            <button class="tab-btn" id="tab-delete">حذف تطبيق</button>
-            <button class="tab-btn" id="tab-categories"><i class="fa-solid fa-tags"></i> إدارة الفئات</button>
+        <div class="dashboard-grid" id="dashboard-main">
+            <div class="dash-card" id="card-review">
+                <i class="fa-solid fa-list-check"></i>
+                <h3>مراجعة التطبيقات</h3>
+                <p>مراجعة طلبات نشر التطبيقات من المطورين</p>
+                <span id="review-count-badge" class="badge hidden">0</span>
+            </div>
+            <div class="dash-card" id="card-notifications">
+                <i class="fa-regular fa-bell"></i>
+                <h3>الإشعارات</h3>
+                <p>إرسال إشعارات إلى المطورين</p>
+            </div>
+            <div class="dash-card" id="card-categories">
+                <i class="fa-solid fa-tags"></i>
+                <h3>إدارة الفئات</h3>
+                <p>إضافة أو حذف فئات التطبيقات</p>
+            </div>
+            <div class="dash-card" id="card-statistics">
+                <i class="fa-solid fa-chart-pie"></i>
+                <h3>الإحصائيات</h3>
+                <p>إحصائيات وعدد تحميملات التطبيقات</p>
+            </div>
+            <div class="dash-card" id="card-update">
+                <i class="fa-solid fa-arrow-up-right-dots"></i>
+                <h3>تحديث تطبيق</h3>
+                <p>دفع تحديث لتطبيق معتمد</p>
+            </div>
+            <div class="dash-card" id="card-delete">
+                <i class="fa-solid fa-trash-can"></i>
+                <h3>حذف تطبيق</h3>
+                <p>حذف تطبيق بشكل نهائي</p>
+            </div>
         </div>
 
-        <!-- Add App Form -->
-        <div id="section-add" class="admin-form">
-            <h3><i class="fa-solid fa-plus-circle"></i> إضافة تطبيق</h3>
-            <form id="form-add">
-                <div class="form-group">
-                    <label>اسم التطبيق</label>
-                    <input type="text" id="app-name" class="form-control" placeholder="متجر العرب" required>
-                </div>
+        <div id="section-review" class="admin-form hidden" style="max-width: 900px;">
+            <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
+            <h3><i class="fa-solid fa-list-check"></i> مراجعة التطبيقات</h3>
+            <div id="review-loader" class="hidden" style="text-align: center; margin: 2rem 0;"><span class="loader"></span></div>
+            <div id="no-reviews-msg" class="hidden" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                <i class="fa-solid fa-check-circle" style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;"></i>
+                <p>لا توجد طلبات جديدة معلقة.</p>
+            </div>
+            <div id="review-list" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                <!-- Review items injected by JS -->
+            </div>
+        </div>
 
+        <!-- Notifications Section -->
+        <div id="section-notifications" class="admin-form hidden">
+            <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
+            <h3><i class="fa-regular fa-bell"></i> إرسال إشعار</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">أرسل إشعاراً عاماً لجميع المطورين، أو إشعاراً مخصصاً.</p>
+            <form id="form-notification">
                 <div class="form-group">
-                    <label>معرف الحزمة (Package Name)</label>
-                    <input type="text" id="app-package" class="form-control" placeholder="com.arabstore.app" required>
-                </div>
-                <div class="form-group">
-                    <label>وصف قصير</label>
-                    <input type="text" id="app-short" class="form-control" placeholder="تطبيق إسلامي شامل..." required>
-                </div>
-                <div class="form-group">
-                    <label>وصف كامل</label>
-                    <textarea id="app-full" class="form-control" rows="4"
-                        placeholder="التطبيق يحتوي على القرآن والتفاسير..." required></textarea>
-                </div>
-
-                <div class="form-group">
-                    <label><i class="fa-solid fa-tag"></i> فئة التطبيق</label>
-                    <select id="app-category" class="form-control" required>
-                        <option value="">-- جاري تحميل الفئات --</option>
-                    </select>
-                </div>
-                <!-- Manual size input removed, now automatic -->
-                <div class="form-group">
-                    <label>أيقونة التطبيق (صورة)</label>
-                    <div class="file-upload-wrapper">
-                        <input type="file" id="app-icon" class="hidden" accept="image/*" required>
-                        <button type="button" class="btn btn-outline"
-                            onclick="document.getElementById('app-icon').click()">
-                            <i class="fa-solid fa-image"></i> اختر الأيقونة
-                        </button>
-                        <div id="icon-preview" class="file-preview"></div>
-                    </div>
+                    <label>عنوان الإشعار</label>
+                    <input type="text" id="notif-title" class="form-control" placeholder="مثال: تحديث سياسة المتجر" required>
                 </div>
                 <div class="form-group">
-                    <label>صور التطبيق (Screenshots)</label>
-                    <div class="file-upload-wrapper">
-                        <input type="file" id="app-screenshots" class="hidden" multiple accept="image/*" required>
-                        <button type="button" class="btn btn-outline"
-                            onclick="document.getElementById('app-screenshots').click()">
-                            <i class="fa-solid fa-folder-open"></i> اختر الصور
-                        </button>
-                        <div id="screenshots-preview" class="file-preview"></div>
-                    </div>
+                    <label>نص الإشعار</label>
+                    <textarea id="notif-body" class="form-control" rows="4" placeholder="اكتب تفاصيل الإشعار هنا..." required></textarea>
                 </div>
                 <div class="form-group">
-                    <label>ملف التطبيق (APK)</label>
-                    <div class="file-upload-wrapper">
-                        <input type="file" id="app-download" class="hidden" accept=".apk" required>
-                        <button type="button" class="btn btn-outline"
-                            onclick="document.getElementById('app-download').click()">
-                            <i class="fa-solid fa-folder-open"></i> اختر ملف APK
-                        </button>
-                        <div id="apk-info" class="file-info-text">لم يتم اختيار أي ملف بعد.</div>
-                    </div>
+                    <label>المستلم (معرف المستخدم - اتركه فارغاً لإرسال للجميع)</label>
+                    <input type="text" id="notif-uid" class="form-control" placeholder="اختياري: معرف المطور UID">
                 </div>
-                <div style="display: flex; gap: 15px;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>رقم الإصدار (Version Name)</label>
-                        <input type="text" id="app-version" class="form-control" placeholder="1.0.0" required>
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>كود الإصدار (Version Code)</label>
-                        <input type="number" id="app-versioncode" class="form-control" placeholder="1" required>
-                    </div>
-                </div>
-                <div class="progress-container" id="add-progress-container">
-                    <div class="progress-bar" id="add-progress-bar">0%</div>
-                </div>
-                <div id="add-status" class="upload-status-text">جاري الرفع...</div>
-                <button type="submit" id="btn-save-app" class="btn btn-primary" style="width: 100%;">حفظ
-                    التطبيق</button>
-                <div id="add-loader" class="hidden" style="text-align: center; margin-top: 15px;"><span class="loader"
-                        style="width: 24px; height:24px; margin:0; border-width: 3px;"></span></div>
+                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-regular fa-paper-plane"></i> إرسال الإشعار</button>
             </form>
+        </div>
+
+        <!-- Statistics Section -->
+        <div id="section-statistics" class="admin-form hidden" style="max-width: 900px;">
+            <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
+            <h3><i class="fa-solid fa-chart-pie"></i> إحصائيات التطبيقات</h3>
+            <div id="stats-loader" class="hidden" style="text-align: center; margin: 2rem 0;"><span class="loader"></span></div>
+            <div style="overflow-x: auto; margin-top: 20px;">
+                <table style="width: 100%; border-collapse: collapse; text-align: right;">
+                    <thead>
+                        <tr style="border-bottom: 2px solid var(--border-color);">
+                            <th style="padding: 10px;">التطبيق</th>
+                            <th style="padding: 10px;">المطور</th>
+                            <th style="padding: 10px;">التحميلات</th>
+                            <th style="padding: 10px;">التقييم</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stats-list">
+                        <!-- Stats injected by JS -->
+                    </tbody>
+                </table>
+            </div>
         </div>
 
         <!-- Update App Form -->
         <div id="section-update" class="admin-form hidden">
+            <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
             <h3><i class="fa-solid fa-arrow-up-right-dots"></i> دفع تحديث جديد</h3>
             <form id="form-update">
                 <div class="form-group">
@@ -285,6 +347,7 @@
 
         <!-- Delete App Section -->
         <div id="section-delete" class="admin-form hidden">
+            <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
             <h3><i class="fa-solid fa-trash-can" style="color: var(--danger-color);"></i> حذف تطبيق</h3>
             <p style="color: var(--text-secondary); margin-bottom: 20px;">تحذير: هذا الإجراء سيقوم بحذف التطبيق وجميع
                 بياناته نهائياً من المتجر.</p>
@@ -304,6 +367,7 @@
 
         <!-- Categories Management Section -->
         <div id="section-categories" class="admin-form hidden">
+            <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
             <h3><i class="fa-solid fa-tags"></i> إدارة فئات التطبيقات</h3>
             <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">أضف أو احذف الفئات. تظهر تلقائياً في نماذج
                 الإضافة والإرسال.</p>

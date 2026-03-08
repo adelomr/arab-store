@@ -1,5 +1,6 @@
 import { auth } from './firebase-config.js';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { setupNotifications } from './notifications.js';
 
 const provider = new GoogleAuthProvider();
 provider.setCustomParameters({
@@ -49,11 +50,19 @@ export function logoutUser() {
         });
 }
 
+let notificationsSetup = false;
+
 export function observeAuthState(callback) {
     return onAuthStateChanged(auth, user => {
         let isAdmin = false;
-        if (user && user.email === ADMIN_EMAIL) {
-            isAdmin = true;
+        if (user) {
+            if (user.email === ADMIN_EMAIL) {
+                isAdmin = true;
+            }
+            if (!notificationsSetup) {
+                setupNotifications(user);
+                notificationsSetup = true;
+            }
         }
         callback(user, isAdmin);
     });

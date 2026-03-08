@@ -550,3 +550,105 @@ header {
     background: var(--card-bg);
     box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
 }
+
+/* Notifications UI */
+.notif-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.notif-bell {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.3rem;
+    cursor: pointer;
+    position: relative;
+    padding: 5px;
+    margin-left: 10px;
+}
+
+.notif-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    background: var(--danger-color);
+    color: white;
+    font-size: 0.7rem;
+    font-weight: bold;
+    border-radius: 50%;
+    width: 16px;
+    height: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.notif-dropdown {
+    position: absolute;
+    top: 100%;
+    left: -100px; /* Align nicely */
+    width: 300px;
+    background: var(--card-bg);
+    border: 1px solid var(--border-color);
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    z-index: 1000;
+    margin-top: 10px;
+    display: flex;
+    flex-direction: column;
+}
+
+.notif-header {
+    padding: 15px;
+    font-weight: bold;
+    border-bottom: 1px solid var(--border-color);
+    background: var(--bg-color);
+    border-top-left-radius: 12px;
+    border-top-right-radius: 12px;
+}
+
+.notif-list {
+    max-height: 300px;
+    overflow-y: auto;
+}
+
+.notif-item {
+    padding: 15px;
+    border-bottom: 1px solid var(--border-color);
+    transition: var(--transition);
+    cursor: pointer;
+    text-align: right;
+}
+
+.notif-item:last-child {
+    border-bottom: none;
+}
+
+.notif-item:hover {
+    background: var(--bg-color);
+}
+
+.notif-item.unread {
+    background: rgba(88, 166, 255, 0.08);
+}
+
+.notif-item h4 {
+    margin: 0 0 5px 0;
+    font-size: 0.95rem;
+}
+
+.notif-item p {
+    margin: 0;
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    line-height: 1.4;
+}
+
+.notif-item .notif-date {
+    display: block;
+    margin-top: 5px;
+    font-size: 0.75rem;
+    color: #888;
+}

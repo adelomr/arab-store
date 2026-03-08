@@ -26,10 +26,12 @@ const progressContainer = document.getElementById('submit-progress-container');
 const statusText = document.getElementById('submit-status');
 
 let currentUser = null;
+let isAdminUser = false;
 
 // Auth Setup
-observeAuthState((user) => {
+observeAuthState((user, isAdmin) => {
     currentUser = user;
+    isAdminUser = isAdmin;
     if (user) {
         btnLogin.classList.add('hidden');
         userInfo.classList.remove('hidden');
@@ -147,22 +149,26 @@ formSubmit.addEventListener('submit', async (e) => {
     const pkgName = document.getElementById('app-package').value;
 
     try {
+        const basePath = isAdminUser ? `apps/${pkgName}` : `submissions/${pkgName}`;
         // 1. Upload Icon
         statusText.textContent = "جاري رفع الأيقونة...";
-        const iconUrl = await uploadWithProgress(iconInput.files[0], `submissions/${pkgName}/icon_${Date.now()}`);
+        const iconUrl = await uploadWithProgress(iconInput.files[0], `${basePath}/icon_${Date.now()}`);
 
         // 2. Upload Screenshots
         const screenshotUrls = [];
         const shotFiles = Array.from(shotInput.files);
         for (let i = 0; i < shotFiles.length; i++) {
             statusText.textContent = `جاري رفع الصورة ${i + 1} من ${shotFiles.length}...`;
-            const url = await uploadWithProgress(shotFiles[i], `submissions/${pkgName}/screenshots/shot_${i}_${Date.now()}`);
+            const url = await uploadWithProgress(shotFiles[i], `${basePath}/screenshots/shot_${i}_${Date.now()}`);
             screenshotUrls.push(url);
         }
 
         // 3. Upload APK
         statusText.textContent = "جاري رفع ملف APK...";
-        const downloadUrl = await uploadWithProgress(apkInput.files[0], `submissions/${pkgName}/releases/${apkInput.files[0].name}`);
+        // For admins, we upload to apps/... instead of submissions/...
+        const basePath = isAdminUser ? `apps/${pkgName}` : `submissions/${pkgName}`;
+        
+        const downloadUrl = await uploadWithProgress(apkInput.files[0], `${basePath}/releases/${apkInput.files[0].name}`);
 
         const submissionData = {
             name: appName,
@@ -171,23 +177,37 @@ formSubmit.addEventListener('submit', async (e) => {
             fullDesc: document.getElementById('app-full').value,
             category: document.getElementById('app-category').value,
             size: apkInfo.getAttribute('data-size') || "",
-            iconUrl: iconUrl,
+            iconUrl: iconUrl, // You might also want to change iconUrl & screenshots to basePath
             screenshots: screenshotUrls,
             downloadUrl: downloadUrl,
             version: document.getElementById('app-version').value,
             versionCode: parseInt(document.getElementById('app-versioncode').value),
-            developer: currentUser.displayName,
+            developer: isAdminUser ? "عادل" : currentUser.displayName,
             developerEmail: currentUser.email,
             developerUid: currentUser.uid,
-            status: 'pending',
-            submittedAt: serverTimestamp()
+            rating: 0,
+            ratingCount: 0,
+            installCount: 0
         };
 
-        statusText.textContent = "جاري حفظ الطلب...";
-        // Note: Using pkgName as ID for simpler review, but could use auto-id to allow multiple versions
-        await setDoc(doc(db, "pending_apps", pkgName), submissionData);
+        if (isAdminUser) {
+            submissionData.status = 'approved';
+            submissionData.createdAt = serverTimestamp();
+            submissionData.lastUpdated = serverTimestamp();
+        } else {
+            submissionData.status = 'pending';
+            submissionData.submittedAt = serverTimestamp();
+        }
 
-        alert("تم إرسال طلبك بنجاح! سيتم مراجعته من قبل الإدارة قريباً.");
+        statusText.textContent = "جاري حفظ الطلب...";
+        const collectionName = isAdminUser ? "apps" : "pending_apps";
+        await setDoc(doc(db, collectionName, pkgName), submissionData);
+
+        if (isAdminUser) {
+            alert("تم نشر التطبيق وإضافته للمتجر بنجاح!");
+        } else {
+            alert("تم إرسال طلبك بنجاح! سيتم مراجعته من قبل الإدارة قريباً.");
+        }
         window.location.href = "index.html";
     } catch (error) {
         console.error("Error submitting app: ", error);

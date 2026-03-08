@@ -11,12 +11,27 @@ const userInfo = document.getElementById('user-info');
 const adminContent = document.getElementById('admin-content');
 const unauthorizedMsg = document.getElementById('unauthorized-msg');
 
-const tabAdd = document.getElementById('tab-add');
-const tabUpdate = document.getElementById('tab-update');
-const tabDelete = document.getElementById('tab-delete');
-const sectionAdd = document.getElementById('section-add');
-const sectionUpdate = document.getElementById('section-update');
-const sectionDelete = document.getElementById('section-delete');
+const dashboardMain = document.getElementById('dashboard-main');
+
+const cards = {
+    review: document.getElementById('card-review'),
+    notifications: document.getElementById('card-notifications'),
+    categories: document.getElementById('card-categories'),
+    statistics: document.getElementById('card-statistics'),
+    update: document.getElementById('card-update'),
+    delete: document.getElementById('card-delete')
+};
+
+const sections = {
+    review: document.getElementById('section-review'),
+    notifications: document.getElementById('section-notifications'),
+    categories: document.getElementById('section-categories'),
+    statistics: document.getElementById('section-statistics'),
+    update: document.getElementById('section-update'),
+    delete: document.getElementById('section-delete')
+};
+
+const backBtns = document.querySelectorAll('.back-btn');
 
 const selectApp = document.getElementById('select-app');
 const selectDeleteApp = document.getElementById('select-delete-app');
@@ -167,41 +182,49 @@ async function loadAppsDropdown() {
     }
 }
 
-// UI Tabs logic
-function hideAllSections() {
-    sectionAdd.classList.add('hidden');
-    sectionUpdate.classList.add('hidden');
-    sectionDelete.classList.add('hidden');
-    sectionReview.classList.add('hidden');
-    sectionCategories.classList.add('hidden');
-    [tabAdd, tabUpdate, tabDelete, tabReview, tabCategories].forEach(btn => btn.classList.remove('active'));
+// UI Navigation logic
+function showSection(sectionKey) {
+    dashboardMain.classList.add('hidden');
+    Object.values(sections).forEach(sec => sec.classList.add('hidden'));
+    sections[sectionKey].classList.remove('hidden');
 }
 
-tabAdd.addEventListener('click', () => {
-    hideAllSections();
-    tabAdd.classList.add('active');
-    sectionAdd.classList.remove('hidden');
-});
+function showDashboard() {
+    Object.values(sections).forEach(sec => sec.classList.add('hidden'));
+    dashboardMain.classList.remove('hidden');
+    loadAppsDropdown();
+    updateReviewCount();
+}
 
-tabUpdate.addEventListener('click', () => {
-    hideAllSections();
-    tabUpdate.classList.add('active');
-    sectionUpdate.classList.remove('hidden');
+backBtns.forEach(btn => btn.addEventListener('click', showDashboard));
+
+cards.update.addEventListener('click', () => {
+    showSection('update');
     loadAppsDropdown();
 });
 
-tabDelete.addEventListener('click', () => {
-    hideAllSections();
-    tabDelete.classList.add('active');
-    sectionDelete.classList.remove('hidden');
+cards.delete.addEventListener('click', () => {
+    showSection('delete');
     loadAppsDropdown();
 });
 
-tabReview.addEventListener('click', () => {
-    hideAllSections();
-    tabReview.classList.add('active');
-    sectionReview.classList.remove('hidden');
+cards.review.addEventListener('click', () => {
+    showSection('review');
     loadPendingApps();
+});
+
+cards.categories.addEventListener('click', () => {
+    showSection('categories');
+    loadCategories();
+});
+
+cards.notifications.addEventListener('click', () => {
+    showSection('notifications');
+});
+
+cards.statistics.addEventListener('click', () => {
+    showSection('statistics');
+    loadStatistics();
 });
 
 // Load Pending Apps for Review
@@ -277,15 +300,37 @@ async function approveApp(appId, appData) {
 }
 
 async function rejectApp(appId) {
+    const reason = prompt("يرجى إدخال سبب الرفض لإرساله للمطور:");
+    if (reason === null) return; // User cancelled
+
     if (!confirm("هل أنت متأكد من رفض هذا الطلب وحذفه؟")) return;
 
     try {
+        // Find developer ID to send notification
+        const docSnap = await getDoc(doc(db, "pending_apps", appId));
+        if (docSnap.exists()) {
+            const appData = docSnap.data();
+            const developerUid = appData.developerUid;
+
+            if (developerUid) {
+                // Send notification Document
+                await setDoc(doc(collection(db, "notifications")), {
+                    userId: developerUid,
+                    title: `تم رفض تطبيقك: ${appData.name}`,
+                    body: `سبب الرفض: ${reason || 'لم يتم تحديد سبب.'}`,
+                    date: serverTimestamp(),
+                    read: false
+                });
+            }
+        }
+
         await deleteDoc(doc(db, "pending_apps", appId));
-        alert("تم رفض الطلب وحذفه.");
+        alert("تم رفض الطلب وإرسال الإشعار للمطور.");
         loadPendingApps();
+        updateReviewCount();
     } catch (error) {
         console.error("Error rejecting app:", error);
-        alert("حدث خطأ أثناء الحذف: " + error.message);
+        alert("حدث خطأ أثناء الرفض: " + error.message);
     }
 }
 
@@ -293,9 +338,17 @@ async function rejectApp(appId) {
 async function updateReviewCount() {
     try {
         const querySnapshot = await getDocs(collection(db, "pending_apps"));
+        const badge1 = document.getElementById('review-count');
+        const badge2 = document.getElementById('review-count-badge');
+
         if (!querySnapshot.empty) {
-            reviewCountBadge.textContent = querySnapshot.size;
-            reviewCountBadge.classList.remove('hidden');
+            if (badge1) badge1.textContent = querySnapshot.size;
+            if (badge2) badge2.textContent = querySnapshot.size;
+            if (badge1) badge1.classList.remove('hidden');
+            if (badge2) badge2.classList.remove('hidden');
+        } else {
+            if (badge1) badge1.classList.add('hidden');
+            if (badge2) badge2.classList.add('hidden');
         }
     } catch (e) { }
 }
@@ -323,99 +376,7 @@ selectApp.addEventListener('change', async () => {
     }
 });
 
-// Add App Submission
-document.getElementById('form-add').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const loader = document.getElementById('add-loader');
-    const btnSave = document.getElementById('btn-save-app');
-    const progressBar = document.getElementById('add-progress-bar');
-    const progressContainer = document.getElementById('add-progress-container');
-    const statusText = document.getElementById('add-status');
-
-    loader.classList.remove('hidden');
-    btnSave.disabled = true;
-    btnSave.textContent = "جاري الحفظ...";
-
-    const appName = document.getElementById('app-name').value;
-    const pkgName = document.getElementById('app-package').value;
-
-    try {
-        // 0. Upload Icon
-        statusText.textContent = "جاري رفع الأيقونة...";
-        let iconUrl = "";
-        if (iconInput.files.length > 0) {
-            iconUrl = await uploadWithProgress(iconInput.files[0], `apps/${pkgName}/icon_${Date.now()}`, progressBar, statusText, progressContainer);
-        } else {
-            alert("يرجى اختيار أيقونة للتطبيق.");
-            loader.classList.add('hidden');
-            btnSave.disabled = false;
-            btnSave.textContent = "حفظ التطبيق";
-            return;
-        }
-
-        // 1. Upload Screenshots
-        statusText.textContent = "جاري رفع الصور...";
-        const screenshotUrls = [];
-        const shotFiles = Array.from(shotInput.files);
-        if (shotFiles.length === 0) {
-            alert("يرجى اختيار صور (Screenshots) للتطبيق.");
-            loader.classList.add('hidden');
-            btnSave.disabled = false;
-            btnSave.textContent = "حفظ التطبيق";
-            return;
-        }
-        for (let i = 0; i < shotFiles.length; i++) {
-            statusText.textContent = `جاري رفع الصورة ${i + 1} من ${shotFiles.length}...`;
-            const url = await uploadWithProgress(shotFiles[i], `apps/${pkgName}/screenshots/shot_${i}_${Date.now()}`, progressBar, statusText, progressContainer);
-            screenshotUrls.push(url);
-        }
-
-        // 2. Upload APK
-        statusText.textContent = "جاري رفع ملف APK...";
-        let downloadUrl = "";
-        if (apkInput.files.length > 0) {
-            downloadUrl = await uploadWithProgress(apkInput.files[0], `apps/${pkgName}/releases/${apkInput.files[0].name}`, progressBar, statusText, progressContainer);
-        } else {
-            alert("يرجى اختيار ملف APK للتطبيق.");
-            loader.classList.add('hidden');
-            btnSave.disabled = false;
-            btnSave.textContent = "حفظ التطبيق";
-            return;
-        }
-
-        const appData = {
-            name: appName,
-            packageName: pkgName,
-            shortDesc: document.getElementById('app-short').value,
-            fullDesc: document.getElementById('app-full').value,
-            category: document.getElementById('app-category').value,
-            size: apkInfo.getAttribute('data-size') || "",
-            iconUrl: iconUrl,
-            screenshots: screenshotUrls,
-            downloadUrl: downloadUrl,
-            version: document.getElementById('app-version').value,
-            versionCode: parseInt(document.getElementById('app-versioncode').value),
-            developer: "عادل",
-            rating: 0,
-            ratingCount: 0,
-            installCount: 0,
-            createdAt: serverTimestamp(),
-            lastUpdated: serverTimestamp()
-        };
-
-        statusText.textContent = "جاري حفظ البيانات...";
-        await setDoc(doc(db, "apps", pkgName), appData);
-        alert("تم إضافة التطبيق ورفع الملفات بنجاح!");
-        window.location.href = "index.html";
-    } catch (error) {
-        console.error("Error adding app: ", error);
-        alert("خطأ أثناء الإضافة والرفع: " + error.message);
-        btnSave.disabled = false;
-        btnSave.textContent = "حفظ التطبيق";
-    } finally {
-        loader.classList.add('hidden');
-    }
-});
+// Add App logic is removed. Everyone uses submit.html now.
 
 // Update App Submission
 document.getElementById('form-update').addEventListener('submit', async (e) => {
@@ -579,5 +540,74 @@ document.getElementById('btn-add-category').addEventListener('click', async () =
         alert(`تمت إضافة فئة "${name}" بنجاح!`);
     } catch (e) {
         alert('خطأ: ' + e.message);
+    }
+});
+
+// =============================================
+// STATISTICS & NOTIFICATIONS LOGIC
+// =============================================
+
+async function loadStatistics() {
+    const statsList = document.getElementById('stats-list');
+    const statsLoader = document.getElementById('stats-loader');
+    statsLoader.classList.remove('hidden');
+    statsList.innerHTML = '';
+
+    try {
+        const querySnapshot = await getDocs(collection(db, "apps"));
+        statsLoader.classList.add('hidden');
+
+        let apps = [];
+        querySnapshot.forEach(docSnap => apps.push({ id: docSnap.id, ...docSnap.data() }));
+
+        // Sort by install count descending
+        apps.sort((a, b) => (b.installCount || 0) - (a.installCount || 0));
+
+        apps.forEach(app => {
+            const tr = document.createElement('tr');
+            tr.style.borderBottom = '1px solid var(--border-color)';
+            tr.innerHTML = `
+                <td style="padding: 10px;">
+                    <div style="display:flex; align-items:center; gap: 10px;">
+                        <img src="${app.iconUrl}" style="width: 32px; height: 32px; border-radius: 6px;">
+                        ${app.name}
+                    </div>
+                </td>
+                <td style="padding: 10px;">${app.developer || 'غير معروف'}</td>
+                <td style="padding: 10px; font-weight: bold; color: var(--primary-color);">${app.installCount || 0}</td>
+                <td style="padding: 10px;"><i class="fa-solid fa-star" style="color: gold;"></i> ${app.rating ? app.rating.toFixed(1) : 0}</td>
+            `;
+            statsList.appendChild(tr);
+        });
+    } catch (e) {
+        console.error("Error loading stats:", e);
+        statsLoader.classList.add('hidden');
+        statsList.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 20px;">خطأ في تحميل الإحصائيات</td></tr>';
+    }
+}
+
+document.getElementById('form-notification').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const title = document.getElementById('notif-title').value;
+    const body = document.getElementById('notif-body').value;
+    const uid = document.getElementById('notif-uid').value.trim();
+
+    const targetId = uid ? uid : 'all';
+
+    try {
+        await setDoc(doc(collection(db, "notifications")), {
+            userId: targetId,
+            title: title,
+            body: body,
+            date: serverTimestamp(),
+            read: false,
+            sender: "الإدارة"
+        });
+
+        alert("تم إرسال الإشعار بنجاح!");
+        document.getElementById('form-notification').reset();
+    } catch (error) {
+        console.error("Error sending notification:", error);
+        alert("حدث خطأ أثناء الإرسال: " + error.message);
     }
 });
