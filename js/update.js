@@ -98,34 +98,33 @@ async function fetchAndPopulateUserApps() {
         const cols = ["apps", "pending_apps"];
 
         for (const col of cols) {
-            // Search by UID
-            const qUid = query(collection(db, col), where("developerUid", "==", currentUser.uid));
-            const snapUid = await getDocs(qUid);
-            snapUid.forEach(doc => userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: col }));
-
-            // Search by Email (fallback)
-            const qEmail = query(collection(db, col), where("developerEmail", "==", currentUser.email));
-            const snapEmail = await getDocs(qEmail);
-            for (const docSnap of snapEmail.docs) {
-                if (!userAppsMap.has(docSnap.id)) {
-                    const appData = docSnap.data();
-                    userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
-                    // Self-healing
-                    if (appData.developerUid !== currentUser.uid) {
-                        try {
-                            await updateDoc(doc(db, col, docSnap.id), { developerUid: currentUser.uid });
-                        } catch (e) { }
-                    }
-                }
+            let snap;
+            if (isAdminUser) {
+                // Admin can see all apps
+                snap = await getDocs(collection(db, col));
+            } else {
+                // Regular user sees only their apps
+                const qUid = query(collection(db, col), where("developerUid", "==", currentUser.uid));
+                snap = await getDocs(qUid);
             }
 
-            // Search by Name (fallback)
-            const qName = query(collection(db, col), where("developer", "==", currentUser.displayName));
-            const snapName = await getDocs(qName);
-            for (const docSnap of snapName.docs) {
-                if (!userAppsMap.has(docSnap.id)) {
-                    const appData = docSnap.data();
-                    userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
+            snap.forEach(doc => userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: col }));
+
+            if (!isAdminUser) {
+                // Search by Email (fallback for non-admins to catch old apps)
+                const qEmail = query(collection(db, col), where("developerEmail", "==", currentUser.email));
+                const snapEmail = await getDocs(qEmail);
+                for (const docSnap of snapEmail.docs) {
+                    if (!userAppsMap.has(docSnap.id)) {
+                        const appData = docSnap.data();
+                        userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
+                        // Self-healing
+                        if (appData.developerUid !== currentUser.uid) {
+                            try {
+                                await updateDoc(doc(db, col, docSnap.id), { developerUid: currentUser.uid });
+                            } catch (e) { }
+                        }
+                    }
                 }
             }
         }
@@ -176,6 +175,7 @@ async function loadExistingAppForUpdate(id, col) {
             document.getElementById('app-full').value = existingAppData.fullDesc || "";
             document.getElementById('app-version').value = existingAppData.version || "";
             document.getElementById('app-versioncode').value = existingAppData.versionCode || "";
+            document.getElementById('app-changelog').value = existingAppData.changelog || "";
 
             // Previews
             iconPreview.innerHTML = existingAppData.iconUrl ? `<img src="${existingAppData.iconUrl}" class="preview-thumb">` : "";
@@ -188,7 +188,7 @@ async function loadExistingAppForUpdate(id, col) {
                     shotPreview.appendChild(img);
                 });
             }
-            apkInfo.textContent = `تطبيق "${existingAppData.name}" جاهز للتحديث.`;
+            apkInfo.textContent = 'لم يتم اختيار نسخة جديدة (اترك فارغاً للاحتفاظ بالنسخة الحالية).';
 
             await loadCategoriesDropdown(existingAppData.category);
             formSection.classList.add('visible');
@@ -300,6 +300,7 @@ formSubmit.addEventListener('submit', async (e) => {
             downloadUrl: downloadUrl,
             version: document.getElementById('app-version').value,
             versionCode: parseInt(document.getElementById('app-versioncode').value),
+            changelog: document.getElementById('app-changelog').value,
             lastUpdated: serverTimestamp()
         };
 
