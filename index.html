@@ -61,10 +61,24 @@
                                     </div>
                                 </div>
                             </div>
-                            <img id="user-avatar" src="" alt="صورة المستخدم" class="user-avatar">
-                            <span id="user-name" class="hidden"></span>
-                            <button id="btn-logout" class="btn btn-outline btn-sm"><i
-                                    class="fa-solid fa-right-from-bracket"></i></button>
+                            <div class="user-dropdown-wrapper" id="user-dropdown-wrapper">
+                                <img id="user-avatar" src="" alt="صورة المستخدم" class="user-avatar">
+                                <span id="user-name" class="hidden"></span>
+                                <div class="user-dropdown-menu hidden" id="user-dropdown-menu">
+                                    <div class="user-dropdown-header">حسابي</div>
+                                    <ul class="user-dropdown-list">
+                                        <li><a href="submit.html"><i class="fa-solid fa-plus"></i> إضافة تطبيق</a></li>
+                                        <li><a href="user-apps.html"><i class="fa-solid fa-pen-to-square"></i> تحديث
+                                                تطبيق</a></li>
+                                        <li><a href="user-apps.html"><i class="fa-solid fa-layer-group"></i>
+                                                تطبيقاتي</a></li>
+                                        <li class="dropdown-divider"></li>
+                                        <li><button id="btn-logout" class="dropdown-item-btn"><i
+                                                    class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
                         </div>
                     </li>
                 </ul>

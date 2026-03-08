@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيقاتي | متجر العرب</title>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
+    <meta name="description" content="إدارة ومتابعة تطبيقاتك المرفوعة على متجر العرب.">
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="web-assets/app_icon.png?v=2026">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/style.css?v=6">
+    <style>
+        .my-apps-header {
+            margin: 2rem 0;
+            text-align: center;
+        }
+
+        .my-apps-header h1 {
+            font-size: 2.5rem;
+            color: var(--primary-color);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.85rem;
+            font-weight: bold;
+            color: white;
+            margin-bottom: 10px;
+        }
+
+        .status-pending {
+            background-color: var(--warning-color);
+            color: #333;
+        }
+
+        .status-approved {
+            background-color: var(--success-color);
+        }
+
+        .status-rejected {
+            background-color: var(--danger-color);
+        }
+
+        .app-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: var(--text-secondary);
+            font-size: 1.2rem;
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container navbar">
+            <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">
+                <a href="index.html?v=4" class="logo">
+                    <img src="web-assets/app_icon.png" alt="متجر العرب"
+                        style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
+                    متجر العرب
+                </a>
+                <button id="theme-toggle" class="theme-toggle" title="تبديل الوضع الليلي">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+            <div class="navbar-actions">
+                <ul class="nav-links">
+                    <li><a href="submit.html" style="color: var(--success-color); font-weight: bold;"><i
+                                class="fa-solid fa-cloud-arrow-up"></i> أضف تطبيقك</a></li>
+
+                    <li id="admin-link-li" class="hidden"><a href="admin.html?v=4"
+                            style="color: var(--primary-color); font-weight: bold;"><i class="fa-solid fa-gauge"></i>
+                            لوحة
+                            التحكم</a></li>
+
+                    <!-- Auth Section -->
+                    <li id="auth-section">
+                        <button id="btn-login" type="button" class="btn btn-primary">تسجيل الدخول <i
+                                class="fa-brands fa-google"></i></button>
+                        <div id="user-info" class="user-profile hidden">
+                            <div class="notif-wrapper">
+                                <button id="btn-notifications" class="notif-bell">
+                                    <i class="fa-solid fa-bell"></i>
+                                    <span class="notif-badge hidden" id="notif-badge">0</span>
+                                </button>
+                                <div class="notif-dropdown hidden" id="notif-dropdown">
+                                    <div class="notif-header">الإشعارات</div>
+                                    <div id="notif-list" class="notif-list">
+                                        <div style="text-align: center; color: #777; padding: 10px;">جاري التحميل...
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="user-dropdown-wrapper" id="user-dropdown-wrapper">
+                                <img id="user-avatar" src="" alt="صورة المستخدم" class="user-avatar">
+                                <span id="user-name" class="hidden"></span>
+                                <div class="user-dropdown-menu hidden" id="user-dropdown-menu">
+                                    <div class="user-dropdown-header">حسابي</div>
+                                    <ul class="user-dropdown-list">
+                                        <li><a href="submit.html"><i class="fa-solid fa-plus"></i> إضافة تطبيق</a></li>
+                                        <li><a href="user-apps.html"><i class="fa-solid fa-pen-to-square"></i> تحديث
+                                                تطبيق</a></li>
+                                        <li><a href="user-apps.html" style="color: var(--primary-color);"><i
+                                                    class="fa-solid fa-layer-group"></i> تطبيقاتي</a></li>
+                                        <li class="dropdown-divider"></li>
+                                        <li><button id="btn-logout" class="dropdown-item-btn"><i
+                                                    class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج</button>
+                                        </li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="my-apps-header">
+            <h1><i class="fa-solid fa-layer-group"></i> تطبيقاتي</h1>
+            <p style="color: var(--text-secondary); margin-top: 10px;">إدارة جميع التطبيقات التي قمت برفعها للمتجر.</p>
+        </div>
+
+        <div id="loader" class="loader-container">
+            <span class="loader"></span>
+        </div>
+
+        <div id="unauthorized-msg" class="hidden" style="text-align: center; padding: 50px 0;">
+            <i class="fa-solid fa-lock" style="font-size: 3rem; color: var(--text-secondary); margin-bottom: 20px;"></i>
+            <h3>يرجى تسجيل الدخول</h3>
+            <p style="color: var(--text-secondary);">يجب عليك تسجيل الدخول بحسابك لعرض وإدارة تطبيقاتك.</p>
+        </div>
+
+        <div id="apps-grid" class="apps-grid hidden">
+            <!-- User apps will be loaded here -->
+        </div>
+    </main>
+
+    <!-- JavaScript as module -->
+    <script type="module" src="js/user-apps.js?v=6"></script>
+    <script src="js/theme.js?v=5"></script>
+</body>
+
+</html>

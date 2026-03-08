@@ -63,7 +63,28 @@ export function observeAuthState(callback) {
                 setupNotifications(user);
                 notificationsSetup = true;
             }
+            setupUserDropdown();
         }
         callback(user, isAdmin);
     });
+}
+
+function setupUserDropdown() {
+    const userAvatar = document.getElementById('user-avatar');
+    const userDropdown = document.getElementById('user-dropdown-menu');
+
+    if (userAvatar && userDropdown) {
+        // Toggle dropdown on avatar click
+        userAvatar.addEventListener('click', (e) => {
+            e.stopPropagation();
+            userDropdown.classList.toggle('hidden');
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!userAvatar.contains(e.target) && !userDropdown.contains(e.target)) {
+                userDropdown.classList.add('hidden');
+            }
+        });
+    }
 }
