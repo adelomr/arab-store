@@ -136,15 +136,17 @@
 <body>
     <header>
         <div class="container navbar">
-            <a href="index.html" class="logo">
-                <img src="web-assets/app_icon.png?v=2026" alt="متجر العرب"
-                    style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
-                لوحة التحكم
-            </a>
-            <div class="navbar-actions">
+            <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">
+                <a href="index.html" class="logo">
+                    <img src="web-assets/app_icon.png?v=2026" alt="متجر العرب"
+                        style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
+                    لوحة التحكم
+                </a>
                 <button id="theme-toggle" class="theme-toggle" title="تبديل الوضع الليلي">
                     <i class="fa-solid fa-moon"></i>
                 </button>
+            </div>
+            <div class="navbar-actions">
                 <ul class="nav-links">
                     <!-- Auth Section -->
                     <li id="auth-section">
