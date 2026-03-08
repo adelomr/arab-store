@@ -1,6 +1,6 @@
 import { db, storage } from './firebase-config.js';
 import { loginWithGoogle, logoutUser, observeAuthState } from './auth.js';
-import { collection, doc, setDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, doc, setDoc, getDoc, updateDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 // DOM Elements
@@ -28,6 +28,13 @@ const statusText = document.getElementById('submit-status');
 let currentUser = null;
 let isAdminUser = false;
 
+// Update Mode variables
+const urlParams = new URLSearchParams(window.location.search);
+const appId = urlParams.get('id');
+const appCollection = urlParams.get('col') || 'apps';
+let isUpdateMode = !!appId;
+let existingAppData = null;
+
 // Auth Setup
 observeAuthState((user, isAdmin) => {
     currentUser = user;
@@ -41,6 +48,12 @@ observeAuthState((user, isAdmin) => {
         if (name) name.textContent = user.displayName;
         submitContent.classList.remove('hidden');
         unauthorizedMsg.classList.add('hidden');
+
+        if (isUpdateMode) {
+            loadExistingAppForUpdate();
+        } else {
+            loadCategoriesDropdown();
+        }
     } else {
         btnLogin.classList.remove('hidden');
         userInfo.classList.add('hidden');
@@ -53,23 +66,81 @@ btnLogin.addEventListener('click', loginWithGoogle);
 btnLogout.addEventListener('click', logoutUser);
 
 // Load categories into the dropdown
-async function loadCategoriesDropdown() {
+async function loadCategoriesDropdown(selectedCategory = "") {
     const selectEl = document.getElementById('app-category');
     if (!selectEl) return;
     try {
         const querySnapshot = await getDocs(collection(db, "categories"));
         selectEl.innerHTML = '<option value="">-- اختر الفئة --</option>';
         querySnapshot.forEach((docSnap) => {
+            const catName = docSnap.data().name;
             const opt = document.createElement('option');
-            opt.value = docSnap.data().name;
-            opt.textContent = docSnap.data().name;
+            opt.value = catName;
+            opt.textContent = catName;
+            if (catName === selectedCategory) opt.selected = true;
             selectEl.appendChild(opt);
         });
     } catch (e) {
         if (selectEl) selectEl.innerHTML = '<option value="">خطأ في تحميل الفئات</option>';
     }
 }
-loadCategoriesDropdown();
+
+async function loadExistingAppForUpdate() {
+    try {
+        loader.classList.remove('hidden');
+        const docRef = doc(db, appCollection, appId);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            existingAppData = docSnap.data();
+
+            // Fill Form Fields
+            document.getElementById('app-name').value = existingAppData.name || "";
+            document.getElementById('app-package').value = existingAppData.packageName || "";
+            document.getElementById('app-package').disabled = true; // Package Name shouldn't be changed after creation
+            document.getElementById('app-short').value = existingAppData.shortDesc || "";
+            document.getElementById('app-full').value = existingAppData.fullDesc || "";
+            document.getElementById('app-version').value = existingAppData.version || "";
+            document.getElementById('app-versioncode').value = existingAppData.versionCode || "";
+
+            // Update Title
+            const titleEl = document.querySelector('#form-submit h2');
+            if (titleEl) titleEl.innerHTML = `<i class="fa-solid fa-pen-to-square"></i> تحديث تطبيق: ${existingAppData.name}`;
+            btnSubmit.textContent = "حفظ التغييرات";
+
+            // Mark file inputs as NOT required in update mode
+            iconInput.required = false;
+            shotInput.required = false;
+            apkInput.required = false;
+
+            // Previews for existing elements
+            if (existingAppData.iconUrl) {
+                iconPreview.innerHTML = `<img src="${existingAppData.iconUrl}" class="preview-thumb">`;
+            }
+            if (existingAppData.screenshots && Array.from(existingAppData.screenshots).length > 0) {
+                shotPreview.innerHTML = "";
+                existingAppData.screenshots.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.className = 'preview-thumb';
+                    shotPreview.appendChild(img);
+                });
+            }
+            if (existingAppData.downloadUrl) {
+                apkInfo.textContent = `التطبيق الحالي مرفوع بالفعل (اختر ملفاً جديداً للتحديث).`;
+            }
+
+            await loadCategoriesDropdown(existingAppData.category);
+        } else {
+            alert("عذراً، لم يتم العثور على هذا التطبيق.");
+            window.location.href = "user-apps.html";
+        }
+    } catch (e) {
+        console.error("Error loading app for update:", e);
+    } finally {
+        loader.classList.add('hidden');
+    }
+}
 
 // Preview Logic
 iconInput.addEventListener('change', () => {
@@ -143,32 +214,41 @@ formSubmit.addEventListener('submit', async (e) => {
 
     loader.classList.remove('hidden');
     btnSubmit.disabled = true;
-    btnSubmit.textContent = "جاري الإرسال...";
+    btnSubmit.textContent = isUpdateMode ? "جاري حفظ التعديلات..." : "جاري الإرسال...";
 
     const appName = document.getElementById('app-name').value;
-    const pkgName = document.getElementById('app-package').value;
+    const pkgName = isUpdateMode ? existingAppData.packageName : document.getElementById('app-package').value;
 
     try {
-        const basePath = isAdminUser ? `apps/${pkgName}` : `submissions/${pkgName}`;
-        // 1. Upload Icon
-        statusText.textContent = "جاري رفع الأيقونة...";
-        const iconUrl = await uploadWithProgress(iconInput.files[0], `${basePath}/icon_${Date.now()}`);
+        const basePath = isAdminUser || (isUpdateMode && appCollection === 'apps') ? `apps/${pkgName}` : `submissions/${pkgName}`;
 
-        // 2. Upload Screenshots
-        const screenshotUrls = [];
-        const shotFiles = Array.from(shotInput.files);
-        for (let i = 0; i < shotFiles.length; i++) {
-            statusText.textContent = `جاري رفع الصورة ${i + 1} من ${shotFiles.length}...`;
-            const url = await uploadWithProgress(shotFiles[i], `${basePath}/screenshots/shot_${i}_${Date.now()}`);
-            screenshotUrls.push(url);
+        // 1. Upload Icon (Optional in update mode)
+        let iconUrl = isUpdateMode ? existingAppData.iconUrl : "";
+        if (iconInput.files.length > 0) {
+            statusText.textContent = "جاري رفع الأيقونة...";
+            iconUrl = await uploadWithProgress(iconInput.files[0], `${basePath}/icon_${Date.now()}`);
         }
 
-        // 3. Upload APK
-        statusText.textContent = "جاري رفع ملف APK...";
-        // For admins, we upload to apps/... instead of submissions/...
-        // basePath is already defined above
+        // 2. Upload Screenshots (Optional in update mode)
+        let screenshotUrls = isUpdateMode ? existingAppData.screenshots : [];
+        const shotFiles = Array.from(shotInput.files);
+        if (shotFiles.length > 0) {
+            screenshotUrls = []; // Reset if new screenshots are provided
+            for (let i = 0; i < shotFiles.length; i++) {
+                statusText.textContent = `جاري رفع الصورة ${i + 1} من ${shotFiles.length}...`;
+                const url = await uploadWithProgress(shotFiles[i], `${basePath}/screenshots/shot_${i}_${Date.now()}`);
+                screenshotUrls.push(url);
+            }
+        }
 
-        const downloadUrl = await uploadWithProgress(apkInput.files[0], `${basePath}/releases/${apkInput.files[0].name}`);
+        // 3. Upload APK (Optional in update mode)
+        let downloadUrl = isUpdateMode ? existingAppData.downloadUrl : "";
+        let size = isUpdateMode ? existingAppData.size : "";
+        if (apkInput.files.length > 0) {
+            statusText.textContent = "جاري رفع ملف APK...";
+            downloadUrl = await uploadWithProgress(apkInput.files[0], `${basePath}/releases/${apkInput.files[0].name}`);
+            size = apkInfo.getAttribute('data-size') || "";
+        }
 
         const submissionData = {
             name: appName,
@@ -176,44 +256,52 @@ formSubmit.addEventListener('submit', async (e) => {
             shortDesc: document.getElementById('app-short').value,
             fullDesc: document.getElementById('app-full').value,
             category: document.getElementById('app-category').value,
-            size: apkInfo.getAttribute('data-size') || "",
-            iconUrl: iconUrl, // You might also want to change iconUrl & screenshots to basePath
+            size: size,
+            iconUrl: iconUrl,
             screenshots: screenshotUrls,
             downloadUrl: downloadUrl,
             version: document.getElementById('app-version').value,
             versionCode: parseInt(document.getElementById('app-versioncode').value),
-            developer: isAdminUser ? "عادل" : currentUser.displayName,
-            developerEmail: currentUser.email,
-            developerUid: currentUser.uid,
-            rating: 0,
-            ratingCount: 0,
-            installCount: 0
+            lastUpdated: serverTimestamp()
         };
 
-        if (isAdminUser) {
-            submissionData.status = 'approved';
-            submissionData.createdAt = serverTimestamp();
-            submissionData.lastUpdated = serverTimestamp();
+        if (isUpdateMode) {
+            statusText.textContent = "جاري تحديث البيانات...";
+            await updateDoc(doc(db, appCollection, appId), submissionData);
+            alert("تم تحديث التطبيق بنجاح!");
         } else {
-            submissionData.status = 'pending';
-            submissionData.submittedAt = serverTimestamp();
+            submissionData.developer = isAdminUser ? "عادل" : currentUser.displayName;
+            submissionData.developerEmail = currentUser.email;
+            submissionData.developerUid = currentUser.uid;
+            submissionData.rating = 0;
+            submissionData.ratingCount = 0;
+            submissionData.installCount = 0;
+
+            if (isAdminUser) {
+                submissionData.status = 'approved';
+                submissionData.createdAt = serverTimestamp();
+            } else {
+                submissionData.status = 'pending';
+                submissionData.submittedAt = serverTimestamp();
+            }
+
+            statusText.textContent = "جاري حفظ الطلب...";
+            const collectionName = isAdminUser ? "apps" : "pending_apps";
+            await setDoc(doc(db, collectionName, pkgName), submissionData);
+
+            if (isAdminUser) {
+                alert("تم نشر التطبيق وإضافته للمتجر بنجاح!");
+            } else {
+                alert("تم إرسال طلبك بنجاح! سيتم مراجعته من قبل الإدارة قريباً.");
+            }
         }
 
-        statusText.textContent = "جاري حفظ الطلب...";
-        const collectionName = isAdminUser ? "apps" : "pending_apps";
-        await setDoc(doc(db, collectionName, pkgName), submissionData);
-
-        if (isAdminUser) {
-            alert("تم نشر التطبيق وإضافته للمتجر بنجاح!");
-        } else {
-            alert("تم إرسال طلبك بنجاح! سيتم مراجعته من قبل الإدارة قريباً.");
-        }
-        window.location.href = "index.html";
+        window.location.href = isUpdateMode ? "user-apps.html" : "index.html";
     } catch (error) {
         console.error("Error submitting app: ", error);
-        alert("خطأ أثناء الإرسال: " + error.message);
+        alert("خطأ أثناء الإرسال الحفظ: " + error.message);
         btnSubmit.disabled = false;
-        btnSubmit.textContent = "إرسال التطبيق للمراجعة";
+        btnSubmit.textContent = isUpdateMode ? "حفظ التغييرات" : "إرسال التطبيق للمراجعة";
     } finally {
         loader.classList.add('hidden');
         progressContainer.style.display = 'none';

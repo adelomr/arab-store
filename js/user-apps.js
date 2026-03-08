@@ -121,7 +121,7 @@ async function fetchUserApps(uid) {
                     ${app.shortDesc || 'لا يوجد وصف قصير.'}
                 </div>
                 <div class="app-actions">
-                    <button class="btn btn-outline btn-sm" onclick="alert('سيتم إضافة ميزة التحديث قريباً!')" style="flex: 1;"><i class="fa-solid fa-pen-to-square"></i> تحديث</button>
+                    <a href="submit.html?id=${app.id}&col=${app.collection}" class="btn btn-outline btn-sm" style="flex: 1; text-align: center;"><i class="fa-solid fa-pen-to-square"></i> تحديث</a>
                     ${app.status === 'approved' ? `<a href="store-item.html?id=${app.id}" class="btn btn-primary btn-sm" style="flex: 1; text-align: center;"><i class="fa-solid fa-eye"></i> عرض</a>` : ''}
                 </div>
             `;
