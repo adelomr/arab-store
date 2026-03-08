@@ -10,6 +10,8 @@ const btnLogout = document.getElementById('btn-logout');
 const userInfo = document.getElementById('user-info');
 const adminContent = document.getElementById('admin-content');
 const unauthorizedMsg = document.getElementById('unauthorized-msg');
+const adminDashboardBtn = document.getElementById('admin-dashboard-btn');
+const adminNavLink = document.getElementById('admin-nav-link');
 
 const dashboardMain = document.getElementById('dashboard-main');
 
@@ -92,21 +94,31 @@ observeAuthState((user, isAdmin) => {
         if (isAdmin) {
             adminContent.style.display = 'block';
             unauthorizedMsg.style.display = 'none';
+            if (adminDashboardBtn) adminDashboardBtn.classList.remove('hidden');
             loadAppsDropdown();
         } else {
             adminContent.style.display = 'none';
             unauthorizedMsg.style.display = 'block';
+            if (adminDashboardBtn) adminDashboardBtn.classList.add('hidden');
         }
     } else {
         btnLogin.classList.remove('hidden');
         userInfo.classList.add('hidden');
         adminContent.style.display = 'none';
         unauthorizedMsg.style.display = 'block';
+        if (adminDashboardBtn) adminDashboardBtn.classList.add('hidden');
     }
 });
 
 btnLogin.addEventListener('click', loginWithGoogle);
 btnLogout.addEventListener('click', logoutUser);
+
+if (adminNavLink) {
+    adminNavLink.addEventListener('click', (e) => {
+        e.preventDefault();
+        showDashboard();
+    });
+}
 
 const sectionReview = document.getElementById('section-review');
 const reviewList = document.getElementById('review-list');

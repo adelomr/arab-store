@@ -126,7 +126,7 @@
         .dash-card:hover {
             transform: translateY(-5px);
             border-color: var(--primary-color);
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.05);
         }
 
         .dash-card i {
@@ -175,7 +175,7 @@
                 <a href="index.html?v=4" class="logo">
                     <img src="web-assets/app_icon.png?v=2026" alt="متجر العرب"
                         style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
-                    لوحة التحكم
+                    متجر العرب
                 </a>
                 <button id="theme-toggle" class="theme-toggle" title="تبديل الوضع الليلي">
                     <i class="fa-solid fa-moon"></i>
@@ -183,6 +183,12 @@
             </div>
             <div class="navbar-actions">
                 <ul class="nav-links">
+                    <li id="admin-dashboard-btn" class="hidden">
+                        <a href="admin.html" id="admin-nav-link" class="btn btn-outline btn-sm"
+                            style="border: none; font-weight: bold; color: var(--primary-color);">
+                            <i class="fa-solid fa-table-columns"></i> لوحة التحكم
+                        </a>
+                    </li>
                     <!-- Auth Section -->
                     <li id="auth-section">
                         <button id="btn-login" type="button" class="btn btn-primary hidden">تسجيل الدخول <i
@@ -242,9 +248,12 @@
         <div id="section-review" class="admin-form hidden" style="max-width: 900px;">
             <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
             <h3><i class="fa-solid fa-list-check"></i> مراجعة التطبيقات</h3>
-            <div id="review-loader" class="hidden" style="text-align: center; margin: 2rem 0;"><span class="loader"></span></div>
-            <div id="no-reviews-msg" class="hidden" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                <i class="fa-solid fa-check-circle" style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;"></i>
+            <div id="review-loader" class="hidden" style="text-align: center; margin: 2rem 0;"><span
+                    class="loader"></span></div>
+            <div id="no-reviews-msg" class="hidden"
+                style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                <i class="fa-solid fa-check-circle"
+                    style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;"></i>
                 <p>لا توجد طلبات جديدة معلقة.</p>
             </div>
             <div id="review-list" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
@@ -256,21 +265,25 @@
         <div id="section-notifications" class="admin-form hidden">
             <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
             <h3><i class="fa-regular fa-bell"></i> إرسال إشعار</h3>
-            <p style="color: var(--text-secondary); margin-bottom: 20px;">أرسل إشعاراً عاماً لجميع المطورين، أو إشعاراً مخصصاً.</p>
+            <p style="color: var(--text-secondary); margin-bottom: 20px;">أرسل إشعاراً عاماً لجميع المطورين، أو إشعاراً
+                مخصصاً.</p>
             <form id="form-notification">
                 <div class="form-group">
                     <label>عنوان الإشعار</label>
-                    <input type="text" id="notif-title" class="form-control" placeholder="مثال: تحديث سياسة المتجر" required>
+                    <input type="text" id="notif-title" class="form-control" placeholder="مثال: تحديث سياسة المتجر"
+                        required>
                 </div>
                 <div class="form-group">
                     <label>نص الإشعار</label>
-                    <textarea id="notif-body" class="form-control" rows="4" placeholder="اكتب تفاصيل الإشعار هنا..." required></textarea>
+                    <textarea id="notif-body" class="form-control" rows="4" placeholder="اكتب تفاصيل الإشعار هنا..."
+                        required></textarea>
                 </div>
                 <div class="form-group">
                     <label>المستلم (معرف المستخدم - اتركه فارغاً لإرسال للجميع)</label>
                     <input type="text" id="notif-uid" class="form-control" placeholder="اختياري: معرف المطور UID">
                 </div>
-                <button type="submit" class="btn btn-primary" style="width: 100%;"><i class="fa-regular fa-paper-plane"></i> إرسال الإشعار</button>
+                <button type="submit" class="btn btn-primary" style="width: 100%;"><i
+                        class="fa-regular fa-paper-plane"></i> إرسال الإشعار</button>
             </form>
         </div>
 
@@ -278,7 +291,8 @@
         <div id="section-statistics" class="admin-form hidden" style="max-width: 900px;">
             <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
             <h3><i class="fa-solid fa-chart-pie"></i> إحصائيات التطبيقات</h3>
-            <div id="stats-loader" class="hidden" style="text-align: center; margin: 2rem 0;"><span class="loader"></span></div>
+            <div id="stats-loader" class="hidden" style="text-align: center; margin: 2rem 0;"><span
+                    class="loader"></span></div>
             <div style="overflow-x: auto; margin-top: 20px;">
                 <table style="width: 100%; border-collapse: collapse; text-align: right;">
                     <thead>
