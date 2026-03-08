@@ -1,5 +1,8 @@
 (function () {
+    let initialized = false;
     function initTheme() {
+        if (initialized) return;
+        initialized = true;
         console.log("Theme script checking...");
         const themeToggle = document.getElementById('theme-toggle');
         if (!themeToggle) {
