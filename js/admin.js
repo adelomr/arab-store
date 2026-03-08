@@ -37,65 +37,20 @@ const selectApp = document.getElementById('select-app');
 const selectDeleteApp = document.getElementById('select-delete-app');
 
 // File Upload Elements
-const shotInput = document.getElementById('app-screenshots');
-const shotPreview = document.getElementById('screenshots-preview');
-const apkInput = document.getElementById('app-download');
-const apkInfo = document.getElementById('apk-info');
 const updateApkInput = document.getElementById('update-download');
 const updateApkInfo = document.getElementById('update-apk-info');
-const iconInput = document.getElementById('app-icon');
-const iconPreview = document.getElementById('icon-preview');
 
 // Preview logic
-shotInput.addEventListener('change', () => {
-    shotPreview.innerHTML = '';
-    const files = Array.from(shotInput.files);
-    files.forEach(file => {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.className = 'preview-thumb';
-            shotPreview.appendChild(img);
-        };
-        reader.readAsDataURL(file);
+if (updateApkInput) {
+    updateApkInput.addEventListener('change', () => {
+        if (updateApkInput.files.length > 0) {
+            const file = updateApkInput.files[0];
+            const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
+            updateApkInfo.textContent = `تم اختيار: ${file.name} (${sizeInMB} ميغابايت)`;
+            updateApkInfo.setAttribute('data-size', sizeInMB + ' ميغابايت');
+        }
     });
-});
-
-iconInput.addEventListener('change', () => {
-    iconPreview.innerHTML = '';
-    if (iconInput.files.length > 0) {
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const img = document.createElement('img');
-            img.src = e.target.result;
-            img.className = 'preview-thumb';
-            iconPreview.appendChild(img);
-        };
-        reader.readAsDataURL(iconInput.files[0]);
-    }
-});
-
-apkInput.addEventListener('change', () => {
-    if (apkInput.files.length > 0) {
-        const file = apkInput.files[0];
-        apkInfo.textContent = `تم اختيار: ${file.name}`;
-        apkInfo.style.color = 'var(--primary-color)';
-        // Auto-calculate size
-        const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
-        apkInfo.textContent = `تم اختيار: ${file.name} (${sizeInMB} ميغابايت)`;
-        apkInfo.setAttribute('data-size', sizeInMB + ' ميغابايت'); // Store size for submission
-    }
-});
-
-updateApkInput.addEventListener('change', () => {
-    if (updateApkInput.files.length > 0) {
-        const file = updateApkInput.files[0];
-        const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
-        updateApkInfo.textContent = `تم اختيار: ${file.name} (${sizeInMB} ميغابايت)`;
-        updateApkInfo.setAttribute('data-size', sizeInMB + ' ميغابايت');
-    }
-});
+}
 
 // Helper for Firebase Storage Upload with Progress
 function uploadWithProgress(file, path, progressBar, statusText, container) {
@@ -153,14 +108,13 @@ observeAuthState((user, isAdmin) => {
 btnLogin.addEventListener('click', loginWithGoogle);
 btnLogout.addEventListener('click', logoutUser);
 
-const tabReview = document.getElementById('tab-review');
 const sectionReview = document.getElementById('section-review');
 const reviewList = document.getElementById('review-list');
 const reviewLoader = document.getElementById('review-loader');
 const noReviewsMsg = document.getElementById('no-reviews-msg');
-const reviewCountBadge = document.getElementById('review-count');
+// Fixed ID to match admin.html
+const reviewCountBadge = document.getElementById('review-count-badge');
 
-const tabCategories = document.getElementById('tab-categories');
 const sectionCategories = document.getElementById('section-categories');
 const categoriesList = document.getElementById('categories-list');
 
