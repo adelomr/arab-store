@@ -17,6 +17,39 @@
     --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+:root.dark-mode {
+    --bg-color: #0d1117;
+    --card-bg: #161b22;
+    --border-color: #30363d;
+    --text-primary: #c9d1d9;
+    --text-secondary: #8b949e;
+    --card-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+:root.dark-mode header {
+    background: rgba(13, 17, 23, 0.95) !important;
+}
+
+.theme-toggle {
+    background: none;
+    border: none;
+    color: var(--text-primary);
+    font-size: 1.2rem;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 50%;
+    transition: var(--transition);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+}
+
+.theme-toggle:hover {
+    background: rgba(128, 128, 128, 0.1);
+    color: var(--primary-color);
+}
+
 * {
     margin: 0;
     padding: 0;

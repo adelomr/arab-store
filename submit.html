@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>إرسال تطبيق - متجر العرب</title>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
     <link rel="icon" type="image/png" href="web-assets/app_icon.png?v=2026">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
@@ -19,6 +24,12 @@
                 متجر العرب
             </a>
             <ul class="nav-links">
+                <!-- Dark Mode Toggle -->
+                <li>
+                    <button id="theme-toggle" class="theme-toggle" title="تبديل الوضع الليلي">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </li>
                 <!-- Auth Section -->
                 <li id="auth-section">
                     <button id="btn-login" type="button" class="btn btn-primary">تسجيل الدخول <i
@@ -136,6 +147,7 @@
     </main>
 
     <script type="module" src="js/submit.js"></script>
+    <script src="js/theme.js"></script>
 </body>
 
 </html>

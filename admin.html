@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم | متجر العرب</title>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon -->
@@ -138,6 +143,12 @@
             </a>
             <ul class="nav-links">
 
+                <!-- Dark Mode Toggle -->
+                <li>
+                    <button id="theme-toggle" class="theme-toggle" title="تبديل الوضع الليلي">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </li>
                 <!-- Auth Section -->
                 <li id="auth-section">
                     <button id="btn-login" type="button" class="btn btn-primary hidden">تسجيل الدخول <i
@@ -319,6 +330,7 @@
 
     <!-- JavaScript as module -->
     <script type="module" src="js/admin.js"></script>
+    <script src="js/theme.js"></script>
 </body>
 
 </html>

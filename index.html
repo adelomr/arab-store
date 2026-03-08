@@ -5,6 +5,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>متجر العرب</title>
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
     <meta name="description" content="متجر تطبيقات احترافي لتحميل وتحديث التطبيقات بكل سهولة.">
     <!-- Favicon -->
     <!-- Favicon -->
@@ -31,6 +36,12 @@
                         style="color: var(--primary-color); font-weight: bold;"><i class="fa-solid fa-gauge"></i> لوحة
                         التحكم</a></li>
 
+                <!-- Dark Mode Toggle -->
+                <li>
+                    <button id="theme-toggle" class="theme-toggle" title="تبديل الوضع الليلي">
+                        <i class="fa-solid fa-moon"></i>
+                    </button>
+                </li>
                 <!-- Auth Section -->
                 <li id="auth-section">
                     <button id="btn-login" type="button" class="btn btn-primary">تسجيل الدخول <i
@@ -68,6 +79,7 @@
 
     <!-- JavaScript as module -->
     <script type="module" src="js/store.js"></script>
+    <script src="js/theme.js"></script>
 </body>
 
 </html>
