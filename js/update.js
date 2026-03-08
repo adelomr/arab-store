@@ -1,0 +1,319 @@
+import { db, storage } from './firebase-config.js';
+import { loginWithGoogle, logoutUser, observeAuthState } from './auth.js';
+import { collection, doc, getDoc, updateDoc, serverTimestamp, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+
+// DOM Elements
+const btnLogin = document.getElementById('btn-login');
+const btnLogout = document.getElementById('btn-logout');
+const userInfo = document.getElementById('user-info');
+const updateContent = document.getElementById('update-content');
+const unauthorizedMsg = document.getElementById('unauthorized-msg');
+const formSection = document.getElementById('form-section');
+
+const formSubmit = document.getElementById('form-submit');
+const iconInput = document.getElementById('app-icon');
+const shotInput = document.getElementById('app-screenshots');
+const apkInput = document.getElementById('app-download');
+
+const iconPreview = document.getElementById('icon-preview');
+const shotPreview = document.getElementById('screenshots-preview');
+const apkInfo = document.getElementById('apk-info');
+
+const progressContainer = document.getElementById('submit-progress-container');
+const progressBar = document.getElementById('submit-progress-bar');
+const statusText = document.getElementById('submit-status');
+const loader = document.getElementById('submit-loader');
+const btnSubmit = document.getElementById('btn-submit-app');
+
+const selectUserApp = document.getElementById('select-user-app');
+
+let currentUser = null;
+let isAdminUser = false;
+let existingAppData = null;
+let appId = null;
+let appCollection = 'apps'; // Default
+
+// Check URL Params for direct edit
+const urlParams = new URLSearchParams(window.location.search);
+const directId = urlParams.get('id');
+const directCol = urlParams.get('col');
+
+// Auth Setup
+observeAuthState((user, isAdmin) => {
+    currentUser = user;
+    isAdminUser = isAdmin;
+    if (user) {
+        btnLogin.classList.add('hidden');
+        userInfo.classList.remove('hidden');
+        const avatar = document.getElementById('user-avatar');
+        const name = document.getElementById('user-name');
+        if (avatar) avatar.src = user.photoURL;
+        if (name) name.textContent = user.displayName;
+        updateContent.classList.remove('hidden');
+        unauthorizedMsg.classList.add('hidden');
+
+        fetchAndPopulateUserApps().then(() => {
+            if (directId && directCol) {
+                selectUserApp.value = directId;
+                loadExistingAppForUpdate(directId, directCol);
+            }
+        });
+        loadCategoriesDropdown();
+    } else {
+        btnLogin.classList.remove('hidden');
+        userInfo.classList.add('hidden');
+        updateContent.classList.add('hidden');
+        unauthorizedMsg.classList.remove('hidden');
+    }
+});
+
+if (btnLogin) btnLogin.addEventListener('click', loginWithGoogle);
+if (btnLogout) btnLogout.addEventListener('click', logoutUser);
+
+// Load categories into the dropdown
+async function loadCategoriesDropdown(selectedCategory = "") {
+    const selectEl = document.getElementById('app-category');
+    if (!selectEl) return;
+    try {
+        const querySnapshot = await getDocs(collection(db, "categories"));
+        selectEl.innerHTML = '<option value="">-- اختر الفئة --</option>';
+        querySnapshot.forEach((docSnap) => {
+            const catName = docSnap.data().name;
+            const opt = document.createElement('option');
+            opt.value = catName;
+            opt.textContent = catName;
+            if (catName === selectedCategory) opt.selected = true;
+            selectEl.appendChild(opt);
+        });
+    } catch (e) {
+        console.error("Error loading categories:", e);
+    }
+}
+
+async function fetchAndPopulateUserApps() {
+    if (!currentUser) return;
+    try {
+        const userAppsMap = new Map();
+        const cols = ["apps", "pending_apps"];
+
+        for (const col of cols) {
+            // Search by UID
+            const qUid = query(collection(db, col), where("developerUid", "==", currentUser.uid));
+            const snapUid = await getDocs(qUid);
+            snapUid.forEach(doc => userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: col }));
+
+            // Search by Email (fallback)
+            const qEmail = query(collection(db, col), where("developerEmail", "==", currentUser.email));
+            const snapEmail = await getDocs(qEmail);
+            for (const docSnap of snapEmail.docs) {
+                if (!userAppsMap.has(docSnap.id)) {
+                    const appData = docSnap.data();
+                    userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
+                    // Self-healing
+                    if (appData.developerUid !== currentUser.uid) {
+                        try {
+                            await updateDoc(doc(db, col, docSnap.id), { developerUid: currentUser.uid });
+                        } catch (e) { }
+                    }
+                }
+            }
+
+            // Search by Name (fallback)
+            const qName = query(collection(db, col), where("developer", "==", currentUser.displayName));
+            const snapName = await getDocs(qName);
+            for (const docSnap of snapName.docs) {
+                if (!userAppsMap.has(docSnap.id)) {
+                    const appData = docSnap.data();
+                    userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
+                }
+            }
+        }
+
+        selectUserApp.innerHTML = '<option value="">-- اختر تطبيقاً للتعديل --</option>';
+        if (userAppsMap.size === 0) {
+            selectUserApp.innerHTML = '<option value="">لم نجد تطبيقات مرتبطة بهذا الحساب</option>';
+            return;
+        }
+
+        userAppsMap.forEach(app => {
+            const opt = document.createElement('option');
+            opt.value = app.id;
+            opt.dataset.collection = app.collection;
+            opt.textContent = `${app.name} (${app.packageName})`;
+            selectUserApp.appendChild(opt);
+        });
+    } catch (e) {
+        console.error("Error fetching user apps:", e);
+    }
+}
+
+selectUserApp.addEventListener('change', () => {
+    const selectedId = selectUserApp.value;
+    const selectedCol = selectUserApp.options[selectUserApp.selectedIndex]?.dataset.collection;
+    if (selectedId && selectedCol) {
+        loadExistingAppForUpdate(selectedId, selectedCol);
+    } else {
+        formSection.classList.remove('visible');
+    }
+});
+
+async function loadExistingAppForUpdate(id, col) {
+    try {
+        loader.classList.remove('hidden');
+        const docRef = doc(db, col, id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            existingAppData = docSnap.data();
+            appId = id;
+            appCollection = col;
+
+            // Fill Form Fields
+            document.getElementById('app-name').value = existingAppData.name || "";
+            document.getElementById('app-package').value = existingAppData.packageName || "";
+            document.getElementById('app-short').value = existingAppData.shortDesc || "";
+            document.getElementById('app-full').value = existingAppData.fullDesc || "";
+            document.getElementById('app-version').value = existingAppData.version || "";
+            document.getElementById('app-versioncode').value = existingAppData.versionCode || "";
+
+            // Previews
+            iconPreview.innerHTML = existingAppData.iconUrl ? `<img src="${existingAppData.iconUrl}" class="preview-thumb">` : "";
+            shotPreview.innerHTML = "";
+            if (existingAppData.screenshots) {
+                existingAppData.screenshots.forEach(url => {
+                    const img = document.createElement('img');
+                    img.src = url;
+                    img.className = 'preview-thumb';
+                    shotPreview.appendChild(img);
+                });
+            }
+            apkInfo.textContent = `تطبيق "${existingAppData.name}" جاهز للتحديث.`;
+
+            await loadCategoriesDropdown(existingAppData.category);
+            formSection.classList.add('visible');
+        }
+    } catch (e) {
+        console.error("Error loading app:", e);
+        alert("حدث خطأ أثناء تحميل بيانات التطبيق.");
+    } finally {
+        loader.classList.add('hidden');
+    }
+}
+
+// Preview Logic
+iconInput.addEventListener('change', () => {
+    if (iconInput.files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            iconPreview.innerHTML = `<img src="${e.target.result}" class="preview-thumb">`;
+        };
+        reader.readAsDataURL(iconInput.files[0]);
+    }
+});
+
+shotInput.addEventListener('change', () => {
+    shotPreview.innerHTML = '';
+    Array.from(shotInput.files).forEach(file => {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'preview-thumb';
+            shotPreview.appendChild(img);
+        };
+        reader.readAsDataURL(file);
+    });
+});
+
+apkInput.addEventListener('change', () => {
+    if (apkInput.files.length > 0) {
+        const file = apkInput.files[0];
+        const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
+        apkInfo.textContent = `تم اختيار: ${file.name} (${sizeInMB} ميغابايت)`;
+        apkInfo.setAttribute('data-size', sizeInMB + ' ميغابايت');
+    }
+});
+
+function uploadWithProgress(file, path) {
+    return new Promise((resolve, reject) => {
+        const storageRef = ref(storage, path);
+        const uploadTask = uploadBytesResumable(storageRef, file);
+        progressContainer.style.display = 'block';
+        uploadTask.on('state_changed',
+            (snapshot) => {
+                const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+                progressBar.style.width = progress + '%';
+                progressBar.textContent = Math.round(progress) + '%';
+            },
+            reject,
+            () => getDownloadURL(uploadTask.snapshot.ref).then(resolve)
+        );
+    });
+}
+
+formSubmit.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!currentUser || !appId) return;
+
+    loader.classList.remove('hidden');
+    btnSubmit.disabled = true;
+    btnSubmit.textContent = "جاري حفظ التعديلات...";
+
+    try {
+        const pkgName = existingAppData.packageName;
+        const basePath = isAdminUser || appCollection === 'apps' ? `apps/${pkgName}` : `submissions/${pkgName}`;
+
+        let iconUrl = existingAppData.iconUrl;
+        if (iconInput.files.length > 0) {
+            statusText.textContent = "جاري رفع الأيقونة...";
+            iconUrl = await uploadWithProgress(iconInput.files[0], `${basePath}/icon_${Date.now()}`);
+        }
+
+        let screenshotUrls = existingAppData.screenshots || [];
+        const shotFiles = Array.from(shotInput.files);
+        if (shotFiles.length > 0) {
+            screenshotUrls = [];
+            for (let i = 0; i < shotFiles.length; i++) {
+                statusText.textContent = `جاري رفع الصورة ${i + 1} من ${shotFiles.length}...`;
+                const url = await uploadWithProgress(shotFiles[i], `${basePath}/screenshots/shot_${i}_${Date.now()}`);
+                screenshotUrls.push(url);
+            }
+        }
+
+        let downloadUrl = existingAppData.downloadUrl;
+        let size = existingAppData.size;
+        if (apkInput.files.length > 0) {
+            statusText.textContent = "جاري رفع ملف APK...";
+            downloadUrl = await uploadWithProgress(apkInput.files[0], `${basePath}/releases/${apkInput.files[0].name}`);
+            size = apkInfo.getAttribute('data-size') || existingAppData.size;
+        }
+
+        const updateData = {
+            name: document.getElementById('app-name').value,
+            shortDesc: document.getElementById('app-short').value,
+            fullDesc: document.getElementById('app-full').value,
+            category: document.getElementById('app-category').value,
+            size: size,
+            iconUrl: iconUrl,
+            screenshots: screenshotUrls,
+            downloadUrl: downloadUrl,
+            version: document.getElementById('app-version').value,
+            versionCode: parseInt(document.getElementById('app-versioncode').value),
+            lastUpdated: serverTimestamp()
+        };
+
+        statusText.textContent = "جاري تحديث البيانات...";
+        await updateDoc(doc(db, appCollection, appId), updateData);
+        alert("تم تحديث التطبيق بنجاح!");
+        window.location.href = "user-apps.html";
+    } catch (error) {
+        console.error("Update error:", error);
+        alert("خطأ أثناء الحفظ: " + error.message);
+        btnSubmit.disabled = false;
+        btnSubmit.textContent = "حفظ التحديثات وإرسالها";
+    } finally {
+        loader.classList.add('hidden');
+        progressContainer.style.display = 'none';
+    }
+});
