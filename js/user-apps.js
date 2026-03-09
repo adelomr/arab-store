@@ -63,15 +63,9 @@ async function fetchUserApps(user, isAdmin) {
         const collections = ["pending_apps", "apps"];
 
         for (const colName of collections) {
-            let snapUid;
-            if (isAdmin) {
-                // Admin sees all
-                snapUid = await getDocs(collection(db, colName));
-            } else {
-                // Regular user
-                const qUid = query(collection(db, colName), where("developerUid", "==", uid));
-                snapUid = await getDocs(qUid);
-            }
+            // Query only current user's apps (even if admin)
+            const qUid = query(collection(db, colName), where("developerUid", "==", uid));
+            const snapUid = await getDocs(qUid);
 
             snapUid.forEach(doc => {
                 userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: colName });

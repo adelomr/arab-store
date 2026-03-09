@@ -98,32 +98,24 @@ async function fetchAndPopulateUserApps() {
         const cols = ["apps", "pending_apps"];
 
         for (const col of cols) {
-            let snap;
-            if (isAdminUser) {
-                // Admin can see all apps
-                snap = await getDocs(collection(db, col));
-            } else {
-                // Regular user sees only their apps
-                const qUid = query(collection(db, col), where("developerUid", "==", currentUser.uid));
-                snap = await getDocs(qUid);
-            }
+            // Query only current user's apps (even if admin)
+            const qUid = query(collection(db, col), where("developerUid", "==", currentUser.uid));
+            const snap = await getDocs(qUid);
 
             snap.forEach(doc => userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: col }));
 
-            if (!isAdminUser) {
-                // Search by Email (fallback for non-admins to catch old apps)
-                const qEmail = query(collection(db, col), where("developerEmail", "==", currentUser.email));
-                const snapEmail = await getDocs(qEmail);
-                for (const docSnap of snapEmail.docs) {
-                    if (!userAppsMap.has(docSnap.id)) {
-                        const appData = docSnap.data();
-                        userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
-                        // Self-healing
-                        if (appData.developerUid !== currentUser.uid) {
-                            try {
-                                await updateDoc(doc(db, col, docSnap.id), { developerUid: currentUser.uid });
-                            } catch (e) { }
-                        }
+            // Search by Email (fallback for everyone to catch old apps)
+            const qEmail = query(collection(db, col), where("developerEmail", "==", currentUser.email));
+            const snapEmail = await getDocs(qEmail);
+            for (const docSnap of snapEmail.docs) {
+                if (!userAppsMap.has(docSnap.id)) {
+                    const appData = docSnap.data();
+                    userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
+                    // Self-healing
+                    if (appData.developerUid !== currentUser.uid) {
+                        try {
+                            await updateDoc(doc(db, col, docSnap.id), { developerUid: currentUser.uid });
+                        } catch (e) { }
                     }
                 }
             }
