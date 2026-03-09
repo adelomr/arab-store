@@ -546,13 +546,14 @@ document.getElementById('btn-add-category').addEventListener('click', async () =
     const name = input.value.trim();
     if (!name) { alert('يرجى كتابة اسم الفئة أولاً.'); return; }
     try {
-        const id = name.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
-        await setDoc(doc(db, "categories", id), { name });
+        // Use the name directly as ID to support Arabic and match edit logic
+        await setDoc(doc(db, "categories", name), { name });
         input.value = '';
         loadCategories();
         populateCategoryDropdown(document.getElementById('app-category'));
         alert(`تمت إضافة فئة "${name}" بنجاح!`);
     } catch (e) {
+        console.error("Error adding category:", e);
         alert('خطأ: ' + e.message);
     }
 });
