@@ -4,8 +4,6 @@ import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/f
 
 const profileForm = document.getElementById('profile-form');
 const loadingOverlay = document.getElementById('loading-overlay');
-const countrySelect = document.getElementById('user-country');
-const govSelect = document.getElementById('user-gov');
 const phoneInput = document.getElementById('user-phone');
 const phonePrefix = document.getElementById('phone-prefix');
 
@@ -23,17 +21,58 @@ const locationData = {
     "تونس": { code: "+216", govs: ["تونس العاصمة", "صفاقس", "سوسة", "القيروان", "بنزرت", "مدنين"] }
 };
 
-// Populate Initial Data (only if needed, but we have them in HTML now)
-// We still need the listener for Dynamic Phone and Govs
+// Custom Dropdown Logic
+function setupCustomDropdown(dropdownId, optionsId, onSelect) {
+    const dropdown = document.getElementById(dropdownId);
+    if (!dropdown) return;
 
-// Country Change Listener
-countrySelect.addEventListener('change', () => {
-    const country = countrySelect.value;
-    if (!govSelect) return;
+    const trigger = dropdown.querySelector('.dropdown-trigger');
+    const optionsContainer = document.getElementById(optionsId);
+    const selectedValueSpan = dropdown.querySelector('.selected-value');
 
-    govSelect.innerHTML = '<option value="">-- اختر المحافظة --</option>';
+    trigger.addEventListener('click', (e) => {
+        if (dropdown.classList.contains('disabled')) return;
 
-    if (country && locationData[country]) {
+        // Close other dropdowns
+        document.querySelectorAll('.custom-dropdown').forEach(d => {
+            if (d !== dropdown) d.classList.remove('active');
+        });
+
+        dropdown.classList.toggle('active');
+        e.stopPropagation();
+    });
+
+    return {
+        updateOptions: (items) => {
+            optionsContainer.innerHTML = '';
+            items.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'dropdown-option';
+                div.textContent = item;
+                div.addEventListener('click', () => {
+                    selectedValueSpan.textContent = item;
+                    dropdown.classList.remove('active');
+                    dropdown.dataset.value = item;
+                    if (onSelect) onSelect(item);
+                });
+                optionsContainer.appendChild(div);
+            });
+        },
+        setValue: (value, text) => {
+            dropdown.dataset.value = value;
+            selectedValueSpan.textContent = text || value;
+        },
+        getValue: () => dropdown.dataset.value || '',
+        setDisabled: (disabled) => {
+            if (disabled) dropdown.classList.add('disabled');
+            else dropdown.classList.remove('disabled');
+        }
+    };
+}
+
+// Initialize Custom Dropdowns
+const countryDropdown = setupCustomDropdown('country-dropdown', 'country-options', (country) => {
+    if (locationData[country]) {
         const data = locationData[country];
 
         // Update Phone Prefix
@@ -46,18 +85,22 @@ countrySelect.addEventListener('change', () => {
         }
 
         // Update Governorates
-        data.govs.forEach(gov => {
-            const opt = document.createElement('option');
-            opt.value = gov;
-            opt.textContent = gov;
-            govSelect.appendChild(opt);
-        });
-        govSelect.disabled = false;
-    } else {
-        if (phonePrefix) phonePrefix.textContent = '';
-        if (phoneInput) phoneInput.style.paddingLeft = '15px';
-        govSelect.disabled = true;
+        govDropdown.updateOptions(data.govs);
+        govDropdown.setDisabled(false);
+        govDropdown.setValue('', '-- اختر المحافظة --');
     }
+});
+
+const govDropdown = setupCustomDropdown('gov-dropdown', 'gov-options');
+
+// Populate Countries
+if (countryDropdown) {
+    countryDropdown.updateOptions(Object.keys(locationData));
+}
+
+// Close dropdowns on click outside
+document.addEventListener('click', () => {
+    document.querySelectorAll('.custom-dropdown').forEach(d => d.classList.remove('active'));
 });
 
 onAuthStateChanged(auth, async (user) => {
@@ -94,7 +137,8 @@ if (profileForm) {
 
         if (loadingOverlay) loadingOverlay.style.display = 'flex';
 
-        const country = countrySelect.value;
+        const country = countryDropdown.getValue();
+        const gov = govDropdown.getValue();
         const phone = phoneInput.value;
         const fullPhone = (locationData[country]?.code || '') + phone;
 
@@ -104,7 +148,7 @@ if (profileForm) {
             email: user.email,
             phone: fullPhone,
             country: country,
-            gov: govSelect.value,
+            gov: gov,
             address: document.getElementById('user-address')?.value || '',
             photoURL: user.photoURL,
             isCompleted: true,
