@@ -1,6 +1,6 @@
 import { db } from './firebase-config.js';
 import { loginWithGoogle, logoutUser, observeAuthState } from './auth.js';
-import { collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, query, where, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // DOM Elements
 const btnLogin = document.getElementById('btn-login');
@@ -34,7 +34,7 @@ observeAuthState((user, isAdmin) => {
         unauthorizedMsg.classList.add('hidden');
         appsGrid.classList.remove('hidden');
 
-        fetchUserApps(user);
+        fetchUserApps(user, isAdmin);
     } else {
         btnLogin.classList.remove('hidden');
         userInfo.classList.add('hidden');
@@ -50,7 +50,7 @@ observeAuthState((user, isAdmin) => {
 if (btnLogin) btnLogin.addEventListener('click', loginWithGoogle);
 if (btnLogout) btnLogout.addEventListener('click', logoutUser);
 
-async function fetchUserApps(user) {
+async function fetchUserApps(user, isAdmin) {
     const uid = user.uid;
     const email = user.email;
 
@@ -63,9 +63,16 @@ async function fetchUserApps(user) {
         const collections = ["pending_apps", "apps"];
 
         for (const colName of collections) {
-            // Query by UID
-            const qUid = query(collection(db, colName), where("developerUid", "==", uid));
-            const snapUid = await getDocs(qUid);
+            let snapUid;
+            if (isAdmin) {
+                // Admin sees all
+                snapUid = await getDocs(collection(db, colName));
+            } else {
+                // Regular user
+                const qUid = query(collection(db, colName), where("developerUid", "==", uid));
+                snapUid = await getDocs(qUid);
+            }
+
             snapUid.forEach(doc => {
                 userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: colName });
             });
