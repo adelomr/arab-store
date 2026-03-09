@@ -87,6 +87,25 @@
             color: var(--primary-color);
         }
 
+        .input-wrapper input {
+            width: 100%;
+            padding: 12px 45px 12px 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid var(--glass-border);
+            border-radius: 12px;
+            color: #fff;
+            outline: none;
+            transition: all 0.3s;
+            font-size: 0.95rem;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .input-wrapper input:focus {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: var(--primary-color);
+            box-shadow: 0 0 15px rgba(0, 114, 255, 0.2);
+        }
+
         /* Custom Dropdown Styles */
         .custom-dropdown {
             position: relative;
