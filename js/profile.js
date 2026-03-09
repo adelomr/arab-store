@@ -1,11 +1,14 @@
 import { db, auth } from './firebase-config.js';
-import { doc, getDoc, setDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { doc, getDoc, setDoc, serverTimestamp, collection, query, where, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
 
 const profileForm = document.getElementById('profile-form');
 const loadingOverlay = document.getElementById('loading-overlay');
 const phoneInput = document.getElementById('user-phone');
 const phonePrefix = document.getElementById('phone-prefix');
+const nameInput = document.getElementById('user-display-name');
+const nameStatus = document.getElementById('name-status');
+const phoneStatus = document.getElementById('phone-status');
 
 const locationData = {
     "مصر": { code: "+20", govs: ["القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر", "البحيرة", "الفيوم", "الغربية", "الإسماعيلية", "المنوفية", "المنيا", "القليوبية", "الوادي الجديد", "السويس", "الشرقية", "دمياط", "بورسعيد", "بني سويف", "تطوان", "جنوب سيناء", "كفر الشيخ", "مطروح", "الأقصر", "قنا", "شمال سيناء", "سوهاج"] },
@@ -70,6 +73,59 @@ function setupCustomDropdown(dropdownId, optionsId, onSelect) {
     };
 }
 
+// Validation Logic
+const debounce = (func, wait) => {
+    let timeout;
+    return (...args) => {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => func(...args), wait);
+    };
+};
+
+async function checkUniqueness(fieldName, value, statusElem) {
+    if (!value || value.length < 3) {
+        statusElem.className = 'validation-status';
+        statusElem.innerHTML = '';
+        return;
+    }
+
+    statusElem.className = 'validation-status success';
+    statusElem.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i>';
+
+    try {
+        const q = query(collection(db, "users"), where(fieldName, "==", value));
+        const querySnapshot = await getDocs(q);
+
+        // Filter out current user
+        const otherUsers = querySnapshot.docs.filter(doc => doc.id !== auth.currentUser?.uid);
+
+        if (otherUsers.length > 0) {
+            statusElem.className = 'validation-status error';
+            statusElem.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+        } else {
+            statusElem.className = 'validation-status success';
+            statusElem.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
+        }
+    } catch (err) {
+        console.error("Validation error:", err);
+        statusElem.className = 'validation-status';
+    }
+}
+
+// Listeners for Validation
+if (nameInput) {
+    nameInput.addEventListener('input', debounce((e) => {
+        checkUniqueness('displayName', e.target.value, nameStatus);
+    }, 500));
+}
+
+if (phoneInput) {
+    phoneInput.addEventListener('input', debounce((e) => {
+        const fullPhone = (phonePrefix?.textContent || '') + e.target.value;
+        checkUniqueness('phone', fullPhone, phoneStatus);
+    }, 500));
+}
+
 // Initialize Custom Dropdowns
 const countryDropdown = setupCustomDropdown('country-dropdown', 'country-options', (country) => {
     if (locationData[country]) {
@@ -82,6 +138,9 @@ const countryDropdown = setupCustomDropdown('country-dropdown', 'country-options
         }
         if (phoneInput) {
             phoneInput.placeholder = `أدخل الرقم (بدون ${data.code})`;
+            // Re-validate phone with new prefix
+            const fullPhone = data.code + phoneInput.value;
+            checkUniqueness('phone', fullPhone, phoneStatus);
         }
 
         // Update Governorates
