@@ -97,47 +97,35 @@ async function fetchAndPopulateUserApps() {
         const userAppsMap = new Map();
         const cols = ["apps", "pending_apps"];
 
+        const searchNames = [];
+        if (currentUser.displayName) searchNames.push(currentUser.displayName);
+        if (isAdminUser && !searchNames.includes("عادل")) searchNames.push("عادل");
+
+        const queries = [];
+
         for (const col of cols) {
-            // Query only current user's apps (even if admin)
-            const qUid = query(collection(db, col), where("developerUid", "==", currentUser.uid));
-            const snap = await getDocs(qUid);
+            queries.push(getDocs(query(collection(db, col), where("developerUid", "==", currentUser.uid))).then(snap => ({ snap, col, type: 'uid' })));
 
-            snap.forEach(doc => userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: col }));
+            if (currentUser.email) {
+                queries.push(getDocs(query(collection(db, col), where("developerEmail", "==", currentUser.email))).then(snap => ({ snap, col, type: 'email' })));
+            }
 
-            // Search by Email (fallback for everyone to catch old apps)
-            const qEmail = query(collection(db, col), where("developerEmail", "==", currentUser.email));
-            const snapEmail = await getDocs(qEmail);
-            for (const docSnap of snapEmail.docs) {
+            for (const nameToSearch of searchNames) {
+                queries.push(getDocs(query(collection(db, col), where("developer", "==", nameToSearch))).then(snap => ({ snap, col, type: 'name' })));
+            }
+        }
+
+        const results = await Promise.all(queries);
+
+        for (const { snap, col, type } of results) {
+            for (const docSnap of snap.docs) {
                 if (!userAppsMap.has(docSnap.id)) {
                     const appData = docSnap.data();
                     userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
-                    // Self-healing
-                    if (appData.developerUid !== currentUser.uid) {
-                        try {
-                            await updateDoc(doc(db, col, docSnap.id), { developerUid: currentUser.uid });
-                        } catch (e) { }
-                    }
-                }
-            }
 
-            // Search by Name (final fallback for catch-all)
-            const searchNames = [];
-            if (currentUser.displayName) searchNames.push(currentUser.displayName);
-            if (isAdminUser && !searchNames.includes("عادل")) searchNames.push("عادل");
-
-            for (const nameToSearch of searchNames) {
-                const qName = query(collection(db, col), where("developer", "==", nameToSearch));
-                const snapName = await getDocs(qName);
-                for (const docSnap of snapName.docs) {
-                    if (!userAppsMap.has(docSnap.id)) {
-                        const appData = docSnap.data();
-                        userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
-                        // Self-healing
-                        if (appData.developerUid !== currentUser.uid) {
-                            try {
-                                await updateDoc(doc(db, col, docSnap.id), { developerUid: currentUser.uid });
-                            } catch (e) { }
-                        }
+                    // Self-healing (non-blocking)
+                    if (type !== 'uid' && appData.developerUid !== currentUser.uid) {
+                        updateDoc(doc(db, col, docSnap.id), { developerUid: currentUser.uid }).catch(() => { });
                     }
                 }
             }

@@ -62,53 +62,35 @@ async function fetchUserApps(user, isAdmin) {
 
         const collections = ["pending_apps", "apps"];
 
+        const searchNames = [];
+        if (user.displayName) searchNames.push(user.displayName);
+        if (isAdmin && !searchNames.includes("عادل")) searchNames.push("عادل");
+
+        const queries = [];
+
         for (const colName of collections) {
-            // Query only current user's apps (even if admin)
-            const qUid = query(collection(db, colName), where("developerUid", "==", uid));
-            const snapUid = await getDocs(qUid);
+            queries.push(getDocs(query(collection(db, colName), where("developerUid", "==", uid))).then(snap => ({ snap, colName, type: 'uid' })));
 
-            snapUid.forEach(doc => {
-                userAppsMap.set(doc.id, { id: doc.id, ...doc.data(), collection: colName });
-            });
-
-            // Query by Email (fallback for older apps)
             if (email) {
-                const qEmail = query(collection(db, colName), where("developerEmail", "==", email));
-                const snapEmail = await getDocs(qEmail);
-                for (const docSnap of snapEmail.docs) {
-                    if (!userAppsMap.has(docSnap.id)) {
-                        const appData = docSnap.data();
-                        userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: colName });
-
-                        // Self-healing: Update UID if missing or different
-                        if (appData.developerUid !== uid) {
-                            try {
-                                await updateDoc(doc(db, colName, docSnap.id), { developerUid: uid });
-                                console.log(`Auto-fixed UID for app: ${appData.name}`);
-                            } catch (err) { console.error("Self-healing failed:", err); }
-                        }
-                    }
-                }
+                queries.push(getDocs(query(collection(db, colName), where("developerEmail", "==", email))).then(snap => ({ snap, colName, type: 'email' })));
             }
 
-            // Query by Name (final fallback for very old data or manual entries)
-            const searchNames = [];
-            if (user.displayName) searchNames.push(user.displayName);
-            if (isAdmin && !searchNames.includes("عادل")) searchNames.push("عادل");
-
             for (const nameToSearch of searchNames) {
-                const qName = query(collection(db, colName), where("developer", "==", nameToSearch));
-                const snapName = await getDocs(qName);
-                for (const docSnap of snapName.docs) {
-                    if (!userAppsMap.has(docSnap.id)) {
-                        const appData = docSnap.data();
-                        userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: colName });
-                        // Self-healing
-                        if (appData.developerUid !== uid) {
-                            try {
-                                await updateDoc(doc(db, colName, docSnap.id), { developerUid: uid });
-                            } catch (e) { }
-                        }
+                queries.push(getDocs(query(collection(db, colName), where("developer", "==", nameToSearch))).then(snap => ({ snap, colName, type: 'name' })));
+            }
+        }
+
+        const results = await Promise.all(queries);
+
+        for (const { snap, colName, type } of results) {
+            for (const docSnap of snap.docs) {
+                if (!userAppsMap.has(docSnap.id)) {
+                    const appData = docSnap.data();
+                    userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: colName });
+
+                    // Self-healing: Update UID if missing or different (non-blocking)
+                    if (type !== 'uid' && appData.developerUid !== uid) {
+                        updateDoc(doc(db, colName, docSnap.id), { developerUid: uid }).catch(() => { });
                     }
                 }
             }
