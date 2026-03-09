@@ -452,17 +452,57 @@ async function loadCategories() {
         }
         querySnapshot.forEach((docSnap) => {
             const catName = docSnap.data().name;
-            const tag = document.createElement('div');
-            tag.style.cssText = 'display:inline-flex;align-items:center;gap:8px;background:var(--input-bg);border:1px solid var(--border-color);border-radius:20px;padding:6px 14px;font-size:0.9rem;';
-            tag.innerHTML = `<span>${catName}</span><button type="button" data-id="${docSnap.id}" class="btn-del-cat" style="background:none;border:none;cursor:pointer;color:var(--danger-color);font-size:1rem;line-height:1;padding:0;" title="حذف"><i class="fa-solid fa-xmark"></i></button>`;
-            categoriesList.appendChild(tag);
+            const item = document.createElement('div');
+            item.className = 'category-list-item';
+            item.innerHTML = `
+                <span class="cat-name">${catName}</span>
+                <div class="category-actions">
+                    <button type="button" class="btn-icon edit-btn" data-id="${docSnap.id}" data-name="${catName}" title="تعديل">
+                        <i class="fa-solid fa-pen-to-square"></i>
+                    </button>
+                    <button type="button" class="btn-icon delete-btn" data-id="${docSnap.id}" title="حذف">
+                        <i class="fa-solid fa-trash-can"></i>
+                    </button>
+                </div>
+            `;
+            categoriesList.appendChild(item);
         });
-        document.querySelectorAll('.btn-del-cat').forEach(btn => {
+
+        // Edit Category Logic
+        document.querySelectorAll('.edit-btn').forEach(btn => {
             btn.addEventListener('click', async () => {
-                if (!confirm('هل تريد حذف هذه الفئة؟')) return;
-                await deleteDoc(doc(db, "categories", btn.dataset.id));
-                loadCategories();
-                populateCategoryDropdown(document.getElementById('app-category'));
+                const oldName = btn.dataset.name;
+                const newName = prompt('أدخل الاسم الجديد للفئة:', oldName);
+                if (!newName || newName.trim() === '' || newName === oldName) return;
+
+                const trimmedName = newName.trim();
+                try {
+                    // Since name is ID, we must create new and delete old
+                    await setDoc(doc(db, "categories", trimmedName), { name: trimmedName });
+                    await deleteDoc(doc(db, "categories", oldName));
+
+                    alert('تم تعديل الفئة بنجاح!');
+                    loadCategories();
+                    populateCategoryDropdown(document.getElementById('app-category'));
+                } catch (err) {
+                    console.error("Error renaming category:", err);
+                    alert("حدث خطأ أثناء التعديل: " + err.message);
+                }
+            });
+        });
+
+        // Delete Category Logic
+        document.querySelectorAll('.delete-btn').forEach(btn => {
+            btn.addEventListener('click', async () => {
+                if (!confirm('هل أنت متأكد من رغبتك في حذف هذه الفئة؟')) return;
+                try {
+                    await deleteDoc(doc(db, "categories", btn.dataset.id));
+                    loadCategories();
+                    populateCategoryDropdown(document.getElementById('app-category'));
+                } catch (err) {
+                    console.error("Error deleting category:", err);
+                    alert("حدث خطأ أثناء الحذف: " + err.message);
+                }
             });
         });
     } catch (e) {

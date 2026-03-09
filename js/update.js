@@ -353,11 +353,11 @@ function updateCustomSelectUI(selectEl) {
     trigger.innerHTML = `<span>${selectedOption ? selectedOption.textContent : ''}</span> <i class="fa-solid fa-chevron-down"></i>`;
 
     const optionsDiv = document.createElement('div');
-    optionsDiv.className = 'custom-options';
+    optionsDiv.className = 'custom-select-options';
 
     Array.from(selectEl.options).forEach((opt, index) => {
         const optionDiv = document.createElement('div');
-        optionDiv.className = 'custom-option';
+        optionDiv.className = 'custom-select-option';
         optionDiv.textContent = opt.textContent;
         optionDiv.dataset.value = opt.value;
         optionDiv.dataset.index = index;
