@@ -119,6 +119,28 @@ async function fetchAndPopulateUserApps() {
                     }
                 }
             }
+
+            // Search by Name (final fallback for catch-all)
+            const searchNames = [];
+            if (currentUser.displayName) searchNames.push(currentUser.displayName);
+            if (isAdminUser && !searchNames.includes("عادل")) searchNames.push("عادل");
+
+            for (const nameToSearch of searchNames) {
+                const qName = query(collection(db, col), where("developer", "==", nameToSearch));
+                const snapName = await getDocs(qName);
+                for (const docSnap of snapName.docs) {
+                    if (!userAppsMap.has(docSnap.id)) {
+                        const appData = docSnap.data();
+                        userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: col });
+                        // Self-healing
+                        if (appData.developerUid !== currentUser.uid) {
+                            try {
+                                await updateDoc(doc(db, col, docSnap.id), { developerUid: currentUser.uid });
+                            } catch (e) { }
+                        }
+                    }
+                }
+            }
         }
 
         selectUserApp.innerHTML = '<option value="">-- اختر تطبيقاً للتعديل --</option>';

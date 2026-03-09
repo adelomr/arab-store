@@ -1,5 +1,6 @@
-import { auth } from './firebase-config.js';
+import { auth, db } from './firebase-config.js';
 import { GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-auth.js";
+import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { setupNotifications } from './notifications.js';
 
 const provider = new GoogleAuthProvider();
@@ -53,7 +54,7 @@ export function logoutUser() {
 let notificationsSetup = false;
 
 export function observeAuthState(callback) {
-    return onAuthStateChanged(auth, user => {
+    return onAuthStateChanged(auth, async user => {
         let isAdmin = false;
         if (user) {
             if (user.email === ADMIN_EMAIL) {
@@ -64,6 +65,20 @@ export function observeAuthState(callback) {
                 notificationsSetup = true;
             }
             setupUserDropdown();
+
+            // Check if user has completed profile
+            // Skip check if already on profile.html to avoid loops
+            if (!window.location.pathname.includes('profile.html')) {
+                try {
+                    const userDoc = await getDoc(doc(db, "users", user.uid));
+                    if (!userDoc.exists() || !userDoc.data().isCompleted) {
+                        window.location.href = 'profile.html';
+                        return;
+                    }
+                } catch (e) {
+                    console.error("Error checking user profile:", e);
+                }
+            }
         }
         callback(user, isAdmin);
     });

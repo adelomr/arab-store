@@ -92,21 +92,22 @@ async function fetchUserApps(user, isAdmin) {
             }
 
             // Query by Name (final fallback for very old data or manual entries)
-            const displayName = user.displayName;
-            if (displayName) {
-                const qName = query(collection(db, colName), where("developer", "==", displayName));
+            const searchNames = [];
+            if (user.displayName) searchNames.push(user.displayName);
+            if (isAdmin && !searchNames.includes("عادل")) searchNames.push("عادل");
+
+            for (const nameToSearch of searchNames) {
+                const qName = query(collection(db, colName), where("developer", "==", nameToSearch));
                 const snapName = await getDocs(qName);
                 for (const docSnap of snapName.docs) {
                     if (!userAppsMap.has(docSnap.id)) {
                         const appData = docSnap.data();
                         userAppsMap.set(docSnap.id, { id: docSnap.id, ...appData, collection: colName });
-
-                        // Self-healing: Update UID
+                        // Self-healing
                         if (appData.developerUid !== uid) {
                             try {
                                 await updateDoc(doc(db, colName, docSnap.id), { developerUid: uid });
-                                console.log(`Auto-fixed UID (by Name) for: ${appData.name}`);
-                            } catch (err) { console.error("Self-healing failed:", err); }
+                            } catch (e) { }
                         }
                     }
                 }
