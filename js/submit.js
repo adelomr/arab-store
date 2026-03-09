@@ -67,9 +67,77 @@ async function loadCategoriesDropdown() {
             opt.textContent = catName;
             selectEl.appendChild(opt);
         });
+        updateCustomSelectUI(selectEl);
     } catch (e) {
-        if (selectEl) selectEl.innerHTML = '<option value="">خطأ في تحميل الفئات</option>';
+        if (selectEl) {
+            selectEl.innerHTML = '<option value="">خطأ في تحميل الفئات</option>';
+            updateCustomSelectUI(selectEl);
+        }
     }
+}
+
+// ====== Custom Select UI Logic ======
+function updateCustomSelectUI(selectEl) {
+    if (!selectEl) return;
+
+    // Remove old wrapper if exists
+    let container = selectEl.nextElementSibling;
+    if (container && container.classList.contains('custom-select-container')) {
+        container.remove();
+    }
+
+    // Hide original select
+    selectEl.style.display = 'none';
+
+    // Create new container
+    container = document.createElement('div');
+    container.className = 'custom-select-container';
+
+    const trigger = document.createElement('div');
+    trigger.className = 'custom-select-trigger';
+    const textSpan = document.createElement('span');
+    textSpan.textContent = selectEl.options[selectEl.selectedIndex] ? selectEl.options[selectEl.selectedIndex].text : '';
+    const arrowIcon = document.createElement('i');
+    arrowIcon.className = 'fa-solid fa-chevron-down';
+    trigger.appendChild(textSpan);
+    trigger.appendChild(arrowIcon);
+
+    const optionsContainer = document.createElement('div');
+    optionsContainer.className = 'custom-select-options';
+
+    Array.from(selectEl.options).forEach(opt => {
+        const customOpt = document.createElement('div');
+        customOpt.className = 'custom-select-option';
+        customOpt.textContent = opt.text;
+        if (opt.selected) customOpt.classList.add('selected');
+
+        customOpt.addEventListener('click', () => {
+            selectEl.value = opt.value;
+            selectEl.dispatchEvent(new Event('change'));
+
+            textSpan.textContent = opt.text;
+            optionsContainer.querySelectorAll('.custom-select-option').forEach(co => co.classList.remove('selected'));
+            customOpt.classList.add('selected');
+            container.classList.remove('open');
+        });
+
+        optionsContainer.appendChild(customOpt);
+    });
+
+    container.appendChild(trigger);
+    container.appendChild(optionsContainer);
+
+    // Insert after selectEl
+    selectEl.parentNode.insertBefore(container, selectEl.nextSibling);
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        container.classList.toggle('open');
+    });
+
+    document.addEventListener('click', () => {
+        container.classList.remove('open');
+    });
 }
 
 // Preview Logic
