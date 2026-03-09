@@ -23,26 +23,27 @@ const locationData = {
     "تونس": { code: "+216", govs: ["تونس العاصمة", "صفاقس", "سوسة", "القيروان", "بنزرت", "مدنين"] }
 };
 
-// Populate Countries
-Object.keys(locationData).forEach(country => {
-    const opt = document.createElement('option');
-    opt.value = country;
-    opt.textContent = country;
-    countrySelect.appendChild(opt);
-});
+// Populate Initial Data (only if needed, but we have them in HTML now)
+// We still need the listener for Dynamic Phone and Govs
 
 // Country Change Listener
 countrySelect.addEventListener('change', () => {
     const country = countrySelect.value;
+    if (!govSelect) return;
+
     govSelect.innerHTML = '<option value="">-- اختر المحافظة --</option>';
 
     if (country && locationData[country]) {
         const data = locationData[country];
 
         // Update Phone Prefix
-        phonePrefix.textContent = data.code;
-        phoneInput.style.paddingLeft = (data.code.length * 10 + 20) + 'px';
-        phoneInput.placeholder = `أدخل الرقم (بدون ${data.code})`;
+        if (phonePrefix) {
+            phonePrefix.textContent = data.code;
+            phoneInput.style.paddingLeft = (data.code.length * 10 + 25) + 'px';
+        }
+        if (phoneInput) {
+            phoneInput.placeholder = `أدخل الرقم (بدون ${data.code})`;
+        }
 
         // Update Governorates
         data.govs.forEach(gov => {
@@ -53,8 +54,8 @@ countrySelect.addEventListener('change', () => {
         });
         govSelect.disabled = false;
     } else {
-        phonePrefix.textContent = '';
-        phoneInput.style.paddingLeft = '15px';
+        if (phonePrefix) phonePrefix.textContent = '';
+        if (phoneInput) phoneInput.style.paddingLeft = '15px';
         govSelect.disabled = true;
     }
 });
@@ -65,53 +66,59 @@ onAuthStateChanged(auth, async (user) => {
         return;
     }
 
-    // Pre-fill email and name
-    document.getElementById('user-email').value = user.email;
-    document.getElementById('user-display-name').value = user.displayName || '';
+    // Pre-fill email and name with safety check
+    const emailElem = document.getElementById('user-email');
+    const nameElem = document.getElementById('user-display-name');
+    if (emailElem) emailElem.value = user.email || '';
+    if (nameElem) nameElem.value = user.displayName || '';
 
     // Check if user already has profile data
-    const userDoc = await getDoc(doc(db, "users", user.uid));
-    if (userDoc.exists()) {
-        const data = userDoc.data();
-        if (data.phone && data.country && data.isCompleted) {
-            // Already has profile, redirect home
-            window.location.href = 'index.html';
-        }
-    }
-});
-
-profileForm.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const user = auth.currentUser;
-    if (!user) return;
-
-    loadingOverlay.style.display = 'flex';
-
-    const country = countrySelect.value;
-    const phone = phoneInput.value;
-    const fullPhone = (locationData[country]?.code || '') + phone;
-
-    const userData = {
-        uid: user.uid,
-        displayName: document.getElementById('user-display-name').value,
-        email: user.email,
-        phone: fullPhone,
-        country: country,
-        gov: govSelect.value,
-        address: document.getElementById('user-address').value,
-        photoURL: user.photoURL,
-        isCompleted: true,
-        updatedAt: serverTimestamp()
-    };
-
     try {
-        await setDoc(doc(db, "users", user.uid), userData, { merge: true });
-        console.log("Profile updated successfully");
-        window.location.href = 'index.html';
-    } catch (error) {
-        console.error("Error saving profile:", error);
-        alert("حدث خطأ أثناء حفظ البيانات، يرجى المحاولة مرة أخرى.");
-    } finally {
-        loadingOverlay.style.display = 'none';
+        const userDoc = await getDoc(doc(db, "users", user.uid));
+        if (userDoc.exists()) {
+            const data = userDoc.data();
+            if (data.phone && data.country && data.isCompleted) {
+                window.location.href = 'index.html';
+            }
+        }
+    } catch (err) {
+        console.error("Error checking user profile:", err);
     }
 });
+
+if (profileForm) {
+    profileForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const user = auth.currentUser;
+        if (!user) return;
+
+        if (loadingOverlay) loadingOverlay.style.display = 'flex';
+
+        const country = countrySelect.value;
+        const phone = phoneInput.value;
+        const fullPhone = (locationData[country]?.code || '') + phone;
+
+        const userData = {
+            uid: user.uid,
+            displayName: document.getElementById('user-display-name')?.value || user.displayName,
+            email: user.email,
+            phone: fullPhone,
+            country: country,
+            gov: govSelect.value,
+            address: document.getElementById('user-address')?.value || '',
+            photoURL: user.photoURL,
+            isCompleted: true,
+            updatedAt: serverTimestamp()
+        };
+
+        try {
+            await setDoc(doc(db, "users", user.uid), userData, { merge: true });
+            window.location.href = 'index.html';
+        } catch (error) {
+            console.error("Error saving profile:", error);
+            alert("حدث خطأ أثناء حفظ البيانات، يرجى المحاولة مرة أخرى.");
+        } finally {
+            if (loadingOverlay) loadingOverlay.style.display = 'none';
+        }
+    });
+}
