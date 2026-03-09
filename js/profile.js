@@ -11,17 +11,17 @@ const nameStatus = document.getElementById('name-status');
 const phoneStatus = document.getElementById('phone-status');
 
 const locationData = {
-    "مصر": { code: "+20", govs: ["القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر", "البحيرة", "الفيوم", "الغربية", "الإسماعيلية", "المنوفية", "المنيا", "القليوبية", "الوادي الجديد", "السويس", "الشرقية", "دمياط", "بورسعيد", "بني سويف", "تطوان", "جنوب سيناء", "كفر الشيخ", "مطروح", "الأقصر", "قنا", "شمال سيناء", "سوهاج"] },
-    "السعودية": { code: "+966", govs: ["الرياض", "مكة المكرمة", "المدينة المنورة", "القصيم", "المنطقة الشرقية", "عسير", "تبوك", "حائل", "الحدود الشمالية", "جازان", "نجران", "الباحة", "الجوف"] },
-    "الإمارات": { code: "+971", govs: ["أبوظبي", "دبي", "الشارقة", "عجمان", "أم القيوين", "رأس الخيمة", "الفجيرة"] },
-    "الكويت": { code: "+965", govs: ["العاصمة", "حولي", "الفروانية", "الجهراء", "الأحمدي", "مبارك الكبير"] },
-    "قطر": { code: "+974", govs: ["الدوحة", "الريان", "الوكرة", "الخور", "الشمال", "الظعاين", "أم صلال", "الشيحانية"] },
-    "عمان": { code: "+968", govs: ["مسقط", "ظفار", "مسندم", "البريمي", "الداخلية", "الوسطى", "الظاهرة", "شمال الباطنة", "جنوب الباطنة", "شمال الشرقية", "جنوب الشرقية"] },
-    "الأردن": { code: "+962", govs: ["عمان", "إربد", "الزرقاء", "المفرق", "العقبة", "جرش", "مادبا", "عجلون", "الكرك", "الطفيلة", "معان", "البلقاء"] },
-    "البحرين": { code: "+973", govs: ["المنامة", "المحرق", "الشمالية", "الجنوبية"] },
-    "المغرب": { code: "+212", govs: ["الدار البيضاء", "الرباط", "مراكش", "فاس", "طنجة", "أكادير", "مكناس", "وجدة", "القنيطرة", "تطوان"] },
-    "الجزائر": { code: "+213", govs: ["الجزائر العاصمة", "وهران", "قسنطينة", "عنابة", "البليدة", "سطيف", "باتنة", "الجلفة"] },
-    "تونس": { code: "+216", govs: ["تونس العاصمة", "صفاقس", "سوسة", "القيروان", "بنزرت", "مدنين"] }
+    "مصر": { code: "+20", len: 10, govs: ["القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر", "البحيرة", "الفيوم", "الغربية", "الإسماعيلية", "المنوفية", "المنيا", "القليوبية", "الوادي الجديد", "السويس", "الشرقية", "دمياط", "بورسعيد", "بني سويف", "تطوان", "جنوب سيناء", "كفر الشيخ", "مطروح", "الأقصر", "قنا", "شمال سيناء", "سوهاج"] },
+    "السعودية": { code: "+966", len: 9, govs: ["الرياض", "مكة المكرمة", "المدينة المنورة", "القصيم", "المنطقة الشرقية", "عسير", "تبوك", "حائل", "الحدود الشمالية", "جازان", "نجران", "الباحة", "الجوف"] },
+    "الإمارات": { code: "+971", len: 9, govs: ["أبوظبي", "دبي", "الشارقة", "عجمان", "أم القيوين", "رأس الخيمة", "الفجيرة"] },
+    "الكويت": { code: "+965", len: 8, govs: ["العاصمة", "حولي", "الفروانية", "الجهراء", "الأحمدي", "مبارك الكبير"] },
+    "قطر": { code: "+974", len: 8, govs: ["الدوحة", "الريان", "الوكرة", "الخور", "الشمال", "الظعاين", "أم صلال", "الشيحانية"] },
+    "عمان": { code: "+968", len: 8, govs: ["مسقط", "ظفار", "مسندم", "البريمي", "الداخلية", "الوسطى", "الظاهرة", "شمال الباطنة", "جنوب الباطنة", "شمال الشرقية", "جنوب الشرقية"] },
+    "الأردن": { code: "+962", len: 9, govs: ["عمان", "إربد", "الزرقاء", "المفرق", "العقبة", "جرش", "مادبا", "عجلون", "الكرك", "الطفيلة", "معان", "البلقاء"] },
+    "البحرين": { code: "+973", len: 8, govs: ["المنامة", "المحرق", "الشمالية", "الجنوبية"] },
+    "المغرب": { code: "+212", len: 9, govs: ["الدار البيضاء", "الرباط", "مراكش", "فاس", "طنجة", "أكادير", "مكناس", "وجدة", "القنيطرة", "تطوان"] },
+    "الجزائر": { code: "+213", len: 9, govs: ["الجزائر العاصمة", "وهران", "قسنطينة", "عنابة", "البليدة", "سطيف", "باتنة", "الجلفة"] },
+    "تونس": { code: "+216", len: 8, govs: ["تونس العاصمة", "صفاقس", "سوسة", "القيروان", "بنزرت", "مدنين"] }
 };
 
 // Custom Dropdown Logic
@@ -82,11 +82,22 @@ const debounce = (func, wait) => {
     };
 };
 
-async function checkUniqueness(fieldName, value, statusElem) {
+async function checkUniqueness(fieldName, value, statusElem, expectedLen = null) {
     if (!value || value.length < 3) {
         statusElem.className = 'validation-status';
         statusElem.innerHTML = '';
         return;
+    }
+
+    // Special validation for phone length
+    if (fieldName === 'phone' && expectedLen !== null) {
+        const prefix = phonePrefix?.textContent || '';
+        const rawPhone = value.replace(prefix, '');
+        if (rawPhone.length !== expectedLen) {
+            statusElem.className = 'validation-status error';
+            statusElem.innerHTML = `<i class="fa-solid fa-circle-xmark"></i> <small style="display:block; font-size: 10px; color: #ff4d4d; margin-top: 4px;">يجب أن يكون ${expectedLen} أرقام</small>`;
+            return;
+        }
     }
 
     statusElem.className = 'validation-status success';
@@ -101,7 +112,7 @@ async function checkUniqueness(fieldName, value, statusElem) {
 
         if (otherUsers.length > 0) {
             statusElem.className = 'validation-status error';
-            statusElem.innerHTML = '<i class="fa-solid fa-circle-xmark"></i>';
+            statusElem.innerHTML = '<i class="fa-solid fa-circle-xmark"></i> <small style="display:block; font-size: 10px; color: #ff4d4d; margin-top: 4px;">مستخدم بالفعل</small>';
         } else {
             statusElem.className = 'validation-status success';
             statusElem.innerHTML = '<i class="fa-solid fa-circle-check"></i>';
@@ -121,8 +132,10 @@ if (nameInput) {
 
 if (phoneInput) {
     phoneInput.addEventListener('input', debounce((e) => {
+        const country = countryDropdown.getValue();
+        const expectedLen = locationData[country]?.len || null;
         const fullPhone = (phonePrefix?.textContent || '') + e.target.value;
-        checkUniqueness('phone', fullPhone, phoneStatus);
+        checkUniqueness('phone', fullPhone, phoneStatus, expectedLen);
     }, 500));
 }
 
@@ -138,9 +151,9 @@ const countryDropdown = setupCustomDropdown('country-dropdown', 'country-options
         }
         if (phoneInput) {
             phoneInput.placeholder = `أدخل الرقم (بدون ${data.code})`;
-            // Re-validate phone with new prefix
+            // Re-validate phone with new prefix and length
             const fullPhone = data.code + phoneInput.value;
-            checkUniqueness('phone', fullPhone, phoneStatus);
+            checkUniqueness('phone', fullPhone, phoneStatus, data.len);
         }
 
         // Update Governorates
