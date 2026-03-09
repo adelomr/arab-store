@@ -10,8 +10,11 @@ const nameInput = document.getElementById('user-display-name');
 const nameStatus = document.getElementById('name-status');
 const phoneStatus = document.getElementById('phone-status');
 
+// Detect edit mode (?edit=1)
+const isEditMode = new URLSearchParams(window.location.search).get('edit') === '1';
+
 const locationData = {
-    "مصر": { code: "+20", len: 10, govs: ["القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر", "البحيرة", "الفيوم", "الغربية", "الإسماعيلية", "المنوفية", "المنيا", "القليوبية", "الوادي الجديد", "السويس", "الشرقية", "دمياط", "بورسعيد", "بني سويف", "تطوان", "جنوب سيناء", "كفر الشيخ", "مطروح", "الأقصر", "قنا", "شمال سيناء", "سوهاج"] },
+    "مصر": { code: "+20", len: 10, govs: ["القاهرة", "الجيزة", "الإسكندرية", "الدقهلية", "البحر الأحمر", "البحيرة", "الفيوم", "الغربية", "الإسماعيلية", "المنوفية", "المنيا", "القليوبية", "الوادي الجديد", "السويس", "الشرقية", "دمياط", "بورسعيد", "بني سويف", "أسوان", "جنوب سيناء", "كفر الشيخ", "مطروح", "الأقصر", "قنا", "شمال سيناء", "سوهاج"] },
     "السعودية": { code: "+966", len: 9, govs: ["الرياض", "مكة المكرمة", "المدينة المنورة", "القصيم", "المنطقة الشرقية", "عسير", "تبوك", "حائل", "الحدود الشمالية", "جازان", "نجران", "الباحة", "الجوف"] },
     "الإمارات": { code: "+971", len: 9, govs: ["أبوظبي", "دبي", "الشارقة", "عجمان", "أم القيوين", "رأس الخيمة", "الفجيرة"] },
     "الكويت": { code: "+965", len: 8, govs: ["العاصمة", "حولي", "الفروانية", "الجهراء", "الأحمدي", "مبارك الكبير"] },
@@ -187,12 +190,52 @@ onAuthStateChanged(auth, async (user) => {
     if (emailElem) emailElem.value = user.email || '';
     if (nameElem) nameElem.value = user.displayName || '';
 
-    // Check if user already has profile data
     try {
         const userDoc = await getDoc(doc(db, "users", user.uid));
-        if (userDoc.exists()) {
-            const data = userDoc.data();
-            if (data.phone && data.country && data.isCompleted) {
+        const data = userDoc.exists() ? userDoc.data() : null;
+
+        if (isEditMode) {
+            // ── EDIT MODE: update UI and pre-fill existing data ──
+            document.getElementById('page-title').textContent = 'تعديل بياناتي';
+            document.getElementById('page-desc').textContent = 'يمكنك تغيير رقم الهاتف أو العنوان';
+            document.getElementById('btn-save-profile').textContent = 'تحديث البيانات ✏️';
+            document.getElementById('btn-cancel-edit').style.display = 'block';
+
+            if (data) {
+                // Pre-fill name
+                if (nameElem && data.displayName) nameElem.value = data.displayName;
+
+                // Pre-fill country dropdown
+                if (data.country && locationData[data.country]) {
+                    countryDropdown.setValue(data.country, data.country);
+                    // Update phone prefix
+                    const countryInfo = locationData[data.country];
+                    if (phonePrefix) phonePrefix.textContent = countryInfo.code;
+                    if (phoneInput) {
+                        phoneInput.placeholder = `أدخل الرقم (بدون ${countryInfo.code})`;
+                    }
+                    // Populate governorates and select saved one
+                    govDropdown.updateOptions(countryInfo.govs);
+                    govDropdown.setDisabled(false);
+                    if (data.gov) govDropdown.setValue(data.gov, data.gov);
+                }
+
+                // Pre-fill phone (strip country code)
+                if (data.phone && data.country) {
+                    const code = locationData[data.country]?.code || '';
+                    const rawPhone = data.phone.startsWith(code)
+                        ? data.phone.slice(code.length)
+                        : data.phone;
+                    if (phoneInput) phoneInput.value = rawPhone;
+                }
+
+                // Pre-fill address
+                const addrElem = document.getElementById('user-address');
+                if (addrElem && data.address) addrElem.value = data.address;
+            }
+        } else {
+            // ── COMPLETE MODE: redirect if profile already done ──
+            if (data && data.phone && data.country && data.isCompleted) {
                 window.location.href = 'index.html';
             }
         }
@@ -207,21 +250,53 @@ if (profileForm) {
         const user = auth.currentUser;
         if (!user) return;
 
+        // ── Validate required fields ──────────────────────────────────
+        const displayName = document.getElementById('user-display-name')?.value?.trim() || '';
+        const address = document.getElementById('user-address')?.value?.trim() || '';
+        const country = countryDropdown.getValue()?.trim();
+        const gov = govDropdown.getValue()?.trim();
+        const phone = phoneInput?.value?.trim() || '';
+
+        if (!displayName) {
+            alert('يرجى إدخال الاسم الكامل.');
+            return;
+        }
+        if (!country || !locationData[country]) {
+            alert('يرجى اختيار الدولة من القائمة.');
+            return;
+        }
+        if (!gov) {
+            alert('يرجى اختيار المحافظة / المنطقة من القائمة.');
+            return;
+        }
+        if (!phone) {
+            alert('يرجى إدخال رقم الهاتف.');
+            return;
+        }
+        const expectedLen = locationData[country]?.len;
+        if (expectedLen && phone.length !== expectedLen) {
+            alert(`رقم الهاتف يجب أن يكون ${expectedLen} أرقام (بدون مقدمة الدولة).`);
+            return;
+        }
+        if (!address) {
+            alert('يرجى إدخال العنوان التفصيلي.');
+            return;
+        }
+        // ─────────────────────────────────────────────────────────────
+
         if (loadingOverlay) loadingOverlay.style.display = 'flex';
 
-        const country = countryDropdown.getValue();
-        const gov = govDropdown.getValue();
-        const phone = phoneInput.value;
-        const fullPhone = (locationData[country]?.code || '') + phone;
+        const countryCode = locationData[country].code;
+        const fullPhone = countryCode + phone;
 
         const userData = {
             uid: user.uid,
-            displayName: document.getElementById('user-display-name')?.value || user.displayName,
+            displayName: displayName,
             email: user.email,
             phone: fullPhone,
             country: country,
             gov: gov,
-            address: document.getElementById('user-address')?.value || '',
+            address: address,
             photoURL: user.photoURL,
             isCompleted: true,
             updatedAt: serverTimestamp()
@@ -229,7 +304,12 @@ if (profileForm) {
 
         try {
             await setDoc(doc(db, "users", user.uid), userData, { merge: true });
-            window.location.href = 'index.html';
+            if (isEditMode) {
+                alert('تم تحديث بياناتك بنجاح! ✅');
+                history.back();
+            } else {
+                window.location.href = 'index.html';
+            }
         } catch (error) {
             console.error("Error saving profile:", error);
             alert("حدث خطأ أثناء حفظ البيانات، يرجى المحاولة مرة أخرى.");

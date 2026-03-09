@@ -297,8 +297,8 @@
         <div class="header">
             <img src="web-assets/app_icon.png?v=2026" alt="متجر العرب"
                 style="width: 80px; height: 80px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
-            <h1>إكمال ملف المطور</h1>
-            <p>يرجى تزويدنا ببياناتك الصحيحة للبدء في نشر تطبيقاتك</p>
+            <h1 id="page-title">إكمال ملف المطور</h1>
+            <p id="page-desc">يرجى تزويدنا ببياناتك الصحيحة للبدء في نشر تطبيقاتك</p>
         </div>
 
         <form id="profile-form">
@@ -367,6 +367,9 @@
             </div>
 
             <button type="submit" class="btn-save" id="btn-save-profile">حفظ البيانات والانطلاق 🚀</button>
+            <a href="javascript:history.back()" id="btn-cancel-edit"
+                style="display:none; text-align:center; margin-top:12px; color:var(--text-muted); font-size:0.9rem; cursor:pointer; text-decoration:underline;">إلغاء
+                والعودة</a>
         </form>
 
         <div class="loader-overlay" id="loading-overlay">
