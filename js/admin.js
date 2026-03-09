@@ -532,14 +532,6 @@ export async function populateCategoryDropdown(selectEl) {
 // Populate category dropdown on load
 populateCategoryDropdown(document.getElementById('app-category'));
 
-// Tab listener
-tabCategories.addEventListener('click', () => {
-    hideAllSections();
-    tabCategories.classList.add('active');
-    sectionCategories.classList.remove('hidden');
-    loadCategories();
-});
-
 // Add new category button
 document.getElementById('btn-add-category').addEventListener('click', async () => {
     const input = document.getElementById('new-category-name');
