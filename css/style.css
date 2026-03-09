@@ -679,9 +679,6 @@ select.form-control option {
 .custom-select-trigger.active {
     border-color: var(--primary-color);
     box-shadow: 0 0 0 4px rgba(26, 115, 232, 0.1);
-    /* Soften bottom corners but keep rounded when open */
-    border-bottom-left-radius: 6px;
-    border-bottom-right-radius: 6px;
 }
 
 .custom-select-options {
@@ -691,11 +688,10 @@ select.form-control option {
     right: 0;
     background: var(--card-bg);
     border: 1px solid var(--border-color);
-    border-top: none;
-    border-bottom-left-radius: 12px;
-    border-bottom-right-radius: 12px;
+    border-radius: 12px;
     box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
-    z-index: 99;
+    z-index: 1000;
+    margin-top: 8px;
     max-height: 250px;
     overflow-y: auto;
     display: none;

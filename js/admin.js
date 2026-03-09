@@ -129,10 +129,6 @@ async function loadAppsDropdown() {
             appOptions += `<option value="${docSnap.id}">${app.name} (v${app.version}) - ${app.installCount || 0} تثبيت</option>`;
         });
 
-        if (selectApp) {
-            selectApp.innerHTML = options + appOptions;
-            updateCustomSelectUI(selectApp);
-        }
         if (selectDeleteApp) {
             selectDeleteApp.innerHTML = options + appOptions;
             updateCustomSelectUI(selectDeleteApp);
