@@ -406,9 +406,16 @@
         </div>
     </div>
 
-    <!-- Firebase JS Module -->
     <script type="module" src="js/profile.js?v=3"></script>
-    <script src="js/theme.js?v=5"></script>
+    <script>
+        // Apply saved theme immediately without relying on the toggle button
+        (function () {
+            const savedTheme = localStorage.getItem('theme');
+            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark-mode');
+            }
+        })();
+    </script>
 </body>
 
 </html>
