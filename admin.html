@@ -254,10 +254,10 @@
                 <h3>الإحصائيات</h3>
                 <p>إحصائيات وعدد تحميملات التطبيقات</p>
             </div>
-            <div class="dash-card" id="card-update">
-                <i class="fa-solid fa-arrow-up-right-dots"></i>
-                <h3>تحديث تطبيق</h3>
-                <p>دفع تحديث لتطبيق معتمد</p>
+            <div class="dash-card" id="card-users">
+                <i class="fa-solid fa-users-gear"></i>
+                <h3>إدارة المستخدمين</h3>
+                <p>حظر، تعليق، أو حذف حسابات المستخدمين</p>
             </div>
             <div class="dash-card" id="card-delete">
                 <i class="fa-solid fa-trash-can"></i>
@@ -331,53 +331,17 @@
             </div>
         </div>
 
-        <!-- Update App Form -->
-        <div id="section-update" class="admin-form hidden">
+        <!-- User Management Section -->
+        <div id="section-users" class="admin-form hidden" style="max-width: 900px;">
             <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
-            <h3><i class="fa-solid fa-arrow-up-right-dots"></i> دفع تحديث جديد</h3>
-            <form id="form-update">
-                <div class="form-group">
-                    <label>اختر التطبيق</label>
-                    <select id="select-app" class="form-control" required>
-                        <option value="">جاري التحميل...</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>ملف التحديث الجديد (APK)</label>
-                    <div class="file-upload-wrapper">
-                        <input type="file" id="update-download" class="hidden" accept=".apk" required>
-                        <button type="button" class="btn btn-outline"
-                            onclick="document.getElementById('update-download').click()">
-                            <i class="fa-solid fa-folder-open"></i> اختر تحديث APK
-                        </button>
-                        <div id="update-apk-info" class="file-info-text">لم يتم اختيار أي ملف بعد.</div>
-                    </div>
-                </div>
-                <div style="display: flex; gap: 15px;">
-                    <div class="form-group" style="flex: 1;">
-                        <label>رقم الإصدار الجديد</label>
-                        <input type="text" id="update-version" class="form-control" placeholder="1.0.1" required>
-                    </div>
-                    <div class="form-group" style="flex: 1;">
-                        <label>كود الإصدار الجديد</label>
-                        <input type="number" id="update-versioncode" class="form-control" placeholder="2" required>
-                    </div>
-                </div>
-                <div class="form-group">
-                    <label>ما الجديد في هذا التحديث؟ (سجل التغييرات)</label>
-                    <textarea id="update-changelog" class="form-control" rows="3"
-                        placeholder="إضافة ميزة الخطب وإصلاح الأخطاء..." required></textarea>
-                </div>
+            <h3><i class="fa-solid fa-users-gear"></i> إدارة مستخدمي المتجر</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">يمكنك هنا البحث عن المستخدمين وحظر الحسابات
+                المخالفة أو حذفها.</p>
 
-                <div class="progress-container" id="up-progress-container">
-                    <div class="progress-bar" id="up-progress-bar">0%</div>
-                </div>
-                <div id="up-status" class="upload-status-text">جاري رفع التحديث...</div>
-                <button type="submit" id="btn-publish-update" class="btn btn-primary"
-                    style="background: var(--primary-gradient); width: 100%;">نشر التحديث</button>
-                <div id="up-loader" class="hidden" style="text-align: center; margin-top: 15px;"><span class="loader"
-                        style="width: 24px; height:24px; margin:0; border-width: 3px;"></span></div>
-            </form>
+            <div id="users-list-container" class="admin-categories-list">
+                <!-- Users injected by JS -->
+                <div id="users-loader" class="text-center"><span class="loader"></span></div>
+            </div>
         </div>
 
         <!-- Delete App Section -->

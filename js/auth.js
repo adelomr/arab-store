@@ -68,16 +68,25 @@ export function observeAuthState(callback) {
 
             // Check if user has completed profile
             // Skip check if already on profile.html to avoid loops
-            if (!window.location.pathname.includes('profile.html')) {
-                try {
-                    const userDoc = await getDoc(doc(db, "users", user.uid));
+            try {
+                const userDoc = await getDoc(doc(db, "users", user.uid));
+
+                // Check if user is suspended/disabled
+                if (userDoc.exists() && userDoc.data().disabled === true) {
+                    alert("تم تعليق حسابك لمخالفة الشروط. يرجى التواصل عبر الواتساب على الرقم 01127556848 لحل المشكلة.");
+                    await signOut(auth);
+                    window.location.href = 'index.html';
+                    return;
+                }
+
+                if (!window.location.pathname.includes('profile.html')) {
                     if (!userDoc.exists() || !userDoc.data().isCompleted) {
                         window.location.href = 'profile.html';
                         return;
                     }
-                } catch (e) {
-                    console.error("Error checking user profile:", e);
                 }
+            } catch (e) {
+                console.error("Error checking user profile/status:", e);
             }
         }
         callback(user, isAdmin);

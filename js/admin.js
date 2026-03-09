@@ -20,7 +20,7 @@ const cards = {
     notifications: document.getElementById('card-notifications'),
     categories: document.getElementById('card-categories'),
     statistics: document.getElementById('card-statistics'),
-    update: document.getElementById('card-update'),
+    users: document.getElementById('card-users'),
     delete: document.getElementById('card-delete')
 };
 
@@ -29,30 +29,18 @@ const sections = {
     notifications: document.getElementById('section-notifications'),
     categories: document.getElementById('section-categories'),
     statistics: document.getElementById('section-statistics'),
-    update: document.getElementById('section-update'),
+    users: document.getElementById('section-users'),
     delete: document.getElementById('section-delete')
 };
 
 const backBtns = document.querySelectorAll('.back-btn');
 
-const selectApp = document.getElementById('select-app');
-const selectDeleteApp = document.getElementById('select-delete-app');
-
-// File Upload Elements
-const updateApkInput = document.getElementById('update-download');
-const updateApkInfo = document.getElementById('update-apk-info');
+const usersListContainer = document.getElementById('users-list-container');
+const usersLoader = document.getElementById('users-loader');
 
 // Preview logic
-if (updateApkInput) {
-    updateApkInput.addEventListener('change', () => {
-        if (updateApkInput.files.length > 0) {
-            const file = updateApkInput.files[0];
-            const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
-            updateApkInfo.textContent = `تم اختيار: ${file.name} (${sizeInMB} ميغابايت)`;
-            updateApkInfo.setAttribute('data-size', sizeInMB + ' ميغابايت');
-        }
-    });
-}
+// selectDeleteApp is needed back but within card-delete logic
+const selectDeleteApp = document.getElementById('select-delete-app');
 
 // Helper for Firebase Storage Upload with Progress
 function uploadWithProgress(file, path, progressBar, statusText, container) {
@@ -170,9 +158,9 @@ function showDashboard() {
 
 backBtns.forEach(btn => btn.addEventListener('click', showDashboard));
 
-cards.update.addEventListener('click', () => {
-    showSection('update');
-    loadAppsDropdown();
+cards.users.addEventListener('click', () => {
+    showSection('users');
+    loadUsers();
 });
 
 cards.delete.addEventListener('click', () => {
@@ -326,87 +314,106 @@ async function updateReviewCount() {
 }
 updateReviewCount();
 
-// Populate Update Form when app is selected
-selectApp.addEventListener('change', async () => {
-    const appId = selectApp.value;
-    if (!appId) return;
 
-    try {
-        const docSnap = await getDoc(doc(db, "apps", appId));
-        if (docSnap.exists()) {
-            const app = docSnap.data();
-            document.getElementById('update-version').value = app.version || "";
-            document.getElementById('update-versioncode').value = app.versionCode || "";
-            document.getElementById('update-changelog').value = app.changelog || "";
-            document.getElementById('update-store-app').checked = app.storeApp || false;
-            // Clear file inputs
-            updateApkInput.value = "";
-            updateApkInfo.textContent = 'لم يتم اختيار ملف جديد (اترك فارغاً للاحتفاظ بالقديم).';
-        }
-    } catch (error) {
-        console.error("Error fetching app details:", error);
-    }
-});
 
 // Add App logic is removed. Everyone uses submit.html now.
 
-// Update App Submission
-document.getElementById('form-update').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const loader = document.getElementById('up-loader');
-    const btnUpdate = document.getElementById('btn-publish-update');
-    const progressBar = document.getElementById('up-progress-bar');
-    const progressContainer = document.getElementById('up-progress-container');
-    const statusText = document.getElementById('up-status');
+// =============================================
+// USER MANAGEMENT LOGIC
+// =============================================
 
-    const appId = selectApp.value;
-    if (!appId) {
-        alert("يرجى اختيار تطبيق.");
-        return;
-    }
+async function loadUsers() {
+    if (!usersListContainer) return;
 
-    loader.classList.remove('hidden');
-    btnUpdate.disabled = true;
-    btnUpdate.textContent = "جاري النشر...";
+    usersListContainer.innerHTML = '<div class="text-center"><span class="loader"></span></div>';
 
     try {
-        // Upload New APK
-        let downloadUrl = "";
-        if (updateApkInput.files.length > 0) {
-            statusText.textContent = "جاري رفع ملف التحديث...";
-            downloadUrl = await uploadWithProgress(updateApkInput.files[0], `apps/${appId}/releases/${updateApkInput.files[0].name}`, progressBar, statusText, progressContainer);
+        const querySnapshot = await getDocs(collection(db, "users"));
+        usersListContainer.innerHTML = '';
+
+        if (querySnapshot.empty) {
+            usersListContainer.innerHTML = '<p class="text-secondary text-center">لا يوجد مستخدمين مسجلين بعد.</p>';
+            return;
         }
 
-        const updateData = {
-            downloadUrl: downloadUrl || undefined,
-            version: document.getElementById('update-version').value,
-            versionCode: parseInt(document.getElementById('update-versioncode').value),
-            changelog: document.getElementById('update-changelog').value,
-            lastUpdated: serverTimestamp()
-        };
+        querySnapshot.forEach((docSnap) => {
+            const user = docSnap.data();
+            const uid = docSnap.id;
+            const isSuspended = user.disabled || false;
 
-        // Auto-update size if new APK was uploaded
-        if (updateApkInput.files.length > 0) {
-            updateData.size = updateApkInfo.getAttribute('data-size');
-        }
+            const userCard = document.createElement('div');
+            userCard.className = 'category-list-item'; // Reuse category styles for consistency
+            userCard.style.padding = '15px';
+            userCard.style.marginBottom = '10px';
+            userCard.style.display = 'flex';
+            userCard.style.justifyContent = 'space-between';
+            userCard.style.alignItems = 'center';
+            userCard.style.background = 'var(--card-bg)';
+            userCard.style.borderRadius = '12px';
+            userCard.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
 
-        // If no new file was uploaded, don't overwrite downloadUrl
-        if (!downloadUrl) delete updateData.downloadUrl;
+            userCard.innerHTML = `
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <img src="${user.photoURL || 'web-assets/app_icon.png'}" style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
+                    <div style="display: flex; flex-direction: column;">
+                        <span style="font-weight: bold;">${user.displayName || 'مستخدم غير معروف'}</span>
+                        <span style="font-size: 0.85rem; color: var(--text-secondary);">${user.email || 'بدون بريد'}</span>
+                        <span style="font-size: 0.75rem; color: ${isSuspended ? 'var(--danger-color)' : 'var(--success-color)'}; margin-top: 4px;">
+                            <i class="fa-solid ${isSuspended ? 'fa-user-slash' : 'fa-user-check'}"></i> ${isSuspended ? 'حساب معلق' : 'حساب نشط'}
+                        </span>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="btn-icon ${isSuspended ? 'btn-success' : 'btn-danger'}" title="${isSuspended ? 'فك الحظر' : 'حظر التعليق'}" 
+                        onclick="window.toggleUserBan('${uid}', ${isSuspended})"
+                        style="background: ${isSuspended ? 'var(--success-color)' : 'var(--danger-color)'}; color: white; width: 36px; height: 36px; border-radius: 10px; border: none; cursor:pointer;">
+                        <i class="fa-solid ${isSuspended ? 'fa-unlock' : 'fa-ban'}"></i>
+                    </button>
+                    <button class="btn-icon" title="حذف بالكامل" 
+                        onclick="window.deleteUserFirestore('${uid}')"
+                        style="background: #ef4444; color: white; width: 36px; height: 36px; border-radius: 10px; border: none; cursor:pointer;">
+                        <i class="fa-solid fa-trash"></i>
+                    </button>
+                </div>
+            `;
 
-        statusText.textContent = "جاري تحديث البيانات...";
-        const appRef = doc(db, "apps", appId);
-        await updateDoc(appRef, updateData);
-        alert("تم تحديث التطبيق بنجاح!");
-        window.location.href = "index.html";
+            usersListContainer.appendChild(userCard);
+        });
     } catch (error) {
-        console.error("Error updating app: ", error);
-        alert("خطأ أثناء التحديث والرفع: " + error.message);
-        btnUpdate.disabled = false;
-        btnUpdate.textContent = "نشر التحديث";
-    } finally {
-        loader.classList.add('hidden');
+        console.error("Error loading users:", error);
+        usersListContainer.innerHTML = '<p class="text-danger">حدث خطأ أثناء تحميل المستخدمين.</p>';
     }
-});
+}
+
+// Global functions for inline buttons
+window.toggleUserBan = async (uid, currentSuspended) => {
+    const action = currentSuspended ? "فك حظر" : "تعليق";
+    if (!confirm(`هل أنت متأكد من ${action} هذا المستخدم؟`)) return;
+
+    try {
+        await updateDoc(doc(db, "users", uid), {
+            disabled: !currentSuspended
+        });
+        alert(`تم ${action} الحساب بنجاح!`);
+        loadUsers();
+    } catch (error) {
+        console.error("Error toggling user ban:", error);
+        alert("حدث خطأ: " + error.message);
+    }
+};
+
+window.deleteUserFirestore = async (uid) => {
+    if (!confirm("هل أنت متأكد من حذف هذا المستخدم نهائياً من قاعدة البيانات؟ لا يمكن التراجع!")) return;
+
+    try {
+        await deleteDoc(doc(db, "users", uid));
+        alert("تم حذف المستخدم بنجاح!");
+        loadUsers();
+    } catch (error) {
+        console.error("Error deleting user:", error);
+        alert("حدث خطأ أثناء الحذف: " + error.message);
+    }
+};
 
 // Delete App Submission
 document.getElementById('form-delete').addEventListener('submit', async (e) => {
