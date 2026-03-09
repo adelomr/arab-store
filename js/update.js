@@ -86,6 +86,10 @@ async function loadCategoriesDropdown(selectedCategory = "") {
             if (catName === selectedCategory) opt.selected = true;
             selectEl.appendChild(opt);
         });
+
+        // Initialize Custom Dropdown UI
+        updateCustomSelectUI(selectEl);
+
     } catch (e) {
         console.error("Error loading categories:", e);
     }
@@ -144,6 +148,10 @@ async function fetchAndPopulateUserApps() {
             opt.textContent = `${app.name} (${app.packageName})`;
             selectUserApp.appendChild(opt);
         });
+
+        // Initialize Custom Dropdown UI
+        updateCustomSelectUI(selectUserApp);
+
     } catch (e) {
         console.error("Error fetching user apps:", e);
     }
@@ -319,4 +327,74 @@ formSubmit.addEventListener('submit', async (e) => {
         loader.classList.add('hidden');
         progressContainer.style.display = 'none';
     }
+});
+
+// ====== Custom Select UI Logic ======
+function updateCustomSelectUI(selectEl) {
+    if (!selectEl) return;
+
+    // Remove old wrapper if exists
+    let container = selectEl.nextElementSibling;
+    if (container && container.classList.contains('custom-select-container')) {
+        container.remove();
+    }
+
+    // Hide original select
+    selectEl.style.display = 'none';
+
+    // Create new container
+    container = document.createElement('div');
+    container.className = 'custom-select-container';
+
+    const trigger = document.createElement('div');
+    trigger.className = 'custom-select-trigger';
+
+    const selectedOption = selectEl.options[selectEl.selectedIndex];
+    trigger.innerHTML = `<span>${selectedOption ? selectedOption.textContent : ''}</span> <i class="fa-solid fa-chevron-down"></i>`;
+
+    const optionsDiv = document.createElement('div');
+    optionsDiv.className = 'custom-options';
+
+    Array.from(selectEl.options).forEach((opt, index) => {
+        const optionDiv = document.createElement('div');
+        optionDiv.className = 'custom-option';
+        optionDiv.textContent = opt.textContent;
+        optionDiv.dataset.value = opt.value;
+        optionDiv.dataset.index = index;
+
+        optionDiv.addEventListener('click', (e) => {
+            e.stopPropagation();
+            selectEl.selectedIndex = opt.index;
+            selectEl.dispatchEvent(new Event('change'));
+
+            trigger.innerHTML = `<span>${opt.textContent}</span> <i class="fa-solid fa-chevron-down"></i>`;
+            container.classList.remove('open');
+            trigger.classList.remove('active');
+        });
+
+        optionsDiv.appendChild(optionDiv);
+    });
+
+    trigger.addEventListener('click', (e) => {
+        e.stopPropagation();
+        document.querySelectorAll('.custom-select-container.open').forEach(c => {
+            if (c !== container) {
+                c.classList.remove('open');
+                c.querySelector('.custom-select-trigger').classList.remove('active');
+            }
+        });
+        container.classList.toggle('open');
+        trigger.classList.toggle('active');
+    });
+
+    container.appendChild(trigger);
+    container.appendChild(optionsDiv);
+    selectEl.parentNode.insertBefore(container, selectEl.nextSibling);
+}
+
+document.addEventListener('click', () => {
+    document.querySelectorAll('.custom-select-container.open').forEach(c => {
+        c.classList.remove('open');
+        c.querySelector('.custom-select-trigger').classList.remove('active');
+    });
 });
