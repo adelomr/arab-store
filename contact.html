@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تواصل معنا | متجر العرب</title>
+    <meta name="description" content="تواصل مع فريق متجر العرب والمطور عادل عمر للمساعدة أو الاستفسارات.">
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4808414573627321" crossorigin="anonymous"></script>
+    <link rel="icon" type="image/png" href="web-assets/app_icon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
+    <style>
+        .page-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            margin: 40px auto;
+            max-width: 600px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+        }
+        .page-content h1 {
+            color: var(--primary-color);
+            margin-bottom: 10px;
+            text-align: center;
+        }
+        .page-content p {
+            margin-bottom: 25px;
+            text-align: center;
+            color: var(--text-secondary);
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: bold;
+        }
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px;
+            border-radius: 8px;
+            border: 1px solid var(--input-border);
+            background: var(--input-bg);
+            color: var(--text-primary);
+            font-family: inherit;
+        }
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+        }
+        .btn-submit {
+            width: 100%;
+            padding: 15px;
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+        .btn-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(0, 114, 255, 0.3);
+        }
+        .contact-info {
+            text-align: center;
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container navbar">
+            <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">
+                <a href="index.html" class="logo">
+                    <img src="web-assets/app_icon.png" alt="متجر العرب" style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;"> متجر العرب
+                </a>
+            </div>
+            <div class="navbar-actions">
+                <a href="index.html" class="btn btn-outline"><i class="fa-solid fa-home"></i> العودة للرئيسية</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-content">
+            <h1>تواصل معنا</h1>
+            <p>هل تواجه مشكلة أو لديك استفسار؟ لا تتردد في مراسلتنا!</p>
+            
+            <form onsubmit="event.preventDefault(); alert('عذراً، نظام الرسائل قيد التطوير. يمكنك التواصل عبر بريد الدعم المذكور بالأسفل.');">
+                <div class="form-group">
+                    <label>الاسم</label>
+                    <input type="text" placeholder="أدخل اسمك الكريم" required>
+                </div>
+                <div class="form-group">
+                    <label>البريد الإلكتروني</label>
+                    <input type="email" placeholder="أدخل بريدك الإلكتروني" required>
+                </div>
+                <div class="form-group">
+                    <label>الرسالة</label>
+                    <textarea rows="5" placeholder="اكتب رسالتك هنا..." required></textarea>
+                </div>
+                <button type="submit" class="btn-submit"><i class="fa-solid fa-paper-plane"></i> إرسال الرسالة</button>
+            </form>
+
+            <div class="contact-info">
+                <h3>أو عبر البريد الإلكتروني المباشر:</h3>
+                <p style="margin-top: 10px; font-weight: bold; font-family: sans-serif;" dir="ltr">support@arab-store.com</p>
+                <p style="font-size: 0.9rem;">(بريد تجريبي)</p>
+            </div>
+        </div>
+    </main>
+</body>
+</html>

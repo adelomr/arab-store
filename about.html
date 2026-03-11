@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>من نحن | متجر العرب</title>
+    <meta name="description" content="تعرف على متجر العرب والمطور عادل عمر.">
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4808414573627321" crossorigin="anonymous"></script>
+    <link rel="icon" type="image/png" href="web-assets/app_icon.png">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="css/style.css">
+    <script>
+        if (localStorage.getItem('theme') === 'dark') {
+            document.documentElement.classList.add('dark-mode');
+        }
+    </script>
+    <style>
+        .page-content {
+            background: var(--card-bg);
+            border-radius: 16px;
+            padding: 40px;
+            margin: 40px auto;
+            max-width: 800px;
+            box-shadow: var(--card-shadow);
+            border: 1px solid var(--border-color);
+            text-align: center;
+        }
+        .page-content h1 {
+            color: var(--primary-color);
+            margin-bottom: 20px;
+        }
+        .page-content p {
+            margin-bottom: 15px;
+            line-height: 1.8;
+            color: var(--text-body);
+            font-size: 1.1rem;
+        }
+        .developer-info {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 1px solid var(--border-color);
+        }
+        .social-links {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+        }
+        .social-links a {
+            display: inline-flex;
+            width: 45px;
+            height: 45px;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 50%;
+            color: var(--primary-color);
+            font-size: 1.2rem;
+            transition: var(--transition);
+        }
+        .social-links a:hover {
+            background: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="container navbar">
+            <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">
+                <a href="index.html" class="logo">
+                    <img src="web-assets/app_icon.png" alt="متجر العرب" style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;"> متجر العرب
+                </a>
+            </div>
+            <div class="navbar-actions">
+                <a href="index.html" class="btn btn-outline"><i class="fa-solid fa-home"></i> العودة للرئيسية</a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container">
+        <div class="page-content">
+            <h1>من نحن</h1>
+            <img src="web-assets/app_icon.png" alt="شعار متجر العرب" style="width: 120px; height: 120px; border-radius: 30px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
+            <p><strong>متجر العرب</strong> هو مشروع عربي طموح يهدف إلى توفير بيئة آمنة وسهلة لرفع وتحميل تطبيقات الأندرويد. تم تصميم المتجر ليقدم تجربة مستخدم سلسلة للمطورين الراغبين بنشر أعمالهم، وللمستخدمين الباحثين عن برمجيات مفيدة، آمنة ومجانية.</p>
+            
+            <div class="developer-info">
+                <h3>المطور والمؤسس</h3>
+                <p>مرحباً! أنا <strong>عادل عمر</strong>، مطور برمجيات شغوف ومؤسس منصة "متجر العرب". أسعى دائماً لتقديم حلول تقنية تخدم مجتمعنا العربي بأفضل شكل ممكن، إذا كانت لديك اقتراحات لا تتردد في مراسلتي.</p>
+                <div class="social-links">
+                    <a href="https://github.com/adelomr" target="_blank" title="GitHub"><i class="fa-brands fa-github"></i></a>
+                    <a href="contact.html" title="تواصل معنا"><i class="fa-solid fa-envelope"></i></a>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
