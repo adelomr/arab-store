@@ -268,7 +268,9 @@ formSubmit.addEventListener('submit', async (e) => {
 
     loader.classList.remove('hidden');
     btnSubmit.disabled = true;
-    btnSubmit.textContent = "جاري حفظ التعديلات...";
+    btnSubmit.style.opacity = '0.7';
+    btnSubmit.style.cursor = 'not-allowed';
+    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري حفظ التعديلات...';
 
     try {
         const pkgName = existingAppData.packageName;
@@ -322,7 +324,9 @@ formSubmit.addEventListener('submit', async (e) => {
         console.error("Update error:", error);
         alert("خطأ أثناء الحفظ: " + error.message);
         btnSubmit.disabled = false;
-        btnSubmit.textContent = "حفظ التحديثات وإرسالها";
+        btnSubmit.style.opacity = '1';
+        btnSubmit.style.cursor = 'pointer';
+        btnSubmit.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> حفظ التحديثات وإرسالها';
     } finally {
         loader.classList.add('hidden');
         progressContainer.style.display = 'none';

@@ -212,7 +212,9 @@ formSubmit.addEventListener('submit', async (e) => {
 
     loader.classList.remove('hidden');
     btnSubmit.disabled = true;
-    btnSubmit.textContent = "جاري الإرسال...";
+    btnSubmit.style.opacity = '0.7';
+    btnSubmit.style.cursor = 'not-allowed';
+    btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
 
     const appName = document.getElementById('app-name').value;
     const pkgName = document.getElementById('app-package').value;
@@ -282,7 +284,9 @@ formSubmit.addEventListener('submit', async (e) => {
         console.error("Error submitting app: ", error);
         alert("حدث خطأ أثناء الإرسال: " + error.message);
         btnSubmit.disabled = false;
-        btnSubmit.textContent = "إرسال التطبيق للمراجعة";
+        btnSubmit.style.opacity = '1';
+        btnSubmit.style.cursor = 'pointer';
+        btnSubmit.innerHTML = '<i class="fa-solid fa-cloud-arrow-up"></i> إرسال التطبيق للمراجعة';
     } finally {
         loader.classList.add('hidden');
         progressContainer.style.display = 'none';
