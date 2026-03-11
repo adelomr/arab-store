@@ -553,6 +553,32 @@ document.getElementById('btn-add-category').addEventListener('click', async () =
     }
 });
 
+// One-time script to seed categories
+document.getElementById('btn-seed-categories')?.addEventListener('click', async () => {
+    const defaultCategories = [
+        "أدوات", "أعمال", "اتصال", "اجتماعي", "أخبار ومجلات", "إنتاجية", "ترفيه", 
+        "تسوّق", "تخصيص", "تعليم", "تعديل الفيديو", "تعديل الصور", "رياضة", 
+        "سفر ومعلومات محلية", "صحة ولياقة", "طب", "طعام ومشروبات", "طقس", 
+        "كتب ومراجع", "مال", "موسيقى وصوت", "نمط حياة"
+    ];
+
+    if (!confirm(`هل أنت متأكد من استعادة ${defaultCategories.length} فئة افتراضية؟`)) return;
+
+    try {
+        let addedCount = 0;
+        for (const catName of defaultCategories) {
+            await setDoc(doc(db, "categories", catName), { name: catName });
+            addedCount++;
+        }
+        loadCategories();
+        populateCategoryDropdown(document.getElementById('app-category'));
+        alert(`تمت إضافة ${addedCount} فئة بنجاح! يمكنك الآن إزالة التعديل من الكود.`);
+    } catch (error) {
+        console.error("Error seeding categories:", error);
+        alert("حدث خطأ أثناء إضافة الفئات: " + error.message);
+    }
+});
+
 // =============================================
 // STATISTICS & NOTIFICATIONS LOGIC
 // =============================================
