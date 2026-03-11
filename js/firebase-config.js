@@ -5,12 +5,12 @@ import { getStorage } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-
 import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-analytics.js";
 
 const firebaseConfig = {
-    apiKey: "AIzaSyDXr6WfTJJTu3ULxIxb0urkuuuehwnbrnQ",
-    authDomain: "el-moka.firebaseapp.com",
-    projectId: "el-moka",
-    storageBucket: "el-moka.firebasestorage.app",
-    messagingSenderId: "7575581616",
-    appId: "1:7575581616:web:073591f60a5f21ddae9c75",
+    apiKey: "AIzaSyAZetEdIaL6Y92PuWJXzkjZle5tNFMcwus",
+    authDomain: "arab-store-c33d9.firebaseapp.com",
+    projectId: "arab-store-c33d9",
+    storageBucket: "arab-store-c33d9.firebasestorage.app",
+    messagingSenderId: "894788637306",
+    appId: "1:894788637306:web:a0843abe2efc06651fe1c3",
     measurementId: "G-01ZF2FWDRW"
 };
 

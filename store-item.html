@@ -21,7 +21,8 @@
     <!-- Open Graph for Social Media -->
     <meta property="og:title" content="تفاصيل التطبيق | متجر العرب">
     <meta property="og:description" content="اكتشف تفاصيل هذا التطبيق الرائع وحمله مباشرة من متجر العرب.">
-    <meta property="og:image" content="https://arab-store.web.app/web-assets/app_icon.png">
+    <meta property="og:image" content="https://arab-store-c33d9.web.app/web-assets/app_icon.png">
+    <meta property="og:url" content="https://arab-store-c33d9.web.app/">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ar_EG">
 
@@ -29,14 +30,24 @@
     <meta name="twitter:card" content="summary">
     <meta name="twitter:title" content="تفاصيل التطبيق | متجر العرب">
     <meta name="twitter:description" content="اكتشف تفاصيل هذا التطبيق الرائع وحمله مباشرة من متجر العرب.">
-    <meta name="twitter:image" content="https://arab-store.web.app/web-assets/app_icon.png">
+    <meta name="twitter:image" content="https://arab-store-c33d9.web.app/web-assets/app_icon.png">
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="web-assets/app_icon.png?v=2026">
+    <link rel="icon" type="image/png" href="web-assets/app_icon.png">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4808414573627321"
+        crossorigin="anonymous"></script>
+    <style>
+        .adsense-banner {
+            text-align: center;
+            margin: 1.5rem 0;
+            overflow: hidden;
+        }
+    </style>
     <style>
         .app-detail-header {
             display: flex;
@@ -169,8 +180,8 @@
     <header>
         <div class="container navbar">
             <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">
-                <a href="index.html?v=4" class="logo">
-                    <img src="web-assets/app_icon.png?v=2026" alt="متجر العرب"
+                <a href="index.html" class="logo">
+                    <img src="web-assets/app_icon.png" alt="متجر العرب"
                         style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;"> متجر
                     العرب
                 </a>
@@ -292,6 +303,18 @@
                 </div>
             </div>
 
+            <!-- إعلان AdSense بين الوصف والتعليقات -->
+            <div class="adsense-banner">
+                <ins class="adsbygoogle"
+                     style="display:block"
+                     data-ad-format="autorelaxed"
+                     data-ad-client="ca-pub-4808414573627321"
+                     data-ad-slot="1854440743"></ins>
+                <script>
+                    (adsbygoogle = window.adsbygoogle || []).push({});
+                </script>
+            </div>
+
             <!-- Ratings and Comments -->
             <div class="content-section">
                 <h3><i class="fa-solid fa-comments"></i> التقييمات والمراجعات</h3>
@@ -344,8 +367,8 @@
     </main>
 
     <!-- JavaScript as module -->
-    <script type="module" src="js/app-details.js?v=5"></script>
-    <script src="js/theme.js?v=5"></script>
+    <script type="module" src="js/app-details.js"></script>
+    <script src="js/theme.js"></script>
 </body>
 
 </html>

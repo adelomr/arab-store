@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Semantic Colors (Dark) -->
+    <color name="backgroundColor">#0A0A0A</color> <!-- Match Web dark-mode var-bg-color -->
+    <color name="surfaceColor">#171717</color> <!-- Match Web dark-mode var-card-bg -->
+    <color name="textPrimary">#EDEDED</color> <!-- Match Web dark-mode var-text-primary -->
+    <color name="textSecondary">#A3A3A3</color> <!-- Match Web dark-mode var-text-secondary -->
+    <color name="borderColor">#333333</color> <!-- Match Web dark-mode var-border-color -->
+
+    <!-- Override default colors for dark mode if needed -->
+    <color name="white">#171717</color>
+    <color name="black">#EDEDED</color>
+    <color name="divider">#333333</color>
+</resources>

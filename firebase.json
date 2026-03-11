@@ -1,6 +1,7 @@
 {
   "hosting": {
     "public": ".",
+    "cleanUrls": true,
     "ignore": [
       "firebase.json",
       "**/.*",
@@ -24,6 +25,23 @@
             "value": "no-cache, must-revalidate"
           }
         ]
+      }
+    ],
+    "redirects": [
+      {
+        "source": "/index.html",
+        "destination": "/",
+        "type": 301
+      },
+      {
+        "source": "/download",
+        "destination": "https://firebasestorage.googleapis.com/v0/b/arab-store-c33d9.firebasestorage.app/o/apps%2Fcom.arabstore.app%2Freleases%2FArabStore.apk?alt=media&token=6ec1e6e6-415c-4cf2-a7f5-4ec206535136",
+        "type": 301
+      },
+      {
+        "source": "/item/:id",
+        "destination": "/store-item.html?id=:id",
+        "type": 301
       }
     ]
   }

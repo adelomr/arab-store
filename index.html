@@ -21,8 +21,8 @@
     <meta property="og:title" content="متجر العرب">
     <meta property="og:description"
         content="متجر العرب - وجهتك الأولى لتحميل أحدث التطبيقات الموثوقة والآمنة، مع نظام تحديثات ذكي وتقييمات حقيقية.">
-    <meta property="og:image" content="https://arab-store.web.app/web-assets/app_icon.png">
-    <meta property="og:url" content="https://arab-store.web.app/">
+    <meta property="og:image" content="https://arab-store-c33d9.web.app/web-assets/app_icon.png">
+    <meta property="og:url" content="https://arab-store-c33d9.web.app/">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="ar_EG">
 
@@ -31,23 +31,36 @@
     <meta name="twitter:title" content="متجر العرب">
     <meta name="twitter:description"
         content="متجر العرب - وجهتك الأولى لتحميل أحدث التطبيقات الموثوقة والآمنة، مع نظام تحديثات ذكي وتقييمات حقيقية.">
-    <meta name="twitter:image" content="https://arab-store.web.app/web-assets/app_icon.png">
-
+    <meta name="twitter:image" content="https://arab-store-c33d9.web.app/web-assets/app_icon.png">
     <!-- Favicon -->
-    <!-- Favicon -->
-    <link rel="icon" type="image/png" href="web-assets/app_icon.png?v=2026">
+    <link rel="icon" type="image/png" href="web-assets/app_icon.png">
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css?v=5">
+    <link rel="stylesheet" href="css/style.css">
+    <!-- Google AdSense -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4808414573627321"
+        crossorigin="anonymous"></script>
+    <style>
+        .adsense-banner {
+            text-align: center;
+            margin: 1rem 0;
+            overflow: hidden;
+        }
+        .adsense-in-feed {
+            text-align: center;
+            margin: 1rem auto;
+            display: block;
+        }
+    </style>
 </head>
 
 <body>
     <header>
         <div class="container navbar">
             <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">
-                <a href="index.html?v=4" class="logo">
-                    <img src="web-assets/app_icon.png?v=2026" alt="متجر العرب"
+                <a href="index.html" class="logo">
+                    <img src="web-assets/app_icon.png" alt="متجر العرب"
                         style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
                     متجر العرب
                 </a>
@@ -60,7 +73,7 @@
                     <li><a href="submit.html" style="color: var(--success-color); font-weight: bold;"><i
                                 class="fa-solid fa-cloud-arrow-up"></i> أضف تطبيقك</a></li>
 
-                    <li id="admin-link-li" class="hidden"><a href="admin.html?v=4"
+                    <li id="admin-link-li" class="hidden"><a href="admin.html"
                             style="color: var(--primary-color); font-weight: bold;"><i class="fa-solid fa-gauge"></i>
                             لوحة
                             التحكم</a></li>
@@ -119,6 +132,18 @@
             </div>
         </section>
 
+        <!-- إعلان AdSense - بعد الهيرو -->
+        <div class="adsense-banner">
+            <ins class="adsbygoogle"
+                 style="display:block"
+                 data-ad-format="autorelaxed"
+                 data-ad-client="ca-pub-4808414573627321"
+                 data-ad-slot="1854440743"></ins>
+            <script>
+                (adsbygoogle = window.adsbygoogle || []).push({});
+            </script>
+        </div>
+
         <section class="container">
             <h2 class="section-title"><i class="fa-solid fa-rocket"></i> أحدث التطبيقات</h2>
             <div id="loader" class="loader-container">
@@ -131,8 +156,31 @@
     </main>
 
     <!-- JavaScript as module -->
-    <script type="module" src="js/store.js?v=5"></script>
-    <script src="js/theme.js?v=5"></script>
+    <script type="module" src="js/store.js"></script>
+    <script src="js/theme.js"></script>
+    <!-- AdSense In-Feed Injection -->
+    <script>
+        // حقن إعلان بين التطبيقات بعد التحميل
+        (function injectFeedAds() {
+            var grid = document.getElementById('apps-grid');
+            if (!grid) return;
+            var observer = new MutationObserver(function() {
+                var cards = grid.querySelectorAll('.app-card, .app-item');
+                var existingAds = grid.querySelectorAll('.adsense-feed-block');
+                if (cards.length >= 6 && existingAds.length === 0) {
+                    var adBlock = document.createElement('div');
+                    adBlock.className = 'adsense-feed-block';
+                    adBlock.style.cssText = 'grid-column: 1 / -1; text-align: center; margin: 16px 0;';
+                    adBlock.innerHTML = '<ins class="adsbygoogle" style="display:block" data-ad-format="autorelaxed" data-ad-client="ca-pub-4808414573627321" data-ad-slot="1854440743"></ins>';
+                    var insertAfter = cards[Math.min(5, cards.length - 1)];
+                    insertAfter.insertAdjacentElement('afterend', adBlock);
+                    (window.adsbygoogle = window.adsbygoogle || []).push({});
+                    observer.disconnect();
+                }
+            });
+            observer.observe(grid, { childList: true, subtree: true });
+        })();
+    </script>
 </body>
 
 </html>
