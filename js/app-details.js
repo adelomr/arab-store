@@ -63,6 +63,7 @@ async function loadAppData() {
             currentApp = docSnap.data();
             renderApp(currentApp);
             loadReviews();
+            checkIfUserAlreadyReviewed(); // Check existing review for UI
 
             loader.style.display = 'none';
             appContent.style.display = 'block';
@@ -77,6 +78,44 @@ async function loadAppData() {
     }
 }
 
+async function checkIfUserAlreadyReviewed() {
+    if (!currentUser || !appId) return;
+
+    try {
+        const reviewRef = doc(db, "apps", appId, "reviews", currentUser.uid);
+        const reviewSnap = await getDoc(reviewRef);
+        
+        const btnSubmit = formReview.querySelector('button[type="submit"]');
+        const reviewText = document.getElementById('review-text');
+        
+        if (reviewSnap.exists()) {
+            const data = reviewSnap.data();
+            // Pre-fill
+            if (!reviewText.value) reviewText.value = data.text;
+            const starToSelect = document.getElementById(`star${data.rating}`);
+            if (starToSelect) starToSelect.checked = true;
+
+            btnSubmit.innerHTML = '<i class="fa-solid fa-pen"></i> تحديث التقييم';
+            
+            // Show status msg
+            let existingMsg = document.getElementById('already-reviewed-msg');
+            if (!existingMsg) {
+                existingMsg = document.createElement('p');
+                existingMsg.id = 'already-reviewed-msg';
+                existingMsg.style.cssText = 'color: var(--success-color); font-size: 0.85rem; margin-bottom: 10px; font-weight: bold; text-align: center;';
+                existingMsg.innerHTML = '<i class="fa-solid fa-check-circle"></i> لقد قمت بتقييم هذا التطبيق مسبقاً. يمكنك تعديله أدناه.';
+                formReview.prepend(existingMsg);
+            }
+        } else {
+            btnSubmit.innerHTML = 'نشر التقييم';
+            const existingMsg = document.getElementById('already-reviewed-msg');
+            if (existingMsg) existingMsg.remove();
+        }
+    } catch (e) {
+        console.error("Error checking review:", e);
+    }
+}
+
 function checkIfUserDownloaded() {
     if (!currentUser) return;
     const isDownloaded = localStorage.getItem(`downloaded_${appId}`) === 'true';
@@ -86,6 +125,7 @@ function checkIfUserDownloaded() {
     if (isDownloaded) {
         reviewForm.classList.remove('hidden');
         if (downloadRequiredMsg) downloadRequiredMsg.classList.add('hidden');
+        checkIfUserAlreadyReviewed();
     } else {
         reviewForm.classList.add('hidden');
         if (!downloadRequiredMsg) {
@@ -221,11 +261,8 @@ async function loadReviews() {
             return;
         }
 
-        const seenUsers = new Set();
         querySnapshot.forEach((docSnap) => {
             const review = docSnap.data();
-            if (seenUsers.has(review.userId)) return; // Only show one review per user
-            seenUsers.add(review.userId);
 
             // Generate Stars
             let starsHtml = '';
@@ -286,8 +323,26 @@ async function loadReviews() {
 window.deleteMyReview = async () => {
     if (!currentUser || !confirm("هل أنت متأكد من حذف تقييمك؟")) return;
     try {
-        await deleteDoc(doc(db, "apps", appId, "reviews", currentUser.uid));
-        // Simple recalculation - reload data
+        const reviewRef = doc(db, "apps", appId, "reviews", currentUser.uid);
+        const reviewSnap = await getDoc(reviewRef);
+        if (!reviewSnap.exists()) return;
+        const oldRating = reviewSnap.data().rating;
+
+        await deleteDoc(reviewRef);
+
+        // Update Average
+        const currentCount = currentApp.ratingCount || 0;
+        const currentAvg = currentApp.rating || 0;
+        let newCount = Math.max(0, currentCount - 1);
+        let newAvg = 0;
+        if(newCount > 0) newAvg = ((currentAvg * currentCount) - oldRating) / newCount;
+
+        await updateDoc(currentAppRef, {
+            rating: newAvg,
+            ratingCount: newCount
+        });
+
+        formReview.reset();
         await loadAppData();
         alert("تم حذف التقييم.");
     } catch (e) {
@@ -351,16 +406,13 @@ formReview.addEventListener('submit', async (e) => {
             ratingCount: newCount
         });
 
-        // 3. Reset form and reload
-        formReview.reset();
-        await loadAppData(); // reload everything to show new stats and comments
+        await loadAppData(); 
         alert(isUpdate ? "تم تحديث تقييمك بنجاح." : "شكراً لك! تم إضافة تقييمك بنجاح.");
     } catch (error) {
         console.error("Error adding review:", error);
         alert("حدث خطأ أثناء إضافة تقييمك.");
     } finally {
         btnSubmit.disabled = false;
-        btnSubmit.innerHTML = 'نشر التقييم';
     }
 });
 
