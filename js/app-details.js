@@ -97,17 +97,21 @@ async function checkIfUserAlreadyReviewed() {
 
             btnSubmit.innerHTML = '<i class="fa-solid fa-pen"></i> تحديث التقييم';
             
-            // Show status msg
+            // Hide the form section by default if already reviewed
+            addReviewSection.style.display = 'none';
+
+            // Optional status msg inside the form
             let existingMsg = document.getElementById('already-reviewed-msg');
             if (!existingMsg) {
                 existingMsg = document.createElement('p');
                 existingMsg.id = 'already-reviewed-msg';
-                existingMsg.style.cssText = 'color: var(--success-color); font-size: 0.85rem; margin-bottom: 10px; font-weight: bold; text-align: center;';
-                existingMsg.innerHTML = '<i class="fa-solid fa-check-circle"></i> لقد قمت بتقييم هذا التطبيق مسبقاً. يمكنك تعديله أدناه.';
+                existingMsg.style.cssText = 'color: var(--success-color); font-size: 0.85rem; margin-bottom: 15px; font-weight: bold; text-align: center;';
+                existingMsg.innerHTML = '<i class="fa-solid fa-check-circle"></i> وضع التعديل: يمكنك الآن تعديل تقييمك.';
                 formReview.prepend(existingMsg);
             }
         } else {
             btnSubmit.innerHTML = 'نشر التقييم';
+            addReviewSection.style.display = 'block'; // Show if no review
             const existingMsg = document.getElementById('already-reviewed-msg');
             if (existingMsg) existingMsg.remove();
         }
@@ -282,11 +286,19 @@ async function loadReviews() {
 
             const commentCard = document.createElement('div');
             commentCard.className = 'comment-card';
-
-            // Allow delete if it's the current user's review
-            let deleteBtnHtml = '';
             if (currentUser && review.userId === currentUser.uid) {
-                deleteBtnHtml = `<button class="btn btn-outline btn-sm" onclick="window.deleteMyReview()" style="color: var(--danger-color); border-color: var(--danger-color); padding: 2px 8px; font-size: 0.75rem;">حذف</button>`;
+                commentCard.style.border = '2px solid var(--primary-color)';
+            }
+
+            // Buttons if it's the current user's review
+            let personalBtnHtml = '';
+            if (currentUser && review.userId === currentUser.uid) {
+                personalBtnHtml = `
+                    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 5px;">
+                         <button class="btn btn-outline btn-sm" onclick="window.editMyReview()" style="color: var(--primary-color); border-color: var(--primary-color); padding: 2px 10px; font-size: 0.8rem; font-weight: bold;">تعديل</button>
+                         <button class="btn btn-outline btn-sm" onclick="window.deleteMyReview()" style="color: var(--danger-color); border-color: var(--danger-color); padding: 2px 10px; font-size: 0.8rem; font-weight: bold;">حذف</button>
+                    </div>
+                `;
             }
 
             commentCard.innerHTML = `
@@ -294,10 +306,10 @@ async function loadReviews() {
                     <div class="comment-author">
                         <img src="${review.userPhoto || 'https://via.placeholder.com/32'}" alt="" onerror="this.src='https://via.placeholder.com/32'">
                         <span>${review.userName || 'مستخدم'}</span>
+                        ${(currentUser && review.userId === currentUser.uid) ? '<small style="background: var(--primary-color); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;">تقييمك</small>' : ''}
                     </div>
                     <div style="text-align: left;">
                         <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-end;">
-                            ${deleteBtnHtml}
                             <div>${starsHtml}</div>
                         </div>
                         <small style="color: var(--text-secondary);">${dateStr}</small>
@@ -306,6 +318,7 @@ async function loadReviews() {
                 <div style="margin-top: 10px; line-height: 1.5;">
                     ${review.text}
                 </div>
+                ${personalBtnHtml}
             `;
             commentsList.appendChild(commentCard);
         });
@@ -318,6 +331,12 @@ async function loadReviews() {
         }
     }
 }
+
+// Global Edit function
+window.editMyReview = () => {
+    addReviewSection.style.display = 'block';
+    addReviewSection.scrollIntoView({ behavior: 'smooth' });
+};
 
 // Global delete function for the UI
 window.deleteMyReview = async () => {
@@ -344,6 +363,7 @@ window.deleteMyReview = async () => {
 
         formReview.reset();
         await loadAppData();
+        addReviewSection.style.display = 'block'; // Show form after deletion
         alert("تم حذف التقييم.");
     } catch (e) {
         console.error("Error deleting review:", e);
@@ -407,6 +427,7 @@ formReview.addEventListener('submit', async (e) => {
         });
 
         await loadAppData(); 
+        addReviewSection.style.display = 'none'; // Hide after edit/post
         alert(isUpdate ? "تم تحديث تقييمك بنجاح." : "شكراً لك! تم إضافة تقييمك بنجاح.");
     } catch (error) {
         console.error("Error adding review:", error);
