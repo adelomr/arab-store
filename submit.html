@@ -34,12 +34,17 @@
     <link rel="icon" type="image/png" href="web-assets/app_icon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4808414573627321" crossorigin="anonymous"></script>
+    <!-- AMP Auto Ads -->
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
     <style></style>
 </head>
 
 <body>
+    <amp-auto-ads type="adsense"
+            data-ad-client="ca-pub-4808414573627321">
+    </amp-auto-ads>
     <header>
         <div class="container navbar">
             <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">
@@ -218,17 +223,6 @@
                     </button>
                 </form>
         </section>
-        <!-- AdSense Unit -->
-        <div style="text-align: center; margin: 2rem 0; overflow: hidden;">
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-format="autorelaxed"
-                 data-ad-client="ca-pub-4808414573627321"
-                 data-ad-slot="1854440743"></ins>
-            <script>
-                 (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>
     </main>
 
     <script type="module" src="js/submit.js"></script>

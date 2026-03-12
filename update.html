@@ -21,8 +21,10 @@
     <link rel="icon" type="image/png" href="web-assets/app_icon.png">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="css/style.css">
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4808414573627321" crossorigin="anonymous"></script>
+    <!-- AMP Auto Ads -->
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
     <style>
         .update-header-card {
             background: var(--primary-gradient);
@@ -76,6 +78,9 @@
 </head>
 
 <body>
+    <amp-auto-ads type="adsense"
+            data-ad-client="ca-pub-4808414573627321">
+    </amp-auto-ads>
     <header>
         <div class="container navbar">
             <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">

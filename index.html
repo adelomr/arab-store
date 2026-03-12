@@ -38,9 +38,10 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
-    <!-- Google AdSense -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4808414573627321"
-        crossorigin="anonymous"></script>
+    <!-- AMP Auto Ads -->
+    <script async custom-element="amp-auto-ads"
+        src="https://cdn.ampproject.org/v0/amp-auto-ads-0.1.js">
+    </script>
     <style>
         .adsense-banner {
             text-align: center;
@@ -56,6 +57,9 @@
 </head>
 
 <body>
+    <amp-auto-ads type="adsense"
+            data-ad-client="ca-pub-4808414573627321">
+    </amp-auto-ads>
     <header>
         <div class="container navbar">
             <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">
@@ -132,17 +136,6 @@
             </div>
         </section>
 
-        <!-- إعلان AdSense - بعد الهيرو -->
-        <div class="adsense-banner">
-            <ins class="adsbygoogle"
-                 style="display:block"
-                 data-ad-format="autorelaxed"
-                 data-ad-client="ca-pub-4808414573627321"
-                 data-ad-slot="1854440743"></ins>
-            <script>
-                (adsbygoogle = window.adsbygoogle || []).push({});
-            </script>
-        </div>
 
         <section class="container">
             <h2 class="section-title"><i class="fa-solid fa-rocket"></i> أحدث التطبيقات</h2>
@@ -158,29 +151,6 @@
     <!-- JavaScript as module -->
     <script type="module" src="js/store.js"></script>
     <script src="js/theme.js"></script>
-    <!-- AdSense In-Feed Injection -->
-    <script>
-        // حقن إعلان بين التطبيقات بعد التحميل
-        (function injectFeedAds() {
-            var grid = document.getElementById('apps-grid');
-            if (!grid) return;
-            var observer = new MutationObserver(function() {
-                var cards = grid.querySelectorAll('.app-card, .app-item');
-                var existingAds = grid.querySelectorAll('.adsense-feed-block');
-                if (cards.length >= 6 && existingAds.length === 0) {
-                    var adBlock = document.createElement('div');
-                    adBlock.className = 'adsense-feed-block';
-                    adBlock.style.cssText = 'grid-column: 1 / -1; text-align: center; margin: 16px 0;';
-                    adBlock.innerHTML = '<ins class="adsbygoogle" style="display:block" data-ad-format="autorelaxed" data-ad-client="ca-pub-4808414573627321" data-ad-slot="1854440743"></ins>';
-                    var insertAfter = cards[Math.min(5, cards.length - 1)];
-                    insertAfter.insertAdjacentElement('afterend', adBlock);
-                    (window.adsbygoogle = window.adsbygoogle || []).push({});
-                    observer.disconnect();
-                }
-            });
-            observer.observe(grid, { childList: true, subtree: true });
-        })();
-    </script>
     
     <!-- Global Footer -->
     <footer class="global-footer">
