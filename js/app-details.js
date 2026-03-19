@@ -173,10 +173,14 @@ function renderApp(app) {
 
     const btnShare = document.getElementById('d-share');
     btnShare.addEventListener('click', async () => {
+        // Build correct store page URL always (avoids pointing to Firebase Storage links)
+        const storeBaseUrl = `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '/')}`;
+        const storePageUrl = `${storeBaseUrl}store-item.html?id=${encodeURIComponent(appId)}`;
+
         const shareData = {
             title: `تطبيق ${app.name} على متجر العرب`,
-            text: `احصل على أحدث نسخة من ${app.name} من تطبيق متجر العرب الموثوق.`,
-            url: window.location.href
+            text: `احصل على أحدث نسخة من ${app.name} من متجر العرب الموثوق.`,
+            url: storePageUrl
         };
 
         if (navigator.share) {
@@ -187,8 +191,8 @@ function renderApp(app) {
             }
         } else {
             // Fallback: Copy to clipboard
-            navigator.clipboard.writeText(shareData.url).then(() => {
-                alert('تم نسخ الرابط للحافظة!');
+            navigator.clipboard.writeText(storePageUrl).then(() => {
+                alert('تم نسخ رابط التطبيق للحافظة!\n' + storePageUrl);
             }).catch(err => {
                 console.error("Could not copy text: ", err);
             });

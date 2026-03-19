@@ -76,17 +76,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        // Firebase Initialization
-        if (FirebaseApp.getApps(this).isEmpty()) {
-            FirebaseOptions options = new FirebaseOptions.Builder()
-                    .setApiKey("AIzaSyAZetEdIaL6Y92PuWJXzkjZle5tNFMcwus")
-                    .setApplicationId("1:7575581616:android:e6325219c6cafb78ae9c75")
-                    .setProjectId("arab-store-c33d9")
-                    .setStorageBucket("arab-store-c33d9.firebasestorage.app")
-                    .build();
-            FirebaseApp.initializeApp(this, options);
-        }
-
         mAuth = FirebaseAuth.getInstance();
         db = FirebaseFirestore.getInstance();
 
@@ -148,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
 
         GetGoogleIdOption googleIdOption = new GetGoogleIdOption.Builder()
                 .setFilterByAuthorizedAccounts(false)
-                .setServerClientId("7575581616-gdekp6kcta2llcktlu4nbibl8ik160vn.apps.googleusercontent.com")
+                .setServerClientId("894788637306-q2cnfgp0hrqhgnb5ouvi39upupkff154.apps.googleusercontent.com")
                 .setAutoSelectEnabled(true)
                 .build();
 
@@ -292,7 +281,7 @@ public class MainActivity extends AppCompatActivity {
             new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
                     .setTitle("حول المتجر")
                     .setMessage(
-                            "متجر العرب\n\nالإصدار 1.0.0\n\nمتجر تطبيقات عربي احترافي.\n\nتصميم وبرمجة عادل جودة نوح")
+                            "متجر العرب\n\nالإصدار " + BuildConfig.VERSION_NAME + "\n\nمتجر تطبيقات عربي احترافي.\n\nتصميم وبرمجة عادل جودة نوح")
                     .setPositiveButton("حسناً", null)
                     .show();
         });
@@ -320,12 +309,15 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void checkForUpdates() {
-        new Thread(() -> {
+        Executors.newSingleThreadExecutor().execute(() -> {
             try {
                 URL url = new URL("https://arab-store-c33d9.web.app/update.json");
                 HttpURLConnection connection = (HttpURLConnection) url.openConnection();
                 try {
                     connection.setRequestMethod("GET");
+                    connection.setConnectTimeout(10000);
+                    connection.setReadTimeout(10000);
+                    
                     try (BufferedReader reader = new BufferedReader(
                             new InputStreamReader(connection.getInputStream()))) {
                         StringBuilder response = new StringBuilder();
@@ -335,13 +327,13 @@ public class MainActivity extends AppCompatActivity {
                         }
 
                         JSONObject json = new JSONObject(response.toString());
-                        int latestBuild = json.getInt("build_number");
-                        String releaseNotes = json.getString("release_notes");
-                        String downloadUrl = json.getString("download_url");
+                        int latestBuild = json.optInt("build_number", 0);
+                        String releaseNotes = json.optString("release_notes", "تحسينات جديدة");
+                        String downloadUrl = json.optString("download_url", "");
 
                         int currentBuild = BuildConfig.VERSION_CODE;
 
-                        if (latestBuild > currentBuild) {
+                        if (latestBuild > currentBuild && !downloadUrl.isEmpty()) {
                             runOnUiThread(() -> showUpdateDialog(releaseNotes, downloadUrl));
                         }
                     }
@@ -349,10 +341,9 @@ public class MainActivity extends AppCompatActivity {
                     connection.disconnect();
                 }
             } catch (Exception e) {
-                Log.e("MainActivity",
-                        "Error checking for updates: " + (e.getMessage() != null ? e.getMessage() : "Unknown"), e);
+                Log.e("MainActivity", "Error checking for updates", e);
             }
-        }).start();
+        });
     }
 
     private void showUpdateDialog(String notes, String downloadUrl) {
