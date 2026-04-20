@@ -47,9 +47,18 @@
             background: var(--page-bg);
             min-height: 100vh;
             display: flex;
+            flex-direction: column;
+            padding: 0;
+            margin: 0;
+        }
+
+        .profile-wrapper {
+            flex: 1;
+            display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px;
+            width: 100%;
         }
 
         .profile-container {
@@ -319,11 +328,14 @@
             }
         }
     </style>
+    <!-- Google AdSense Auto Ads -->
+    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4808414573627321" crossorigin="anonymous"></script>
 </head>
 
 <body>
 
-    <div class="profile-container">
+    <div class="profile-wrapper">
+        <div class="profile-container">
         <div class="header">
             <img src="web-assets/app_icon.png?v=2026" alt="متجر العرب"
                 style="width: 80px; height: 80px; border-radius: 20px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.3);">
@@ -405,14 +417,14 @@
         <div class="loader-overlay" id="loading-overlay">
             <div class="spinner"></div>
         </div>
+        </div>
     </div>
 
     <script type="module" src="js/profile.js?v=3"></script>
     <script>
         // Apply saved theme immediately without relying on the toggle button
         (function () {
-            const savedTheme = localStorage.getItem('theme');
-            if (savedTheme === 'dark' || (!savedTheme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+            if (localStorage.getItem('theme') !== 'light') {
                 document.documentElement.classList.add('dark-mode');
             }
         })();
