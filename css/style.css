@@ -46,6 +46,14 @@ body {
     line-height: 1.6;
     overflow-x: hidden;
     position: relative;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+main,
+#unauthorized-msg {
+    flex: 1;
 }
 
 /* Background effects */
