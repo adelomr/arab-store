@@ -52,6 +52,9 @@ observeAuthState((user, isAdmin) => {
                 alert("يجب إكمال بياناتك كمطور أولاً قبل إضافة أي تطبيق.");
                 window.location.href = 'profile.html';
             }
+        }).catch(err => {
+            console.error("Developer Check Error:", err);
+            alert("خطأ في التحقق من الحساب: " + err.message);
         });
     } else {
         btnLogin.classList.remove('hidden');

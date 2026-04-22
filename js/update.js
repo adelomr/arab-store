@@ -62,6 +62,9 @@ observeAuthState((user, isAdmin) => {
                 alert("يجب إكمال بياناتك كمطور أولاً لتتمكن من إدارة تطبيقاتك.");
                 window.location.href = 'profile.html';
             }
+        }).catch(err => {
+            console.error("Developer Check Error:", err);
+            alert("خطأ في التحقق من الحساب: " + err.message);
         });
 
         fetchAndPopulateUserApps().then(() => {
