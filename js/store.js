@@ -2,6 +2,13 @@ import { db } from './firebase-config.js';
 import { loginWithGoogle, observeAuthState } from './auth.js';
 import { collection, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
+// Global Error Handler for debugging
+window.onerror = function(msg, url, line, col, error) {
+    console.error("Global Error Caught: ", msg, " at ", line, ":", col);
+    const loader = document.getElementById('loader');
+    if (loader) loader.innerHTML = '<p style="color:red; font-size:12px;">خطأ في تحميل الصفحة. يرجى تحديث الصفحة.</p>';
+};
+
 // DOM Elements
 const appsGrid = document.getElementById('apps-grid');
 const loader = document.getElementById('loader');
