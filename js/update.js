@@ -53,6 +53,14 @@ observeAuthState((user, isAdmin) => {
         updateContent.classList.remove('hidden');
         unauthorizedMsg.classList.add('hidden');
 
+        // Developer Check: Only allow access if profile is completed
+        getDoc(doc(db, "users", user.uid)).then(userDoc => {
+            if (!userDoc.exists() || !userDoc.data().isCompleted) {
+                alert("يجب إكمال بياناتك كمطور أولاً لتتمكن من إدارة تطبيقاتك.");
+                window.location.href = 'profile.html';
+            }
+        });
+
         fetchAndPopulateUserApps().then(() => {
             if (directId && directCol) {
                 selectUserApp.value = directId;
@@ -108,20 +116,28 @@ async function fetchAndPopulateUserApps() {
         const queries = [];
 
         for (const col of cols) {
-            queries.push(getDocs(query(collection(db, col), where("developerUid", "==", currentUser.uid))).then(snap => ({ snap, col, type: 'uid' })));
+            queries.push(getDocs(query(collection(db, col), where("developerUid", "==", currentUser.uid)))
+                .then(snap => ({ snap, col, type: 'uid' }))
+                .catch(err => { console.warn(`Query by UID failed for ${col}:`, err); return null; }));
 
             if (currentUser.email) {
-                queries.push(getDocs(query(collection(db, col), where("developerEmail", "==", currentUser.email))).then(snap => ({ snap, col, type: 'email' })));
+                queries.push(getDocs(query(collection(db, col), where("developerEmail", "==", currentUser.email)))
+                    .then(snap => ({ snap, col, type: 'email' }))
+                    .catch(err => { console.warn(`Query by Email failed for ${col}:`, err); return null; }));
             }
 
             for (const nameToSearch of searchNames) {
-                queries.push(getDocs(query(collection(db, col), where("developer", "==", nameToSearch))).then(snap => ({ snap, col, type: 'name' })));
+                queries.push(getDocs(query(collection(db, col), where("developer", "==", nameToSearch)))
+                    .then(snap => ({ snap, col, type: 'name' }))
+                    .catch(err => { console.warn(`Query by Name failed for ${col}:`, err); return null; }));
             }
         }
 
         const results = await Promise.all(queries);
 
-        for (const { snap, col, type } of results) {
+        for (const res of results) {
+            if (!res) continue;
+            const { snap, col, type } = res;
             for (const docSnap of snap.docs) {
                 if (!userAppsMap.has(docSnap.id)) {
                     const appData = docSnap.data();
@@ -274,7 +290,7 @@ formSubmit.addEventListener('submit', async (e) => {
 
     try {
         const pkgName = existingAppData.packageName;
-        const basePath = isAdminUser || appCollection === 'apps' ? `apps/${pkgName}` : `submissions/${pkgName}`;
+        const basePath = isAdminUser ? `apps/${pkgName}` : `submissions/${pkgName}`;
 
         let iconUrl = existingAppData.iconUrl;
         if (iconInput.files.length > 0) {

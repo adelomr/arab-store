@@ -42,6 +42,14 @@ observeAuthState((user, isAdmin) => {
         submitContent.classList.remove('hidden');
         unauthorizedMsg.classList.add('hidden');
         loadCategoriesDropdown();
+
+        // Developer Check: Only allow submission if profile is completed
+        getDoc(doc(db, "users", user.uid)).then(userDoc => {
+            if (!userDoc.exists() || !userDoc.data().isCompleted) {
+                alert("يجب إكمال بياناتك كمطور أولاً قبل إضافة أي تطبيق.");
+                window.location.href = 'profile.html';
+            }
+        });
     } else {
         btnLogin.classList.remove('hidden');
         userInfo.classList.add('hidden');

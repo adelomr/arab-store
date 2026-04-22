@@ -34,6 +34,14 @@ observeAuthState((user, isAdmin) => {
         unauthorizedMsg.classList.add('hidden');
         appsGrid.classList.remove('hidden');
 
+        // Developer Check: Only allow access if profile is completed
+        getDoc(doc(db, "users", user.uid)).then(userDoc => {
+            if (!userDoc.exists() || !userDoc.data().isCompleted) {
+                alert("يجب إكمال بياناتك كمطور أولاً لعرض تطبيقاتك.");
+                window.location.href = 'profile.html';
+            }
+        });
+
         fetchUserApps(user, isAdmin);
     } else {
         btnLogin.classList.remove('hidden');
@@ -69,20 +77,28 @@ async function fetchUserApps(user, isAdmin) {
         const queries = [];
 
         for (const colName of collections) {
-            queries.push(getDocs(query(collection(db, colName), where("developerUid", "==", uid))).then(snap => ({ snap, colName, type: 'uid' })));
+            queries.push(getDocs(query(collection(db, colName), where("developerUid", "==", uid)))
+                .then(snap => ({ snap, colName, type: 'uid' }))
+                .catch(err => { console.warn(`Query by UID failed for ${colName}:`, err); return null; }));
 
             if (email) {
-                queries.push(getDocs(query(collection(db, colName), where("developerEmail", "==", email))).then(snap => ({ snap, colName, type: 'email' })));
+                queries.push(getDocs(query(collection(db, colName), where("developerEmail", "==", email)))
+                    .then(snap => ({ snap, colName, type: 'email' }))
+                    .catch(err => { console.warn(`Query by Email failed for ${colName}:`, err); return null; }));
             }
 
             for (const nameToSearch of searchNames) {
-                queries.push(getDocs(query(collection(db, colName), where("developer", "==", nameToSearch))).then(snap => ({ snap, colName, type: 'name' })));
+                queries.push(getDocs(query(collection(db, colName), where("developer", "==", nameToSearch)))
+                    .then(snap => ({ snap, colName, type: 'name' }))
+                    .catch(err => { console.warn(`Query by Name failed for ${colName}:`, err); return null; }));
             }
         }
 
         const results = await Promise.all(queries);
 
-        for (const { snap, colName, type } of results) {
+        for (const res of results) {
+            if (!res) continue;
+            const { snap, colName, type } = res;
             for (const docSnap of snap.docs) {
                 if (!userAppsMap.has(docSnap.id)) {
                     const appData = docSnap.data();
@@ -112,9 +128,9 @@ async function fetchUserApps(user, isAdmin) {
 
         // Sort by date submitted/created if available, newest first
         userApps.sort((a, b) => {
-            const timeA = a.submittedAt || a.createdAt || { seconds: 0 };
-            const timeB = b.submittedAt || b.createdAt || { seconds: 0 };
-            return timeB.seconds - timeA.seconds;
+            const timeA = (a.submittedAt || a.createdAt || { seconds: 0 }).seconds || 0;
+            const timeB = (b.submittedAt || b.createdAt || { seconds: 0 }).seconds || 0;
+            return timeB - timeA;
         });
 
         userApps.forEach(app => {
