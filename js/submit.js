@@ -1,6 +1,6 @@
 import { db, storage } from './firebase-config.js';
 import { loginWithGoogle, logoutUser, observeAuthState } from './auth.js';
-import { collection, doc, setDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, doc, setDoc, getDoc, serverTimestamp, getDocs } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 // DOM Elements

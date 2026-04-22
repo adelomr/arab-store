@@ -1,6 +1,6 @@
 import { db } from './firebase-config.js';
 import { loginWithGoogle, logoutUser, observeAuthState } from './auth.js';
-import { collection, query, where, getDocs, updateDoc, doc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+import { collection, query, where, getDocs, updateDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // DOM Elements
 const btnLogin = document.getElementById('btn-login');
