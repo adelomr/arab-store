@@ -173,11 +173,12 @@ async function fetchUserApps(user, isAdmin) {
     } catch (error) {
         console.error("Error fetching user apps:", error);
         loader.classList.add('hidden');
-        appsGrid.innerHTML = '<p class="empty-state" style="color: var(--danger-color);">حدث خطأ أثناء جلب تطبيقاتك. يرجى المحاولة لاحقاً.</p>';
-
-        // Detailed error for developers missing indexes
-        if (error.message.includes('requires an index')) {
-            console.warn("Firestore requires a composite index for this query. The query will fail until the index is built.");
-        }
+        appsGrid.innerHTML = `
+            <div class="empty-state" style="color: var(--danger-color);">
+                <i class="fa-solid fa-circle-exclamation" style="font-size: 3rem; margin-bottom: 15px;"></i>
+                <p>حدث خطأ أثناء جلب تطبيقاتك.</p>
+                <small style="display:block; margin-top:10px; color: var(--text-secondary);">السبب المحتمل: ${error.message}</small>
+            </div>
+        `;
     }
 }

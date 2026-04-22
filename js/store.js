@@ -38,12 +38,17 @@ btnLogout.addEventListener('click', logoutUser);
 
 // Fetch and display apps
 async function fetchApps() {
+    console.log("Attempting to fetch apps from Firestore...");
     try {
-        const querySnapshot = await getDocs(collection(db, "apps"));
+        const appsCollection = collection(db, "apps");
+        const querySnapshot = await getDocs(appsCollection);
+        console.log("Fetch successful, number of apps:", querySnapshot.size);
+        
         loader.classList.add('hidden');
 
         if (querySnapshot.empty) {
-            appsGrid.innerHTML = '<p style="text-align:center; width: 100%; color: var(--text-secondary);">لا توجد تطبيقات متاحة حالياً.</p>';
+            console.log("No apps found in the 'apps' collection.");
+            appsGrid.innerHTML = '<p style="text-align:center; width: 100%; color: var(--text-secondary);">لا توجد تطبيقات متاحة حالياً في قاعدة البيانات.</p>';
             return;
         }
 
