@@ -1,5 +1,5 @@
 import { db, storage } from './firebase-config.js';
-import { loginWithGoogle, logoutUser, observeAuthState } from './auth.js';
+import { loginWithGoogle, logout, observeAuthState } from './auth.js';
 import { collection, doc, getDoc, updateDoc, serverTimestamp, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
@@ -83,7 +83,7 @@ observeAuthState((user, isAdmin) => {
 });
 
 if (btnLogin) btnLogin.addEventListener('click', loginWithGoogle);
-if (btnLogout) btnLogout.addEventListener('click', logoutUser);
+if (btnLogout) btnLogout.addEventListener('click', logout);
 
 // Load categories into the dropdown
 async function loadCategoriesDropdown(selectedCategory = "") {

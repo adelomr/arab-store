@@ -1,5 +1,5 @@
 import { db } from './firebase-config.js';
-import { loginWithGoogle, logoutUser, observeAuthState } from './auth.js';
+import { loginWithGoogle, logout, observeAuthState } from './auth.js';
 import { collection, query, where, getDocs, updateDoc, doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // DOM Elements
@@ -59,7 +59,7 @@ observeAuthState((user, isAdmin) => {
 
 // Event Listeners for Auth
 if (btnLogin) btnLogin.addEventListener('click', loginWithGoogle);
-if (btnLogout) btnLogout.addEventListener('click', logoutUser);
+if (btnLogout) btnLogout.addEventListener('click', logout);
 
 async function fetchUserApps(user, isAdmin) {
     const uid = user.uid;
