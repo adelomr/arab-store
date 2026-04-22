@@ -41,6 +41,9 @@ const directCol = urlParams.get('col');
 
 // Auth Setup
 observeAuthState((user, isAdmin) => {
+    const pageLoader = document.getElementById('page-loader');
+    if (pageLoader) pageLoader.classList.add('hidden');
+
     currentUser = user;
     isAdminUser = isAdmin;
     if (user) {
