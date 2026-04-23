@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تطبيق الجامع - رفيقك الصالح لكل مسلم</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root {
+            --primary: #1e5f41; /* Green Islamic Color */
+            --secondary: #d4af37; /* Gold Color */
+            --bg-dark: #0f172a;
+            --card-bg: #1e293b;
+            --text-light: #f8fafc;
+            --text-muted: #94a3b8;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* Header */
+        header {
+            padding: 20px 0;
+            position: absolute;
+            width: 100%;
+            z-index: 100;
+        }
+
+        .nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-family: 'Amiri', serif;
+            font-size: 2rem;
+            color: var(--secondary);
+            text-decoration: none;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo img {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 150px 0 100px;
+            background: linear-gradient(135deg, #0f172a 0%, #1e5f41 100%);
+            text-align: center;
+            position: relative;
+        }
+
+        .hero h1 {
+            font-size: 3.5rem;
+            margin-bottom: 20px;
+            font-family: 'Amiri', serif;
+            color: var(--secondary);
+        }
+
+        .hero p {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            max-width: 700px;
+            margin: 0 auto 40px;
+        }
+
+        .download-btns {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 15px 35px;
+            border-radius: 50px;
+            text-decoration: none;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary {
+            background-color: var(--secondary);
+            color: #000;
+        }
+
+        .btn-outline {
+            border: 2px solid var(--secondary);
+            color: var(--secondary);
+        }
+
+        .btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+        /* Features Section */
+        .features {
+            padding: 100px 0;
+        }
+
+        .section-title {
+            text-align: center;
+            margin-bottom: 60px;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-family: 'Amiri', serif;
+            color: var(--secondary);
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 30px;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            padding: 40px;
+            border-radius: 20px;
+            text-align: center;
+            transition: transform 0.3s ease;
+            border: 1px solid rgba(212, 175, 55, 0.1);
+        }
+
+        .feature-card:hover {
+            transform: scale(1.05);
+            border-color: var(--secondary);
+        }
+
+        .feature-icon {
+            font-size: 3rem;
+            color: var(--secondary);
+            margin-bottom: 20px;
+        }
+
+        .feature-card h3 {
+            margin-bottom: 15px;
+            color: var(--text-light);
+        }
+
+        /* Footer */
+        footer {
+            background: #000;
+            padding: 50px 0;
+            text-align: center;
+        }
+
+        .footer-links {
+            margin-bottom: 20px;
+        }
+
+        .footer-links a {
+            color: var(--text-muted);
+            text-decoration: none;
+            margin: 0 15px;
+            font-size: 0.9rem;
+        }
+
+        .footer-links a:hover {
+            color: var(--secondary);
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 { font-size: 2.5rem; }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="container nav">
+            <a href="#" class="logo">
+                <img src="web-assets/app_icon.png" alt="الجامع">
+                الجامع
+            </a>
+        </div>
+    </header>
+
+    <section class="hero">
+        <div class="container">
+            <h1>تطبيق الجامع</h1>
+            <p>الرفيق الصالح لكل مسلم في حياته اليومية. يجمع لك القرآن الكريم، مواقيت الصلاة، الإذاعة الإسلامية، والتفسير في مكان واحد بواجهة عصرية وسهلة الاستخدام.</p>
+            <div class="download-btns">
+                <a href="https://arab-store.allqaqasyana.com/apps/com.elmoka.aljam3/releases/app-Eljam3.apk" class="btn btn-primary">
+                    <i class="fa-solid fa-download"></i> تحميل مباشر APK
+                </a>
+                <a href="https://www.aptoide.com/" class="btn btn-outline">
+                    <i class="fa-solid fa-store"></i> متوفر على Aptoide
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="features">
+        <div class="container">
+            <div class="section-title">
+                <h2>مميزات التطبيق</h2>
+                <p>كل ما يحتاجه المسلم في تطبيق واحد</p>
+            </div>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <i class="fa-solid fa-book-quran feature-icon"></i>
+                    <h3>القرآن الكريم</h3>
+                    <p>قراءة واستماع لأشهر القراء مع إمكانية التحميل للاستماع بدون إنترنت.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-mosque feature-icon"></i>
+                    <h3>مواقيت الصلاة</h3>
+                    <p>تحديد دقيق لمواقيت الصلاة بناءً على موقعك الحالي مع تنبيهات الأذان.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-radio feature-icon"></i>
+                    <h3>إذاعات إسلامية</h3>
+                    <p>بث مباشر لأكثر من 100 إذاعة للقرآن الكريم والدروس الدينية.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-kaaba feature-icon"></i>
+                    <h3>اتجاه القبلة</h3>
+                    <p>بوصلة ذكية لتحديد اتجاه القبلة بدقة من أي مكان في العالم.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-microchip feature-icon"></i>
+                    <h3>تفسير القرآن</h3>
+                    <p>الوصول السريع لتفاسير الآيات (الجلالين، الميسر) لفهم أعمق لكتاب الله.</p>
+                </div>
+                <div class="feature-card">
+                    <i class="fa-solid fa-moon feature-icon"></i>
+                    <h3>أذكار المسلم</h3>
+                    <p>حصن المسلم كاملاً مع أذكار الصباح والمساء والتنبيهات اليومية.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-links">
+                <a href="privacy-eljam3.html">سياسة الخصوصية</a>
+                <a href="contact.html">تواصل معنا</a>
+                <a href="index.html">متجر العرب</a>
+            </div>
+            <p style="color: var(--text-muted); font-size: 0.8rem;">&copy; 2026 تطبيق الجامع. جميع الحقوق محفوظة.</p>
+        </div>
+    </footer>
+</body>
+
+</html>
