@@ -211,6 +211,26 @@ function renderApp(app) {
         document.getElementById('d-changelog').textContent = app.changelog;
     }
 
+    // Render Features
+    const featuresSection = document.getElementById('d-features-section');
+    const featuresContainer = document.getElementById('d-features');
+    if (app.features && app.features.length > 0) {
+        featuresContainer.innerHTML = '';
+        app.features.forEach(feat => {
+            const card = document.createElement('div');
+            card.className = 'feature-card';
+            card.innerHTML = `
+                <i class="fa-solid ${feat.icon || 'fa-star'} feature-icon"></i>
+                <h3>${feat.title}</h3>
+                <p>${feat.desc}</p>
+            `;
+            featuresContainer.appendChild(card);
+        });
+        featuresSection.style.display = 'block';
+    } else {
+        featuresSection.style.display = 'none';
+    }
+
     // Render Screenshots
     const screenshotsSection = document.getElementById('screenshots-section');
     const screenshotsContainer = document.getElementById('d-screenshots');

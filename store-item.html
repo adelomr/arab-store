@@ -184,6 +184,14 @@
             </div>
             <div class="navbar-actions">
                 <ul class="nav-links">
+                    <li><a href="submit.html" style="color: var(--success-color); font-weight: bold;"><i
+                                class="fa-solid fa-cloud-arrow-up"></i> أضف تطبيقك</a></li>
+
+                    <li id="admin-link-li" class="hidden"><a href="admin.html"
+                            style="color: var(--primary-color); font-weight: bold;"><i class="fa-solid fa-gauge"></i>
+                            لوحة
+                            التحكم</a></li>
+
                     <!-- Auth Section -->
                     <li id="auth-section">
                         <button id="btn-login" class="btn btn-primary hidden">تسجيل الدخول <i
@@ -201,28 +209,29 @@
                                         </div>
                                     </div>
                                 </div>
-                                <div class="user-dropdown-wrapper" id="user-dropdown-wrapper">
-                                    <img id="user-avatar" src="" alt="صورة المستخدم" class="user-avatar">
-                                    <span id="user-name" class="hidden"></span>
-                                    <div class="user-dropdown-menu hidden" id="user-dropdown-menu">
-                                        <div class="user-dropdown-header">حسابي</div>
-                                        <ul class="user-dropdown-list">
-                                            <li><a href="submit.html"><i class="fa-solid fa-plus"></i> إضافة تطبيق</a>
-                                            </li>
-                                            <li><a href="update.html"><i class="fa-solid fa-pen-to-square"></i> تحديث
-                                                    تطبيق</a></li>
-                                            <li><a href="user-apps.html"><i class="fa-solid fa-layer-group"></i>
-                                                    تطبيقاتي</a></li>
-                                            <li><a href="profile.html?edit=1"><i class="fa-solid fa-user-pen"></i> تعديل
-                                                    بياناتي</a></li>
-                                            <li class="dropdown-divider"></li>
-                                            <li><button id="btn-logout" class="dropdown-item-btn"><i
-                                                        class="fa-solid fa-right-from-bracket"></i> تسجيل
-                                                    الخروج</button></li>
-                                        </ul>
-                                    </div>
+                            </div>
+                            <div class="user-dropdown-wrapper" id="user-dropdown-wrapper">
+                                <img id="user-avatar" src="" alt="صورة المستخدم" class="user-avatar">
+                                <span id="user-name" class="hidden"></span>
+                                <div class="user-dropdown-menu hidden" id="user-dropdown-menu">
+                                    <div class="user-dropdown-header">حسابي</div>
+                                    <ul class="user-dropdown-list">
+                                        <li><a href="submit.html"><i class="fa-solid fa-plus"></i> إضافة تطبيق</a>
+                                        </li>
+                                        <li><a href="update.html"><i class="fa-solid fa-pen-to-square"></i> تحديث
+                                                تطبيق</a></li>
+                                        <li><a href="user-apps.html"><i class="fa-solid fa-layer-group"></i>
+                                                تطبيقاتي</a></li>
+                                        <li><a href="profile.html?edit=1"><i class="fa-solid fa-user-pen"></i> تعديل
+                                                بياناتي</a></li>
+                                        <li class="dropdown-divider"></li>
+                                        <li><button id="btn-logout" class="dropdown-item-btn"><i
+                                                    class="fa-solid fa-right-from-bracket"></i> تسجيل
+                                                الخروج</button></li>
+                                    </ul>
                                 </div>
                             </div>
+                        </div>
                     </li>
                 </ul>
             </div>
@@ -265,6 +274,14 @@
                             <i class="fa-solid fa-download"></i> تحميل (APK)
                         </a>
                     </div>
+                </div>
+            </div>
+
+            <!-- App Features -->
+            <div class="features-section" id="d-features-section" style="display: none;">
+                <h2 class="section-title" style="margin-top: 0;"><i class="fa-solid fa-wand-magic-sparkles"></i> مميزات التطبيق</h2>
+                <div class="features-grid" id="d-features">
+                    <!-- Features injected by JS -->
                 </div>
             </div>
 

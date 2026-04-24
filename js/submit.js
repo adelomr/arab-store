@@ -263,6 +263,14 @@ formSubmit.addEventListener('submit', async (e) => {
             iconUrl: iconUrl,
             screenshots: screenshotUrls,
             downloadUrl: downloadUrl,
+            features: document.getElementById('app-features').value.split('\n').filter(line => line.trim() !== '').map(line => {
+                const parts = line.split('|');
+                return {
+                    icon: parts[0] ? parts[0].trim() : 'fa-star',
+                    title: parts[1] ? parts[1].trim() : 'ميزة جديدة',
+                    desc: parts[2] ? parts[2].trim() : ''
+                };
+            }),
             version: document.getElementById('app-version').value,
             versionCode: parseInt(document.getElementById('app-versioncode').value),
             developer: isAdminUser ? "عادل" : currentUser.displayName,
