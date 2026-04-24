@@ -51,10 +51,10 @@
         }
 
         .container {
-            width: 95%;
-            max-width: 1440px; /* Increased for better utilization */
+            width: 92%;
+            max-width: 1300px;
             margin: 0 auto;
-            padding: 0 24px;
+            position: relative;
         }
 
         .app-hero {
@@ -268,13 +268,14 @@
         }
 
         .scroll-btn {
-            background: var(--gp-card);
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(4px);
             border: 1px solid var(--gp-border);
-            color: var(--gp-text-sec);
-            width: 48px;
-            height: 48px;
+            color: var(--gp-text);
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
-            display: flex; /* Always visible */
+            display: flex;
             align-items: center;
             justify-content: center;
             cursor: pointer;
@@ -282,19 +283,18 @@
             z-index: 10;
             top: 50%;
             transform: translateY(-50%);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-            font-size: 1.2rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+            font-size: 1rem;
             transition: all 0.2s;
         }
 
-        .scroll-btn:hover {
-            background: var(--gp-bg);
-            color: var(--gp-text);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
+        .right-btn { right: 8px; }
+        .left-btn { left: 8px; }
 
-        .scroll-btn.right-btn { right: 8px; }
-        .scroll-btn.left-btn { left: 8px; }
+        .scroll-btn:hover {
+            background: #fff;
+            transform: translateY(-50%) scale(1.1);
+        }
 
         /* ===== Description ===== */
         #d-full-desc {
@@ -925,8 +925,8 @@
         </div>
     </footer>
 
-    <script type="module" src="/js/app-details.js?v=54"></script>
-    <script src="/js/theme.js?v=54"></script>
+    <script type="module" src="/js/app-details.js?v=55"></script>
+    <script src="/js/theme.js?v=55"></script>
     <script src="/js/cookie.js"></script>
 </body>
 
