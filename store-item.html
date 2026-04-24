@@ -79,6 +79,8 @@
         .app-hero-info {
             flex: 1;
             padding-top: 8px;
+            min-width: 0;
+            max-width: 100%;
         }
 
         .app-hero-info h1 {
@@ -110,6 +112,7 @@
             padding-bottom: 8px;
             -ms-overflow-style: none;
             scrollbar-width: none;
+            max-width: 100%;
         }
         .app-stats-row::-webkit-scrollbar { display: none; }
 
@@ -303,6 +306,7 @@
             color: var(--gp-text-sec);
             white-space: pre-wrap;
             word-break: break-word;
+            overflow-wrap: break-word;
         }
 
         /* ===== Ratings & Reviews ===== */
@@ -575,9 +579,15 @@
         /* Side Layout */
         .main-layout {
             display: grid;
-            grid-template-columns: 1fr 320px;
+            grid-template-columns: minmax(0, 1fr) 320px; /* Use minmax(0, 1fr) to allow shrinking */
             gap: 48px;
             align-items: flex-start;
+            width: 100%;
+        }
+
+        .content-side {
+            min-width: 0; /* Critical for grid children to shrink */
+            overflow: hidden;
         }
 
         .similar-apps-side {
@@ -925,8 +935,8 @@
         </div>
     </footer>
 
-    <script type="module" src="/js/app-details.js?v=55"></script>
-    <script src="/js/theme.js?v=55"></script>
+    <script type="module" src="/js/app-details.js?v=56"></script>
+    <script src="/js/theme.js?v=56"></script>
     <script src="/js/cookie.js"></script>
 </body>
 
