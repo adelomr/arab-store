@@ -33,7 +33,7 @@ function renderApps(apps) {
         if (app.id === 'com.elmoka.aljam3') {
             card.href = '/eljam3.html';
         } else {
-            card.href = `/store-item?id=${app.id}`;
+            card.href = `/item/${app.id}`;
         }
         card.className = 'app-card';
         const installCount = app.installCount || 0;

@@ -22,7 +22,7 @@ const appId = urlParams.get('id');
 
 // Redirect Al-Jame to its custom landing page
 if (appId === 'com.elmoka.aljam3') {
-    window.location.href = 'eljam3.html';
+    window.location.href = '/eljam3.html';
 }
 
 let currentUser = null;
@@ -68,13 +68,29 @@ async function loadAppData() {
             currentApp = docSnap.data();
             renderApp(currentApp);
             loadReviews();
-            checkIfUserAlreadyReviewed(); // Check existing review for UI
+            checkIfUserAlreadyReviewed();
 
             loader.style.display = 'none';
             appContent.style.display = 'block';
         } else {
-            loader.style.display = 'none';
-            errorMsg.style.display = 'block';
+            // Fallback: Check pending_apps collection
+            const pendingSnap = await getDoc(doc(db, "pending_apps", appId));
+            if (pendingSnap.exists()) {
+                currentApp = pendingSnap.data();
+                renderApp(currentApp);
+                
+                // Show a notice that this app is pending review
+                const notice = document.createElement('div');
+                notice.style.cssText = 'background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold; border: 1px solid #ffeeba;';
+                notice.innerHTML = '<i class="fa-solid fa-clock"></i> هذا التطبيق قيد المراجعة حالياً ولن يظهر للعامة حتى يتم قبوله.';
+                appContent.prepend(notice);
+
+                loader.style.display = 'none';
+                appContent.style.display = 'block';
+            } else {
+                loader.style.display = 'none';
+                errorMsg.style.display = 'block';
+            }
         }
     } catch (error) {
         console.error("Error fetching app details:", error);

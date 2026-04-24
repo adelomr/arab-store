@@ -166,7 +166,7 @@ async function fetchUserApps(user, isAdmin) {
                 </div>
                 <div class="app-actions">
                     <a href="update.html?id=${app.id}&col=${app.collection}" class="btn btn-outline btn-sm" style="flex: 1; text-align: center;"><i class="fa-solid fa-pen-to-square"></i> تحديث</a>
-                    ${app.status === 'approved' ? `<a href="${app.id === 'com.elmoka.aljam3' ? '/eljam3.html' : `/store-item?id=${app.id}`}" class="btn btn-primary btn-sm" style="flex: 1; text-align: center;"><i class="fa-solid fa-eye"></i> عرض</a>` : ''}
+                    ${app.status === 'approved' ? `<a href="${app.id === 'com.elmoka.aljam3' ? '/eljam3.html' : `/item/${app.id}`}" class="btn btn-primary btn-sm" style="flex: 1; text-align: center;"><i class="fa-solid fa-eye"></i> عرض</a>` : ''}
                 </div>
             `;
             appsGrid.appendChild(card);
