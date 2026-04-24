@@ -253,9 +253,10 @@
         .screenshot-thumb {
             height: 400px;
             width: auto;
+            max-width: 280px; /* Prevents icons/square shots from being too wide */
             border-radius: 12px;
-            object-fit: contain; /* Shows full image without cropping */
-            background-color: var(--gp-border); /* Background for any gaps */
+            object-fit: contain;
+            background-color: var(--gp-border);
             scroll-snap-align: center;
             cursor: pointer;
             border: 1px solid var(--gp-border);
@@ -571,8 +572,84 @@
         .fa-facebook-messenger { color: #0084FF; }
         .fa-twitter { color: #1DA1F2; }
 
-        /* Responsive */
-        @media (max-width: 768px) {
+        /* Side Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 1fr 320px;
+            gap: 48px;
+            align-items: flex-start;
+        }
+
+        .similar-apps-side {
+            position: sticky;
+            top: 100px;
+            padding: 24px 0;
+        }
+
+        .similar-apps-side h3 {
+            font-size: 1.1rem;
+            margin-bottom: 20px;
+            color: var(--gp-text);
+        }
+
+        .similar-card {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 16px;
+            padding: 8px;
+            border-radius: 12px;
+            transition: background 0.2s;
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .similar-card:hover {
+            background: rgba(0,0,0,0.05);
+        }
+
+        .similar-card img {
+            width: 64px;
+            height: 64px;
+            border-radius: 12px;
+            object-fit: cover;
+            border: 1px solid var(--gp-border);
+        }
+
+        .similar-info h4 {
+            font-size: 0.95rem;
+            margin: 0 0 2px 0;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 200px;
+        }
+
+        .similar-info p {
+            font-size: 0.85rem;
+            color: var(--gp-text-sec);
+            margin: 0;
+        }
+
+        .similar-rating {
+            font-size: 0.8rem;
+            color: var(--gp-text-sec);
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            margin-top: 4px;
+        }
+
+        @media (max-width: 1100px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+            .similar-apps-side {
+                position: static;
+                border-top: 1px solid var(--gp-border);
+                margin-top: 40px;
+            }
+        }
             .app-hero-inner { flex-direction: column; gap: 16px; }
             .app-icon-wrapper img { width: 96px; height: 96px; border-radius: 20%; }
             .app-hero-info h1 { font-size: 1.75rem; line-height: 2.25rem; }
@@ -708,113 +785,114 @@
                                         <a href="#" id="share-wa" target="_blank"><i class="fa-brands fa-whatsapp"></i> واتساب</a>
                                         <a href="#" id="share-fb" target="_blank"><i class="fa-brands fa-facebook"></i> فيسبوك</a>
                                         <a href="#" id="share-ms" target="_blank"><i class="fa-brands fa-facebook-messenger"></i> ماسنجر</a>
-                                        <a href="#" id="share-tw" target="_blank"><i class="fa-brands fa-twitter"></i> تويتر</a>
-                                        <button id="share-copy"><i class="fa-solid fa-copy"></i> نسخ الرابط</button>
-                                    </div>
-                                </div>
+                           <!-- ===== SECTIONS BELOW HERO ===== -->
+            <div class="container" style="padding-top:1.5rem;">
+                <div class="main-layout">
+                    <!-- Right Content Side -->
+                    <div class="content-side">
+                        <!-- ===== SCREENSHOTS ===== -->
+                        <div id="d-shots-section" class="detail-section" style="display:none;">
+                            <div class="section-header">
+                                <h2><i class="fa-solid fa-images" style="margin-left:8px; color:var(--gp-text-sec);"></i> لقطات الشاشة</h2>
+                            </div>
+                            <div class="screenshots-wrapper">
+                                <button class="scroll-btn right-btn" id="scroll-right" title="التالي"><i class="fa-solid fa-chevron-right"></i></button>
+                                <div id="d-shots" class="screenshots-scroll"></div>
+                                <button class="scroll-btn left-btn" id="scroll-left" title="السابق"><i class="fa-solid fa-chevron-left"></i></button>
                             </div>
                         </div>
-                    </div>
-                </div>
 
-            <!-- ===== SECTIONS BELOW HERO ===== -->
-            <div class="container" style="padding-top:1.5rem;">
-
-            <!-- ===== SCREENSHOTS ===== -->
-            <div id="d-shots-section" class="detail-section" style="display:none;">
-                <div class="section-header">
-                    <h2><i class="fa-solid fa-images" style="margin-left:8px; color:var(--gp-text-sec);"></i> لقطات الشاشة</h2>
-                </div>
-                <div class="screenshots-wrapper">
-                    <button class="scroll-btn right-btn" id="scroll-right" title="التالي"><i class="fa-solid fa-chevron-right"></i></button>
-                    <div id="d-shots" class="screenshots-scroll"></div>
-                    <button class="scroll-btn left-btn" id="scroll-left" title="السابق"><i class="fa-solid fa-chevron-left"></i></button>
-                </div>
-            </div>
-
-            <!-- ===== DESCRIPTION ===== -->
-            <div class="detail-section">
-                <div class="section-header">
-                    <h2><i class="fa-solid fa-arrow-right-long" style="margin-left:8px; color:var(--gp-text-sec);"></i> عن هذا التطبيق</h2>
-                </div>
-                <p id="d-full-desc"></p>
-            </div>
-
-            <!-- ===== META INFO ===== -->
-            <div id="d-meta-section" class="detail-section" style="display:none;">
-                <div class="section-header">
-                    <h2><i class="fa-solid fa-circle-info" style="margin-left:8px; color:var(--gp-text-sec);"></i> معلومات التطبيق</h2>
-                </div>
-                <div class="app-meta-list" id="d-meta-list"></div>
-            </div>
-
-            <!-- ===== FEATURES ===== -->
-            <div id="d-features-section" class="detail-section" style="display:none;">
-                <div class="section-header">
-                    <h2><i class="fa-solid fa-wand-magic-sparkles" style="margin-left:8px; color:var(--gp-text-sec);"></i> مميزات التطبيق</h2>
-                </div>
-                <div id="d-features" class="features-grid"></div>
-            </div>
-
-            <!-- ===== CHANGELOG ===== -->
-            <div id="d-changelog-section" class="detail-section" style="display:none;">
-                <div class="section-header">
-                    <h2><i class="fa-solid fa-clock-rotate-left" style="margin-left:8px; color:var(--gp-text-sec);"></i> ما الجديد؟</h2>
-                </div>
-                <div id="d-changelog" class="changelog-box"></div>
-            </div>
-
-            <!-- ===== RATINGS & REVIEWS ===== -->
-            <div class="detail-section">
-                <div class="section-header">
-                    <h2><i class="fa-solid fa-star" style="margin-left:8px; color:var(--gp-text-sec);"></i> التقييمات والمراجعات</h2>
-                </div>
-
-                <!-- Rating Summary -->
-                <div class="rating-overview">
-                    <div style="text-align:center;">
-                        <div class="rating-number-big" id="d-avg-rating">0</div>
-                        <div class="stars-row" id="d-stars-display" style="justify-content:center; margin-top:8px;"></div>
-                        <div class="rating-count-text" id="d-rating-label">0 مراجعة</div>
-                    </div>
-                </div>
-
-                <!-- Login to review prompt -->
-                <div id="login-to-review">
-                    <p>سجّل دخولك لتتمكن من تقييم التطبيق وإضافة مراجعتك</p>
-                    <button id="btn-login-review" class="btn btn-primary" style="border-radius: 20px; padding: 8px 24px;">
-                        <i class="fa-brands fa-google"></i> تسجيل الدخول
-                    </button>
-                </div>
-
-                <!-- Review Form (shown when logged in) -->
-                <div id="add-review-section" style="display:none;">
-                    <p style="font-weight:bold; margin-bottom:8px;">إضافة مراجعة:</p>
-                    <form id="form-review">
-                        <div class="star-selector">
-                            <input type="radio" id="s5" name="rating" value="5" required>
-                            <label for="s5"><i class="fa-solid fa-star"></i></label>
-                            <input type="radio" id="s4" name="rating" value="4">
-                            <label for="s4"><i class="fa-solid fa-star"></i></label>
-                            <input type="radio" id="s3" name="rating" value="3">
-                            <label for="s3"><i class="fa-solid fa-star"></i></label>
-                            <input type="radio" id="s2" name="rating" value="2">
-                            <label for="s2"><i class="fa-solid fa-star"></i></label>
-                            <input type="radio" id="s1" name="rating" value="1">
-                            <label for="s1"><i class="fa-solid fa-star"></i></label>
+                        <!-- ===== DESCRIPTION ===== -->
+                        <div class="detail-section">
+                            <div class="section-header">
+                                <h2><i class="fa-solid fa-arrow-right-long" style="margin-left:8px; color:var(--gp-text-sec);"></i> عن هذا التطبيق</h2>
+                            </div>
+                            <p id="d-full-desc"></p>
                         </div>
-                        <textarea id="review-text" class="form-control" rows="3" placeholder="أخبر الآخرين برأيك في هذا التطبيق" required style="margin-bottom:12px; border-radius:12px;"></textarea>
-                        <button type="submit" id="btn-submit-review" class="btn btn-primary" style="border-radius:20px; padding: 8px 24px;">
-                            نشر
-                        </button>
-                    </form>
-                </div>
 
-                <!-- Comments List -->
-                <div id="comments-list" class="comments-list"></div>
-            </div>
+                        <!-- ===== META INFO ===== -->
+                        <div id="d-meta-section" class="detail-section" style="display:none;">
+                            <div class="section-header">
+                                <h2><i class="fa-solid fa-circle-info" style="margin-left:8px; color:var(--gp-text-sec);"></i> معلومات التطبيق</h2>
+                            </div>
+                            <div class="app-meta-list" id="d-meta-list"></div>
+                        </div>
 
-            </div><!-- /container -->
+                        <!-- ===== FEATURES ===== -->
+                        <div id="d-features-section" class="detail-section" style="display:none;">
+                            <div class="section-header">
+                                <h2><i class="fa-solid fa-wand-magic-sparkles" style="margin-left:8px; color:var(--gp-text-sec);"></i> مميزات التطبيق</h2>
+                            </div>
+                            <div id="d-features" class="features-grid"></div>
+                        </div>
+
+                        <!-- ===== CHANGELOG ===== -->
+                        <div id="d-changelog-section" class="detail-section" style="display:none;">
+                            <div class="section-header">
+                                <h2><i class="fa-solid fa-clock-rotate-left" style="margin-left:8px; color:var(--gp-text-sec);"></i> ما الجديد؟</h2>
+                            </div>
+                            <div id="d-changelog" class="changelog-box"></div>
+                        </div>
+
+                        <!-- ===== RATINGS & REVIEWS ===== -->
+                        <div class="detail-section">
+                            <div class="section-header">
+                                <h2><i class="fa-solid fa-star" style="margin-left:8px; color:var(--gp-text-sec);"></i> التقييمات والمراجعات</h2>
+                            </div>
+
+                            <!-- Rating Summary -->
+                            <div class="rating-overview">
+                                <div style="text-align:center;">
+                                    <div class="rating-number-big" id="d-avg-rating">0</div>
+                                    <div class="stars-row" id="d-stars-display" style="justify-content:center; margin-top:8px;"></div>
+                                    <div class="rating-count-text" id="d-rating-label">0 مراجعة</div>
+                                </div>
+                            </div>
+
+                            <!-- Login to review prompt -->
+                            <div id="login-to-review">
+                                <p>سجّل دخولك لتتمكن من تقييم التطبيق وإضافة مراجعتك</p>
+                                <button id="btn-login-review" class="btn btn-primary" style="border-radius: 20px; padding: 8px 24px;">
+                                    <i class="fa-brands fa-google"></i> تسجيل الدخول
+                                </button>
+                            </div>
+
+                            <!-- Review Form (shown when logged in) -->
+                            <div id="add-review-section" style="display:none;">
+                                <p style="font-weight:bold; margin-bottom:8px;">إضافة مراجعة:</p>
+                                <form id="form-review">
+                                    <div class="star-selector">
+                                        <input type="radio" id="s5" name="rating" value="5" required>
+                                        <label for="s5"><i class="fa-solid fa-star"></i></label>
+                                        <input type="radio" id="s4" name="rating" value="4">
+                                        <label for="s4"><i class="fa-solid fa-star"></i></label>
+                                        <input type="radio" id="s3" name="rating" value="3">
+                                        <label for="s3"><i class="fa-solid fa-star"></i></label>
+                                        <input type="radio" id="s2" name="rating" value="2">
+                                        <label for="s2"><i class="fa-solid fa-star"></i></label>
+                                        <input type="radio" id="s1" name="rating" value="1">
+                                        <label for="s1"><i class="fa-solid fa-star"></i></label>
+                                    </div>
+                                    <textarea id="review-text" class="form-control" rows="3" placeholder="أخبر الآخرين برأيك في هذا التطبيق" required style="margin-bottom:12px; border-radius:12px;"></textarea>
+                                    <button type="submit" id="btn-submit-review" class="btn btn-primary" style="border-radius:20px; padding: 8px 24px;">
+                                        نشر
+                                    </button>
+                                </form>
+                            </div>
+
+                            <!-- Comments List -->
+                            <div id="comments-list" class="comments-list"></div>
+                        </div>
+                    </div><!-- /content-side -->
+
+                    <!-- Left Side Column (Similar Apps) -->
+                    <aside class="similar-apps-side">
+                        <h3>تطبيقات قد تعجبك</h3>
+                        <div id="similar-apps-list">
+                            <div style="text-align:center; color:var(--gp-text-sec); padding:20px;">جاري البحث عن تطبيقات...</div>
+                        </div>
+                    </aside>
+                </div><!-- /main-layout -->
         </div><!-- /app-content -->
     </main>
 
@@ -837,8 +915,8 @@
         </div>
     </footer>
 
-    <script type="module" src="/js/app-details.js?v=52"></script>
-    <script src="/js/theme.js?v=52"></script>
+    <script type="module" src="/js/app-details.js?v=53"></script>
+    <script src="/js/theme.js?v=53"></script>
     <script src="/js/cookie.js"></script>
 </body>
 

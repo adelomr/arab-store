@@ -2,7 +2,7 @@ import { db } from './firebase-config.js';
 import { loginWithGoogle, logout, observeAuthState } from './auth.js';
 import {
     doc, getDoc, collection, setDoc, deleteDoc, getDocs,
-    updateDoc, serverTimestamp, query, orderBy, increment
+    updateDoc, serverTimestamp, query, orderBy, increment, where, limit
 } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // ===== DOM References =====
@@ -288,6 +288,53 @@ function renderApp(app) {
     if (avgEl)  avgEl.textContent = avg;
     if (lblEl)  lblEl.textContent = `${app.ratingCount || 0} مراجعة`;
     if (starEl) starEl.innerHTML  = buildStarsHtml(app.rating || 0);
+
+    // Load Similar Apps
+    if (app.category) {
+        loadSimilarApps(app.category, appId);
+    }
+}
+
+async function loadSimilarApps(category, currentId) {
+    const similarCont = $('similar-apps-list');
+    if (!similarCont || !category) return;
+
+    try {
+        const q = query(
+            collection(db, 'apps'),
+            where('category', '==', category),
+            where('status', '==', 'accepted'),
+            limit(10)
+        );
+        const snap = await getDocs(q);
+        const apps = [];
+        snap.forEach(doc => {
+            if (doc.id !== currentId) {
+                apps.push({ id: doc.id, ...doc.data() });
+            }
+        });
+
+        if (apps.length === 0) {
+            similarCont.innerHTML = '<div style="text-align:center; color:var(--gp-text-sec); padding:20px;">لا توجد تطبيقات مشابهة حالياً.</div>';
+            return;
+        }
+
+        similarCont.innerHTML = apps.slice(0, 5).map(app => `
+            <a href="/store-item.html?id=${app.id}" class="similar-card">
+                <img src="${app.iconUrl || 'web-assets/app_icon.png'}" alt="${app.name}" onerror="this.src='web-assets/app_icon.png'">
+                <div class="similar-info">
+                    <h4>${app.name}</h4>
+                    <p>${app.developer || '—'}</p>
+                    <div class="similar-rating">
+                        <span>${(app.rating || 0).toFixed(1)}</span>
+                        <i class="fa-solid fa-star" style="font-size:0.7rem; color:var(--star-color);"></i>
+                    </div>
+                </div>
+            </a>
+        `).join('');
+    } catch (err) {
+        console.error('Similar apps error:', err);
+    }
 }
 
 // ===== Helper: build star icons HTML =====
