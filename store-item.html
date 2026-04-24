@@ -255,15 +255,15 @@
 
         .screenshot-thumb {
             height: 400px;
-            width: auto;
-            max-width: 280px; /* Prevents icons/square shots from being too wide */
+            width: 230px; /* Standard mobile aspect ratio */
             border-radius: 12px;
-            object-fit: contain;
-            background-color: var(--gp-border);
+            object-fit: cover; /* Fills the area professionally */
             scroll-snap-align: center;
             cursor: pointer;
             border: 1px solid var(--gp-border);
             transition: transform 0.2s;
+            background-color: #f1f1f1;
+            flex-shrink: 0;
         }
 
         .screenshot-thumb:hover {
@@ -935,8 +935,8 @@
         </div>
     </footer>
 
-    <script type="module" src="/js/app-details.js?v=56"></script>
-    <script src="/js/theme.js?v=56"></script>
+    <script type="module" src="/js/app-details.js?v=57"></script>
+    <script src="/js/theme.js?v=57"></script>
     <script src="/js/cookie.js"></script>
 </body>
 
