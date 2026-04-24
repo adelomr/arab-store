@@ -252,9 +252,16 @@ function renderApp(app) {
         const btnRight = $('scroll-right');
         const btnLeft = $('scroll-left');
         if (btnRight && btnLeft) {
-            // Scroll functions (adjust for RTL)
-            btnRight.onclick = () => shotsCont.scrollBy({ left: 250, behavior: 'smooth' });
-            btnLeft.onclick = () => shotsCont.scrollBy({ left: -250, behavior: 'smooth' });
+            btnRight.onclick = (e) => {
+                e.stopPropagation();
+                // In RTL, scrolling "Forward" (to the next images) usually means negative left
+                shotsCont.scrollBy({ left: -300, behavior: 'smooth' });
+            };
+            btnLeft.onclick = (e) => {
+                e.stopPropagation();
+                // In RTL, scrolling "Backward" means positive left
+                shotsCont.scrollBy({ left: 300, behavior: 'smooth' });
+            };
         }
     }
 
