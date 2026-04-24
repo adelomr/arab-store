@@ -1,5 +1,5 @@
 import { db } from './firebase-config.js';
-import { loginWithGoogle, logoutUser, observeAuthState } from './auth.js';
+import { loginWithGoogle, logout, observeAuthState } from './auth.js';
 import { doc, getDoc, collection, setDoc, deleteDoc, getDocs, updateDoc, serverTimestamp, query, orderBy, increment } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
 // DOM Elements
@@ -16,9 +16,15 @@ const loginToReview = document.getElementById('login-to-review');
 const commentsList = document.getElementById('comments-list');
 const formReview = document.getElementById('form-review');
 
-// Get App ID from URL
+// Get App ID from URL (Query or Path)
 const urlParams = new URLSearchParams(window.location.search);
-const appId = urlParams.get('id');
+let appId = urlParams.get('id');
+
+// Support for Clean URLs (/item/com.example.app)
+if (!appId && window.location.pathname.includes('/item/')) {
+    const pathParts = window.location.pathname.split('/');
+    appId = pathParts.filter(p => p && p !== 'item').pop();
+}
 
 // Redirect Al-Jame to its custom landing page
 if (appId === 'com.elmoka.aljam3') {
@@ -33,30 +39,31 @@ let currentAppRef = null;
 observeAuthState((user, isAdmin) => {
     currentUser = user;
     if (user) {
-        btnLogin.classList.add('hidden');
-        userInfo.classList.remove('hidden');
-        document.getElementById('user-avatar').src = user.photoURL;
+        if (btnLogin) btnLogin.classList.add('hidden');
+        if (userInfo) userInfo.classList.remove('hidden');
+        const avatar = document.getElementById('user-avatar');
+        if (avatar) avatar.src = user.photoURL;
 
-        addReviewSection.style.display = 'block';
-        loginToReview.style.display = 'none';
+        if (addReviewSection) addReviewSection.style.display = 'block';
+        if (loginToReview) loginToReview.style.display = 'none';
         checkIfUserDownloaded();
     } else {
-        btnLogin.classList.remove('hidden');
-        userInfo.classList.add('hidden');
+        if (btnLogin) btnLogin.classList.remove('hidden');
+        if (userInfo) userInfo.classList.add('hidden');
 
-        addReviewSection.style.display = 'none';
-        loginToReview.style.display = 'block';
+        if (addReviewSection) addReviewSection.style.display = 'none';
+        if (loginToReview) loginToReview.style.display = 'block';
     }
 });
 
-btnLogin.addEventListener('click', loginWithGoogle);
-btnLogout.addEventListener('click', logoutUser);
+if (btnLogin) btnLogin.addEventListener('click', loginWithGoogle);
+if (btnLogout) btnLogout.addEventListener('click', logout);
 
 // Load App Data
 async function loadAppData() {
     if (!appId) {
-        loader.style.display = 'none';
-        errorMsg.style.display = 'block';
+        if (loader) loader.style.display = 'none';
+        if (errorMsg) errorMsg.style.display = 'block';
         return;
     }
 
@@ -71,34 +78,31 @@ async function loadAppData() {
             loadReviews();
             checkIfUserAlreadyReviewed();
 
-            appContent.style.display = 'block';
+            if (appContent) appContent.style.display = 'block';
         } else {
             console.log("App not found in 'apps', checking 'pending_apps'...");
-            // Fallback: Check pending_apps collection
             const pendingRef = doc(db, "pending_apps", appId);
             const pendingSnap = await getDoc(pendingRef);
             if (pendingSnap.exists()) {
-                currentAppRef = pendingRef; // Update ref to pending
+                currentAppRef = pendingRef;
                 currentApp = pendingSnap.data();
                 renderApp(currentApp);
                 
-                // Show a notice that this app is pending review
                 const notice = document.createElement('div');
                 notice.style.cssText = 'background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold; border: 1px solid #ffeeba;';
                 notice.innerHTML = '<i class="fa-solid fa-clock"></i> هذا التطبيق قيد المراجعة حالياً ولن يظهر للعامة حتى يتم قبوله.';
-                appContent.prepend(notice);
-
-                appContent.style.display = 'block';
+                if (appContent) appContent.prepend(notice);
+                if (appContent) appContent.style.display = 'block';
             } else {
                 console.warn("App not found in either collection.");
-                errorMsg.style.display = 'block';
+                if (errorMsg) errorMsg.style.display = 'block';
             }
         }
     } catch (error) {
         console.error("Error fetching app details:", error);
-        errorMsg.style.display = 'block';
+        if (errorMsg) errorMsg.style.display = 'block';
     } finally {
-        loader.style.display = 'none';
+        if (loader) loader.style.display = 'none';
     }
 }
 
@@ -109,33 +113,29 @@ async function checkIfUserAlreadyReviewed() {
         const reviewRef = doc(db, "apps", appId, "reviews", currentUser.uid);
         const reviewSnap = await getDoc(reviewRef);
         
-        const btnSubmit = formReview.querySelector('button[type="submit"]');
+        const btnSubmit = formReview?.querySelector('button[type="submit"]');
         const reviewText = document.getElementById('review-text');
         
         if (reviewSnap.exists()) {
             const data = reviewSnap.data();
-            // Pre-fill
-            if (!reviewText.value) reviewText.value = data.text;
+            if (reviewText && !reviewText.value) reviewText.value = data.text;
             const starToSelect = document.getElementById(`star${data.rating}`);
             if (starToSelect) starToSelect.checked = true;
 
-            btnSubmit.innerHTML = '<i class="fa-solid fa-pen"></i> تحديث التقييم';
-            
-            // Hide the form section by default if already reviewed
-            addReviewSection.style.display = 'none';
+            if (btnSubmit) btnSubmit.innerHTML = '<i class="fa-solid fa-pen"></i> تحديث التقييم';
+            if (addReviewSection) addReviewSection.style.display = 'none';
 
-            // Optional status msg inside the form
             let existingMsg = document.getElementById('already-reviewed-msg');
             if (!existingMsg) {
                 existingMsg = document.createElement('p');
                 existingMsg.id = 'already-reviewed-msg';
                 existingMsg.style.cssText = 'color: var(--success-color); font-size: 0.85rem; margin-bottom: 15px; font-weight: bold; text-align: center;';
                 existingMsg.innerHTML = '<i class="fa-solid fa-check-circle"></i> وضع التعديل: يمكنك الآن تعديل تقييمك.';
-                formReview.prepend(existingMsg);
+                formReview?.prepend(existingMsg);
             }
         } else {
-            btnSubmit.innerHTML = 'نشر التقييم';
-            addReviewSection.style.display = 'block'; // Show if no review
+            if (btnSubmit) btnSubmit.innerHTML = 'نشر التقييم';
+            if (addReviewSection) addReviewSection.style.display = 'block';
             const existingMsg = document.getElementById('already-reviewed-msg');
             if (existingMsg) existingMsg.remove();
         }
@@ -151,12 +151,12 @@ function checkIfUserDownloaded() {
     const downloadRequiredMsg = document.getElementById('download-required-msg');
 
     if (isDownloaded) {
-        reviewForm.classList.remove('hidden');
+        if (reviewForm) reviewForm.classList.remove('hidden');
         if (downloadRequiredMsg) downloadRequiredMsg.classList.add('hidden');
         checkIfUserAlreadyReviewed();
     } else {
-        reviewForm.classList.add('hidden');
-        if (!downloadRequiredMsg) {
+        if (reviewForm) reviewForm.classList.add('hidden');
+        if (!downloadRequiredMsg && formReview) {
             const msg = document.createElement('p');
             msg.id = 'download-required-msg';
             msg.style.textAlign = 'center';
@@ -164,7 +164,7 @@ function checkIfUserDownloaded() {
             msg.style.padding = '20px';
             msg.innerHTML = '<i class="fa-solid fa-circle-info"></i> يرجى تحميل التطبيق أولاً لتتمكن من تقييمه.';
             formReview.parentNode.insertBefore(msg, formReview);
-        } else {
+        } else if (downloadRequiredMsg) {
             downloadRequiredMsg.classList.remove('hidden');
         }
     }
@@ -173,323 +173,102 @@ function checkIfUserDownloaded() {
 function renderApp(app) {
     try {
         document.title = `${app.name} | متجر العرب`;
-    document.getElementById('d-icon').src = app.iconUrl || 'https://via.placeholder.com/150?text=App';
-    document.getElementById('d-name').textContent = app.name;
+        const iconEl = document.getElementById('d-icon');
+        if (iconEl) iconEl.src = app.iconUrl || 'https://via.placeholder.com/150?text=App';
+        
+        const nameEl = document.getElementById('d-name');
+        if (nameEl) nameEl.textContent = app.name;
 
-    const displayRating = (app.rating || 0).toFixed(1);
-    document.getElementById('d-rating').innerHTML = `${displayRating} <i class="fa-solid fa-star" style="color:var(--star-color);"></i>`;
-    document.getElementById('d-reviews').textContent = `${app.ratingCount || 0} مراجعة`;
-    document.getElementById('d-version').textContent = `v${app.version}`;
+        const displayRating = (app.rating || 0).toFixed(1);
+        const ratingEl = document.getElementById('d-rating');
+        if (ratingEl) ratingEl.innerHTML = `${displayRating} <i class="fa-solid fa-star" style="color:var(--star-color);"></i>`;
+        
+        const reviewsEl = document.getElementById('d-reviews');
+        if (reviewsEl) reviewsEl.textContent = `${app.ratingCount || 0} مراجعة`;
+        
+        const versionEl = document.getElementById('d-version');
+        if (versionEl) versionEl.textContent = `v${app.version}`;
 
-    const btnDownload = document.getElementById('d-download');
-    btnDownload.href = app.downloadUrl;
-    btnDownload.addEventListener('click', async () => {
-        try {
-            await updateDoc(currentAppRef, {
-                installCount: increment(1)
-            });
-            console.log("Install count incremented");
-            localStorage.setItem(`downloaded_${appId}`, 'true');
-            checkIfUserDownloaded();
-        } catch (e) {
-            console.error("Error incrementing install count:", e);
+        const btnDownload = document.getElementById('d-download');
+        if (btnDownload) {
+            btnDownload.href = app.downloadUrl;
+            btnDownload.onclick = async () => {
+                try {
+                    await updateDoc(currentAppRef, { installCount: increment(1) });
+                    localStorage.setItem(`downloaded_${appId}`, 'true');
+                    checkIfUserDownloaded();
+                } catch (e) { console.error(e); }
+            };
         }
-    });
 
-    const btnShare = document.getElementById('d-share');
-    btnShare.addEventListener('click', async () => {
-        // Build correct store page URL always (avoids pointing to Firebase Storage links)
-        const storeBaseUrl = `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '/')}`;
-        const storePageUrl = `${storeBaseUrl}store-item.html?id=${encodeURIComponent(appId)}`;
+        const btnShare = document.getElementById('d-share');
+        if (btnShare) {
+            btnShare.onclick = async () => {
+                const storePageUrl = window.location.href;
+                if (navigator.share) {
+                    try { await navigator.share({ title: app.name, url: storePageUrl }); } catch (e) {}
+                } else {
+                    navigator.clipboard.writeText(storePageUrl);
+                    alert('تم نسخ الرابط!');
+                }
+            };
+        }
 
-        const shareData = {
-            title: `تطبيق ${app.name} على متجر العرب`,
-            text: `احصل على أحدث نسخة من ${app.name} من متجر العرب الموثوق.`,
-            url: storePageUrl
-        };
+        const descEl = document.getElementById('d-desc');
+        if (descEl) descEl.textContent = app.fullDesc || app.shortDesc || "";
 
-        if (navigator.share) {
-            try {
-                await navigator.share(shareData);
-            } catch (err) {
-                console.error("Share failed:", err);
+        if (app.changelog) {
+            const logCont = document.getElementById('changelog-container');
+            const logEl = document.getElementById('d-changelog');
+            if (logCont) logCont.style.display = 'block';
+            if (logEl) logEl.textContent = app.changelog;
+        }
+
+        const featSec = document.getElementById('d-features-section');
+        const featCont = document.getElementById('d-features');
+        if (app.features && app.features.length > 0) {
+            if (featCont) {
+                featCont.innerHTML = app.features.map(f => `
+                    <div class="feature-card">
+                        <i class="fa-solid ${f.icon || 'fa-star'} feature-icon"></i>
+                        <h3>${f.title}</h3>
+                        <p>${f.desc}</p>
+                    </div>
+                `).join('');
             }
-        } else {
-            // Fallback: Copy to clipboard
-            navigator.clipboard.writeText(storePageUrl).then(() => {
-                alert('تم نسخ رابط التطبيق للحافظة!\n' + storePageUrl);
-            }).catch(err => {
-                console.error("Could not copy text: ", err);
-            });
+            if (featSec) featSec.style.display = 'block';
         }
-    });
 
-    document.getElementById('d-desc').textContent = app.fullDesc || app.shortDesc || "لا يوجد وصف متوفر.";
-
-    if (app.changelog) {
-        document.getElementById('changelog-container').style.display = 'block';
-        document.getElementById('d-changelog').textContent = app.changelog;
-    }
-
-    // Render Features
-    const featuresSection = document.getElementById('d-features-section');
-    const featuresContainer = document.getElementById('d-features');
-    if (app.features && app.features.length > 0) {
-        featuresContainer.innerHTML = '';
-        app.features.forEach(feat => {
-            const card = document.createElement('div');
-            card.className = 'feature-card';
-            card.innerHTML = `
-                <i class="fa-solid ${feat.icon || 'fa-star'} feature-icon"></i>
-                <h3>${feat.title}</h3>
-                <p>${feat.desc}</p>
-            `;
-            featuresContainer.appendChild(card);
-        });
-        featuresSection.style.display = 'block';
-    } else {
-        featuresSection.style.display = 'none';
-    }
-
-    // Render Screenshots
-    const screenshotsSection = document.getElementById('screenshots-section');
-    const screenshotsContainer = document.getElementById('d-screenshots');
-    const lightbox = document.getElementById('lightbox');
-    const lightboxImg = document.getElementById('lightbox-img');
-    const closeLightbox = document.getElementById('close-lightbox');
-
-    if (app.screenshots && app.screenshots.length > 0) {
-        screenshotsContainer.innerHTML = ''; // clear loading state
-        app.screenshots.forEach(url => {
-            const img = document.createElement('img');
-            img.src = url;
-            img.className = 'screenshot-img';
-            img.alt = `لقطة شاشة لتطبيق ${app.name}`;
-            img.loading = 'lazy';
-            img.addEventListener('click', () => {
-                lightboxImg.src = url;
-                lightbox.classList.add('active');
-                document.body.style.overflow = 'hidden'; // Stop scrolling
-            });
-            img.onerror = function () { this.style.display = 'none'; }; // hide broken images
-            screenshotsContainer.appendChild(img);
-        });
-        screenshotsSection.style.display = 'block';
-
-        // Wire up arrow buttons
-        const scrollRight = document.getElementById('scroll-right');
-        const scrollLeft = document.getElementById('scroll-left');
-        const scrollAmount = 320;
-        if (scrollRight) scrollRight.addEventListener('click', () => {
-            screenshotsContainer.scrollBy({ left: -scrollAmount, behavior: 'smooth' });
-        });
-        if (scrollLeft) scrollLeft.addEventListener('click', () => {
-            screenshotsContainer.scrollBy({ left: scrollAmount, behavior: 'smooth' });
-        });
-    } else {
-        screenshotsSection.style.display = 'none';
-    }
-
-    // Lightbox Close Logic
-    const closeLightboxFunc = () => {
-        lightbox.classList.remove('active');
-        document.body.style.overflow = 'auto'; // Restore scrolling
-    };
-
-    closeLightbox.addEventListener('click', closeLightboxFunc);
-        lightbox.addEventListener('click', (e) => {
-            if (e.target === lightbox) closeLightboxFunc();
-        });
+        const shotSec = document.getElementById('screenshots-section');
+        const shotCont = document.getElementById('d-screenshots');
+        if (app.screenshots && app.screenshots.length > 0) {
+            if (shotCont) {
+                shotCont.innerHTML = app.screenshots.map(url => `<img src="${url}" class="screenshot-img">`).join('');
+            }
+            if (shotSec) shotSec.style.display = 'block';
+        }
     } catch (e) {
-        console.error("Error rendering app details:", e);
+        console.error("Render error:", e);
     }
 }
 
 async function loadReviews() {
+    // Basic review loading
+    const reviewsRef = collection(db, "apps", appId, "reviews");
     try {
-        const reviewsRef = collection(db, "apps", appId, "reviews");
         const q = query(reviewsRef, orderBy("createdAt", "desc"));
-        const querySnapshot = await getDocs(q);
-        commentsList.innerHTML = '';
-
-        if (querySnapshot.empty) {
-            commentsList.innerHTML = '<p style="text-align:center; color: var(--text-secondary);">لا توجد مراجعات حتى الآن. كن أول من يقيم التطبيق!</p>';
-            return;
+        const snap = await getDocs(q);
+        if (commentsList) {
+            if (snap.empty) {
+                commentsList.innerHTML = '<p style="text-align:center;">لا توجد مراجعات.</p>';
+            } else {
+                commentsList.innerHTML = snap.docs.map(docSnap => {
+                    const r = docSnap.data();
+                    return `<div class="comment-card"><b>${r.userName || 'مستخدم'}</b> (${r.rating} نجوم)<p>${r.text}</p></div>`;
+                }).join('');
+            }
         }
-
-        querySnapshot.forEach((docSnap) => {
-            const review = docSnap.data();
-
-            // Generate Stars
-            let starsHtml = '';
-            for (let i = 1; i <= 5; i++) {
-                if (i <= review.rating) {
-                    starsHtml += '<i class="fa-solid fa-star" style="color:var(--star-color);"></i>';
-                } else {
-                    starsHtml += '<i class="fa-regular fa-star" style="color:var(--star-color); opacity: 0.3;"></i>';
-                }
-            }
-
-            // Format Date safely
-            let dateStr = "";
-            if (review.createdAt && review.createdAt.toDate) {
-                dateStr = review.createdAt.toDate().toLocaleDateString('ar-EG');
-            }
-
-            const commentCard = document.createElement('div');
-            commentCard.className = 'comment-card';
-            if (currentUser && review.userId === currentUser.uid) {
-                commentCard.style.border = '2px solid var(--primary-color)';
-            }
-
-            // Buttons if it's the current user's review
-            let personalBtnHtml = '';
-            if (currentUser && review.userId === currentUser.uid) {
-                personalBtnHtml = `
-                    <div style="display: flex; gap: 8px; justify-content: flex-end; margin-top: 5px;">
-                         <button class="btn btn-outline btn-sm" onclick="window.editMyReview()" style="color: var(--primary-color); border-color: var(--primary-color); padding: 2px 10px; font-size: 0.8rem; font-weight: bold;">تعديل</button>
-                         <button class="btn btn-outline btn-sm" onclick="window.deleteMyReview()" style="color: var(--danger-color); border-color: var(--danger-color); padding: 2px 10px; font-size: 0.8rem; font-weight: bold;">حذف</button>
-                    </div>
-                `;
-            }
-
-            commentCard.innerHTML = `
-                <div class="comment-header">
-                    <div class="comment-author">
-                        <img src="${review.userPhoto || 'https://via.placeholder.com/32'}" alt="" onerror="this.src='https://via.placeholder.com/32'">
-                        <span>${review.userName || 'مستخدم'}</span>
-                        ${(currentUser && review.userId === currentUser.uid) ? '<small style="background: var(--primary-color); color: white; padding: 2px 6px; border-radius: 4px; font-size: 0.7rem;">تقييمك</small>' : ''}
-                    </div>
-                    <div style="text-align: left;">
-                        <div style="display: flex; align-items: center; gap: 10px; justify-content: flex-end;">
-                            <div>${starsHtml}</div>
-                        </div>
-                        <small style="color: var(--text-secondary);">${dateStr}</small>
-                    </div>
-                </div>
-                <div style="margin-top: 10px; line-height: 1.5;">
-                    ${review.text}
-                </div>
-                ${personalBtnHtml}
-            `;
-            commentsList.appendChild(commentCard);
-        });
-    } catch (error) {
-        console.error("Error loading reviews:", error);
-        if (error.code === 'failed-precondition') {
-            commentsList.innerHTML = '<p style="text-align:center; color: var(--danger-color);">يجب إعداد الفهرس (Index) في Firebase لظهور التقييمات.</p>';
-        } else {
-            commentsList.innerHTML = '<p style="text-align:center; color: var(--danger-color);">حدث خطأ أثناء تحميل التقييمات.</p>';
-        }
-    }
+    } catch (e) {}
 }
 
-// Global Edit function
-window.editMyReview = () => {
-    addReviewSection.style.display = 'block';
-    addReviewSection.scrollIntoView({ behavior: 'smooth' });
-};
-
-// Global delete function for the UI
-window.deleteMyReview = async () => {
-    if (!currentUser || !confirm("هل أنت متأكد من حذف تقييمك؟")) return;
-    try {
-        const reviewRef = doc(db, "apps", appId, "reviews", currentUser.uid);
-        const reviewSnap = await getDoc(reviewRef);
-        if (!reviewSnap.exists()) return;
-        const oldRating = reviewSnap.data().rating;
-
-        await deleteDoc(reviewRef);
-
-        // Update Average
-        const currentCount = currentApp.ratingCount || 0;
-        const currentAvg = currentApp.rating || 0;
-        let newCount = Math.max(0, currentCount - 1);
-        let newAvg = 0;
-        if(newCount > 0) newAvg = ((currentAvg * currentCount) - oldRating) / newCount;
-
-        await updateDoc(currentAppRef, {
-            rating: newAvg,
-            ratingCount: newCount
-        });
-
-        formReview.reset();
-        await loadAppData();
-        addReviewSection.style.display = 'block'; // Show form after deletion
-        alert("تم حذف التقييم.");
-    } catch (e) {
-        console.error("Error deleting review:", e);
-    }
-};
-
-// Add Review Submission
-formReview.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    if (!currentUser) return;
-
-    // Get Rating Value
-    const ratingInput = document.querySelector('input[name="rating"]:checked');
-    if (!ratingInput) {
-        alert("يرجى اختيار التقييم بالنجوم.");
-        return;
-    }
-    const ratingValue = parseInt(ratingInput.value);
-    const commentText = document.getElementById('review-text').value;
-
-    const reviewData = {
-        userId: currentUser.uid,
-        userName: currentUser.displayName,
-        userPhoto: currentUser.photoURL,
-        rating: ratingValue,
-        text: commentText,
-        createdAt: serverTimestamp()
-    };
-
-    const btnSubmit = formReview.querySelector('button[type="submit"]');
-    btnSubmit.disabled = true;
-    btnSubmit.innerHTML = 'جاري النشر...';
-
-    try {
-        // 1. Add/Update review (One per user using UID as doc name)
-        const reviewRef = doc(db, "apps", appId, "reviews", currentUser.uid);
-        const oldReviewSnap = await getDoc(reviewRef);
-        const isUpdate = oldReviewSnap.exists();
-        const oldRating = isUpdate ? oldReviewSnap.data().rating : 0;
-
-        await setDoc(reviewRef, reviewData);
-
-        // 2. Update parent app rating average
-        const currentCount = currentApp.ratingCount || 0;
-        const currentAvg = currentApp.rating || 0;
-
-        let newCount = currentCount;
-        let newAvg = currentAvg;
-
-        if (!isUpdate) {
-            newCount = currentCount + 1;
-            newAvg = ((currentAvg * currentCount) + ratingValue) / newCount;
-        } else {
-            // Update average: remove old rating, add new rating
-            newAvg = ((currentAvg * currentCount) - oldRating + ratingValue) / currentCount;
-        }
-
-        await updateDoc(currentAppRef, {
-            rating: newAvg,
-            ratingCount: newCount
-        });
-
-        await loadAppData(); 
-        addReviewSection.style.display = 'none'; // Hide after edit/post
-        alert(isUpdate ? "تم تحديث تقييمك بنجاح." : "شكراً لك! تم إضافة تقييمك بنجاح.");
-    } catch (error) {
-        console.error("Error adding review:", error);
-        alert("حدث خطأ أثناء إضافة تقييمك.");
-    } finally {
-        btnSubmit.disabled = false;
-    }
-});
-
-// Initialize
-document.addEventListener('DOMContentLoaded', () => {
-    loadAppData();
-});
+document.addEventListener('DOMContentLoaded', loadAppData);

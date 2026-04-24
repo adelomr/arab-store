@@ -35,9 +35,9 @@
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon -->
-    <link rel="icon" type="image/png" href="web-assets/app_icon.png">
+    <link rel="icon" type="image/png" href="/web-assets/app_icon.png">
     <!-- Custom CSS -->
-    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="/css/style.css">
 
     <style>
         .app-detail-header {
@@ -173,10 +173,10 @@
     <header>
         <div class="container navbar">
             <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">
-                <a href="index.html" class="logo">
-                    <img src="web-assets/app_icon.png" alt="متجر العرب"
-                        style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;"> متجر
-                    العرب
+                <a href="/" class="logo">
+                    <img src="/web-assets/app_icon.png" alt="متجر العرب"
+                        style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
+                    متجر العرب
                 </a>
                 <button id="theme-toggle" class="theme-toggle" title="تبديل الوضع الليلي">
                     <i class="fa-solid fa-moon"></i>
@@ -184,17 +184,8 @@
             </div>
             <div class="navbar-actions">
                 <ul class="nav-links">
-                    <li><a href="submit.html" style="color: var(--success-color); font-weight: bold;"><i
-                                class="fa-solid fa-cloud-arrow-up"></i> أضف تطبيقك</a></li>
-
-                    <li id="admin-link-li" class="hidden"><a href="admin.html"
-                            style="color: var(--primary-color); font-weight: bold;"><i class="fa-solid fa-gauge"></i>
-                            لوحة
-                            التحكم</a></li>
-
-                    <!-- Auth Section -->
                     <li id="auth-section">
-                        <button id="btn-login" class="btn btn-primary hidden">تسجيل الدخول <i
+                        <button id="btn-login" type="button" class="btn btn-primary">تسجيل الدخول <i
                                 class="fa-brands fa-google"></i></button>
                         <div id="user-info" class="user-profile hidden">
                             <div class="notif-wrapper">
@@ -216,18 +207,12 @@
                                 <div class="user-dropdown-menu hidden" id="user-dropdown-menu">
                                     <div class="user-dropdown-header">حسابي</div>
                                     <ul class="user-dropdown-list">
-                                        <li><a href="submit.html"><i class="fa-solid fa-plus"></i> إضافة تطبيق</a>
-                                        </li>
-                                        <li><a href="update.html"><i class="fa-solid fa-pen-to-square"></i> تحديث
-                                                تطبيق</a></li>
-                                        <li><a href="user-apps.html"><i class="fa-solid fa-layer-group"></i>
-                                                تطبيقاتي</a></li>
-                                        <li><a href="profile.html?edit=1"><i class="fa-solid fa-user-pen"></i> تعديل
-                                                بياناتي</a></li>
+                                        <li><a href="/submit.html"><i class="fa-solid fa-plus"></i> إضافة تطبيق</a></li>
+                                        <li><a href="/update.html"><i class="fa-solid fa-pen-to-square"></i> تحديث تطبيق</a></li>
+                                        <li><a href="/user-apps.html"><i class="fa-solid fa-layer-group"></i> تطبيقاتي</a></li>
+                                        <li><a href="/profile.html?edit=1"><i class="fa-solid fa-user-pen"></i> تعديل بياناتي</a></li>
                                         <li class="dropdown-divider"></li>
-                                        <li><button id="btn-logout" class="dropdown-item-btn"><i
-                                                    class="fa-solid fa-right-from-bracket"></i> تسجيل
-                                                الخروج</button></li>
+                                        <li><button id="btn-logout" class="dropdown-item-btn"><i class="fa-solid fa-right-from-bracket"></i> تسجيل الخروج</button></li>
                                     </ul>
                                 </div>
                             </div>
@@ -366,8 +351,8 @@
     </main>
 
     <!-- JavaScript as module -->
-    <script type="module" src="js/app-details.js"></script>
-    <script src="js/theme.js"></script>
+    <script type="module" src="/js/app-details.js"></script>
+    <script src="/js/theme.js"></script>
 
     <!-- Global Footer -->
     <footer class="global-footer">
