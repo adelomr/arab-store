@@ -499,15 +499,15 @@
         </div>
     </header>
 
-    <main class="container" style="padding-top: 1.5rem; padding-bottom: 3rem;">
+    <main style="padding-bottom: 3rem;">
 
         <!-- Loading Spinner -->
-        <div id="loader" class="loader-container" style="padding: 5rem 0;">
+        <div id="loader" class="loader-container container" style="padding: 5rem 0;">
             <span class="loader"></span>
         </div>
 
         <!-- Error Message -->
-        <div id="error-msg" style="display:none; text-align:center; padding: 4rem 0;">
+        <div id="error-msg" class="container" style="display:none; text-align:center; padding: 4rem 0;">
             <i class="fa-solid fa-triangle-exclamation" style="font-size:3rem; color:var(--danger-color); margin-bottom:1rem; display:block;"></i>
             <h2>التطبيق غير موجود</h2>
             <p style="color:var(--text-secondary); margin: 1rem 0;">تعذر العثور على التطبيق المطلوب.</p>
@@ -525,7 +525,7 @@
 
             <!-- ===== APP HERO SECTION ===== -->
             <div class="app-hero">
-                <div class="app-hero-inner container">
+                <div class="app-hero-inner container" style="padding-top:2rem;padding-bottom:2rem;">
                     <div class="app-icon-wrapper">
                         <img id="d-icon" src="" alt="أيقونة التطبيق" onerror="this.src='https://via.placeholder.com/130?text=App'">
                     </div>
@@ -572,6 +572,9 @@
                     </div>
                 </div>
             </div>
+
+            <!-- ===== SECTIONS BELOW HERO ===== -->
+            <div class="container" style="padding-top:1.5rem;">
 
             <!-- ===== META INFO ===== -->
             <div id="d-meta-section" class="detail-section" style="display:none;">
@@ -652,6 +655,7 @@
                 <div id="comments-list" class="comments-list"></div>
             </div>
 
+            </div><!-- /container -->
         </div><!-- /app-content -->
     </main>
 
