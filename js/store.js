@@ -29,7 +29,12 @@ function renderApps(apps) {
         }
 
         const card = document.createElement('a');
-        card.href = `store-item.html?id=${app.id}`;
+        // Use custom landing page for Al-Jame, otherwise use generic store-item
+        if (app.id === 'com.elmoka.aljam3') {
+            card.href = '/eljam3.html';
+        } else {
+            card.href = `/store-item?id=${app.id}`;
+        }
         card.className = 'app-card';
         const installCount = app.installCount || 0;
         const installText = installCount >= 1000 ? (installCount / 1000).toFixed(1) + 'K' : installCount;

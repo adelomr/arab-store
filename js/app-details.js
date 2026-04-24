@@ -20,6 +20,11 @@ const formReview = document.getElementById('form-review');
 const urlParams = new URLSearchParams(window.location.search);
 const appId = urlParams.get('id');
 
+// Redirect Al-Jame to its custom landing page
+if (appId === 'com.elmoka.aljam3') {
+    window.location.href = 'eljam3.html';
+}
+
 let currentUser = null;
 let currentApp = null;
 let currentAppRef = null;
