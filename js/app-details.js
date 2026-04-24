@@ -63,6 +63,7 @@ async function loadAppData() {
     currentAppRef = doc(db, "apps", appId);
 
     try {
+        console.log("Fetching app data for:", appId);
         const docSnap = await getDoc(currentAppRef);
         if (docSnap.exists()) {
             currentApp = docSnap.data();
@@ -70,32 +71,34 @@ async function loadAppData() {
             loadReviews();
             checkIfUserAlreadyReviewed();
 
-            loader.style.display = 'none';
             appContent.style.display = 'block';
         } else {
+            console.log("App not found in 'apps', checking 'pending_apps'...");
             // Fallback: Check pending_apps collection
-            const pendingSnap = await getDoc(doc(db, "pending_apps", appId));
+            const pendingRef = doc(db, "pending_apps", appId);
+            const pendingSnap = await getDoc(pendingRef);
             if (pendingSnap.exists()) {
+                currentAppRef = pendingRef; // Update ref to pending
                 currentApp = pendingSnap.data();
                 renderApp(currentApp);
                 
                 // Show a notice that this app is pending review
                 const notice = document.createElement('div');
-                notice.style.cssText = 'background: #fff3cd; color: #856404; padding: 10px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold; border: 1px solid #ffeeba;';
+                notice.style.cssText = 'background: #fff3cd; color: #856404; padding: 15px; border-radius: 8px; margin-bottom: 20px; text-align: center; font-weight: bold; border: 1px solid #ffeeba;';
                 notice.innerHTML = '<i class="fa-solid fa-clock"></i> هذا التطبيق قيد المراجعة حالياً ولن يظهر للعامة حتى يتم قبوله.';
                 appContent.prepend(notice);
 
-                loader.style.display = 'none';
                 appContent.style.display = 'block';
             } else {
-                loader.style.display = 'none';
+                console.warn("App not found in either collection.");
                 errorMsg.style.display = 'block';
             }
         }
     } catch (error) {
         console.error("Error fetching app details:", error);
-        loader.style.display = 'none';
         errorMsg.style.display = 'block';
+    } finally {
+        loader.style.display = 'none';
     }
 }
 
@@ -168,7 +171,8 @@ function checkIfUserDownloaded() {
 }
 
 function renderApp(app) {
-    document.title = `${app.name} | متجر العرب`;
+    try {
+        document.title = `${app.name} | متجر العرب`;
     document.getElementById('d-icon').src = app.iconUrl || 'https://via.placeholder.com/150?text=App';
     document.getElementById('d-name').textContent = app.name;
 
@@ -293,9 +297,12 @@ function renderApp(app) {
     };
 
     closeLightbox.addEventListener('click', closeLightboxFunc);
-    lightbox.addEventListener('click', (e) => {
-        if (e.target === lightbox) closeLightboxFunc();
-    });
+        lightbox.addEventListener('click', (e) => {
+            if (e.target === lightbox) closeLightboxFunc();
+        });
+    } catch (e) {
+        console.error("Error rendering app details:", e);
+    }
 }
 
 async function loadReviews() {
