@@ -23,426 +23,565 @@
     <link rel="stylesheet" href="/css/style.css">
 
     <style>
-        /* ===== App Detail Page Styles ===== */
+        /* ===== Google Play Style App Detail Page ===== */
+        :root {
+            --gp-green: #01875f;
+            --gp-green-hover: #007350;
+            --gp-border: #e8eaed;
+            --gp-text: #202124;
+            --gp-text-sec: #5f6368;
+            --gp-bg: #ffffff;
+            --gp-card: #ffffff;
+        }
+
+        .dark-mode {
+            --gp-green: #34a853;
+            --gp-green-hover: #2d9248;
+            --gp-border: #3c4043;
+            --gp-text: #e8eaed;
+            --gp-text-sec: #9aa0a6;
+            --gp-bg: #202124;
+            --gp-card: #202124;
+        }
+
+        body {
+            background-color: var(--gp-bg);
+            color: var(--gp-text);
+            font-family: 'Tajawal', 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        .container {
+            width: 95%;
+            max-width: 1440px; /* Increased for better utilization */
+            margin: 0 auto;
+            padding: 0 24px;
+        }
+
         .app-hero {
-            background: var(--card-bg);
-            border-bottom: 1px solid var(--border-color);
-            padding: 2rem 0;
-            margin-bottom: 2rem;
+            padding: 24px 0;
         }
 
         .app-hero-inner {
             display: flex;
-            gap: 2rem;
+            gap: 24px;
             align-items: flex-start;
-            flex-wrap: wrap;
-        }
-
-        .app-icon-wrapper {
-            position: relative;
-            flex-shrink: 0;
         }
 
         .app-icon-wrapper img {
-            width: 130px;
-            height: 130px;
-            border-radius: 28px;
+            width: 160px;
+            height: 160px;
+            border-radius: 20%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
             object-fit: cover;
-            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
-            display: block;
+            border: 1px solid var(--gp-border);
         }
 
         .app-hero-info {
             flex: 1;
-            min-width: 220px;
+            padding-top: 8px;
         }
 
         .app-hero-info h1 {
-            font-size: 2rem;
-            margin-bottom: 0.25rem;
-            color: var(--text-primary);
+            font-size: 2.25rem;
+            line-height: 2.75rem;
+            font-weight: 700;
+            margin: 0 0 4px 0;
+            color: var(--gp-text);
+            word-break: break-word;
         }
 
         .app-developer {
-            color: var(--primary-color);
-            font-size: 0.95rem;
-            margin-bottom: 0.5rem;
+            color: var(--gp-green);
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 24px;
             display: flex;
             align-items: center;
-            gap: 6px;
+            gap: 8px;
         }
 
-        .app-category-badge {
-            display: inline-block;
-            background: rgba(88, 166, 255, 0.1);
-            color: var(--primary-color);
-            border: 1px solid var(--primary-color);
-            border-radius: 20px;
-            padding: 2px 12px;
-            font-size: 0.8rem;
-            margin-bottom: 1rem;
-        }
-
+        /* ===== Stats Row ===== */
         .app-stats-row {
             display: flex;
-            gap: 1.5rem;
-            margin-bottom: 1.25rem;
-            flex-wrap: wrap;
+            align-items: center;
+            gap: 24px;
+            margin-bottom: 24px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
+        .app-stats-row::-webkit-scrollbar { display: none; }
 
         .stat-item {
             text-align: center;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            white-space: nowrap;
         }
 
         .stat-value {
-            font-size: 1.1rem;
+            font-size: 1rem;
             font-weight: 700;
-            color: var(--text-primary);
-            display: block;
+            color: var(--gp-text);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
         }
 
         .stat-label {
             font-size: 0.75rem;
-            color: var(--text-secondary);
+            color: var(--gp-text-sec);
+            font-weight: 500;
         }
 
         .stat-sep {
             width: 1px;
-            background: var(--border-color);
-            align-self: stretch;
+            height: 24px;
+            background-color: var(--gp-border);
         }
 
+        /* ===== Action Buttons ===== */
         .app-action-btns {
             display: flex;
-            gap: 12px;
-            flex-wrap: wrap;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 32px;
         }
 
         .btn-download-main {
-            background: var(--primary-gradient);
+            flex: 1;
+            max-width: 400px;
+            background: var(--gp-green);
             color: white;
             border: none;
-            padding: 12px 28px;
-            border-radius: 12px;
-            font-size: 1rem;
-            font-weight: 700;
+            padding: 12px 24px;
+            border-radius: 24px; /* Pill shape */
+            font-size: 1.1rem;
+            font-weight: 500;
             cursor: pointer;
             display: inline-flex;
+            justify-content: center;
             align-items: center;
             gap: 8px;
             text-decoration: none;
-            transition: transform 0.2s, box-shadow 0.2s;
+            transition: background 0.2s;
         }
 
         .btn-download-main:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(88,166,255,0.4);
+            background: var(--gp-green-hover);
             color: white;
         }
 
         .btn-share {
             background: transparent;
-            border: 1px solid var(--border-color);
-            color: var(--text-primary);
-            padding: 12px 18px;
-            border-radius: 12px;
+            border: none;
+            color: var(--gp-green);
+            font-size: 1.4rem;
             cursor: pointer;
-            display: inline-flex;
+            padding: 12px;
+            border-radius: 50%;
+            display: flex;
             align-items: center;
-            gap: 8px;
-            font-size: 0.9rem;
-            transition: all 0.2s;
+            justify-content: center;
+            transition: background 0.2s;
         }
 
         .btn-share:hover {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
+            background: rgba(1, 135, 95, 0.08);
         }
 
-        /* ===== Sections ===== */
+        header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 2px solid var(--gp-border);
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.25rem 0; /* Slightly increased padding */
+        }
+
+        /* ===== Layout Sections ===== */
         .detail-section {
-            background: var(--card-bg);
-            border: 1px solid var(--border-color);
-            border-radius: 16px;
-            padding: 1.75rem;
-            margin-bottom: 1.5rem;
+            padding: 24px 0;
+            border-top: 1px solid var(--gp-border);
         }
 
-        .detail-section h2 {
-            font-size: 1.2rem;
-            margin-bottom: 1rem;
+        .section-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            color: var(--text-primary);
-            border-bottom: 1px solid var(--border-color);
-            padding-bottom: 0.75rem;
+            justify-content: space-between;
+            margin-bottom: 20px;
         }
 
-        .detail-section h2 i {
-            color: var(--primary-color);
+        .section-header h2 {
+            font-size: 1.3rem;
+            font-weight: 600;
+            color: var(--gp-text);
+            margin: 0;
         }
 
         /* ===== Screenshots ===== */
+        .screenshots-wrapper {
+            position: relative;
+            margin: 0 -24px; /* Bleed on mobile */
+            padding: 0 24px;
+        }
+
         .screenshots-scroll {
             display: flex;
-            gap: 12px;
+            gap: 16px;
             overflow-x: auto;
-            padding-bottom: 10px;
             scroll-snap-type: x mandatory;
+            scroll-behavior: smooth;
+            padding-bottom: 16px;
+            -ms-overflow-style: none;
+            scrollbar-width: none;
         }
-
-        .screenshots-scroll::-webkit-scrollbar {
-            height: 5px;
-        }
-
-        .screenshots-scroll::-webkit-scrollbar-track {
-            background: var(--border-color);
-            border-radius: 5px;
-        }
-
-        .screenshots-scroll::-webkit-scrollbar-thumb {
-            background: var(--primary-color);
-            border-radius: 5px;
-        }
+        .screenshots-scroll::-webkit-scrollbar { display: none; }
 
         .screenshot-thumb {
-            height: 340px;
-            min-width: 170px;
+            height: 400px;
+            width: auto;
             border-radius: 12px;
-            object-fit: cover;
+            object-fit: contain; /* Shows full image without cropping */
+            background-color: var(--gp-border); /* Background for any gaps */
+            scroll-snap-align: center;
             cursor: pointer;
-            scroll-snap-align: start;
-            border: 1px solid var(--border-color);
+            border: 1px solid var(--gp-border);
             transition: transform 0.2s;
         }
 
         .screenshot-thumb:hover {
-            transform: scale(1.03);
+            opacity: 0.9;
         }
 
-        /* ===== Features Grid ===== */
-        .features-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
-            gap: 1rem;
+        .scroll-btn {
+            background: var(--gp-card);
+            border: 1px solid var(--gp-border);
+            color: var(--gp-text-sec);
+            width: 48px;
+            height: 48px;
+            border-radius: 50%;
+            display: flex; /* Always visible */
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            position: absolute;
+            z-index: 10;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+            font-size: 1.2rem;
+            transition: all 0.2s;
         }
 
-        .feature-card {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1.25rem;
-            transition: border-color 0.2s, transform 0.2s;
+        .scroll-btn:hover {
+            background: var(--gp-bg);
+            color: var(--gp-text);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
         }
 
-        .feature-card:hover {
-            border-color: var(--primary-color);
-            transform: translateY(-3px);
-        }
+        .scroll-btn.right-btn { right: 8px; }
+        .scroll-btn.left-btn { left: 8px; }
 
-        .feature-icon {
-            font-size: 1.75rem;
-            color: var(--primary-color);
-            margin-bottom: 0.75rem;
-            display: block;
-        }
-
-        .feature-card h3 {
+        /* ===== Description ===== */
+        #d-full-desc {
             font-size: 1rem;
-            margin-bottom: 0.35rem;
+            line-height: 1.6;
+            color: var(--gp-text-sec);
+            white-space: pre-wrap;
+            word-break: break-word;
         }
 
-        .feature-card p {
-            font-size: 0.85rem;
-            color: var(--text-secondary);
-            margin: 0;
-        }
-
-        /* ===== Rating Stars ===== */
-        .rating-big {
+        /* ===== Ratings & Reviews ===== */
+        .rating-overview {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 1rem;
+            gap: 32px;
+            margin-bottom: 24px;
         }
 
-        .rating-number {
-            font-size: 3rem;
-            font-weight: 800;
-            color: var(--text-primary);
+        .rating-number-big {
+            font-size: 4rem;
             line-height: 1;
+            font-weight: 400;
+            color: var(--gp-text);
         }
 
         .stars-row {
             display: flex;
-            gap: 4px;
-            font-size: 1.3rem;
-            color: var(--star-color, #f5a623);
+            gap: 2px;
+            font-size: 1rem;
+            color: var(--gp-green);
         }
 
         .rating-count-text {
             font-size: 0.85rem;
-            color: var(--text-secondary);
+            color: var(--gp-text-sec);
+            margin-top: 4px;
         }
 
-        /* ===== Review Form ===== */
-        .review-form-wrapper {
-            margin-top: 1.25rem;
-            border-top: 1px solid var(--border-color);
-            padding-top: 1.25rem;
+        /* Login Prompt */
+        #login-to-review {
+            background: rgba(1, 135, 95, 0.05);
+            border-radius: 12px;
+            padding: 24px;
+            text-align: center;
+            margin-bottom: 24px;
         }
 
-        .star-selector {
-            display: flex;
-            flex-direction: row-reverse;
-            gap: 6px;
-            margin-bottom: 12px;
-            font-size: 1.8rem;
+        #login-to-review p {
+            margin: 0 0 16px 0;
+            color: var(--gp-text);
+            font-weight: 500;
         }
 
-        .star-selector input { display: none; }
-
-        .star-selector label {
-            cursor: pointer;
-            color: var(--border-color);
-            transition: color 0.1s;
-        }
-
-        .star-selector input:checked ~ label,
-        .star-selector label:hover,
-        .star-selector label:hover ~ label {
-            color: var(--star-color, #f5a623);
-        }
-
-        /* ===== Comment Cards ===== */
+        /* Comment Cards */
         .comments-list {
             display: flex;
             flex-direction: column;
-            gap: 14px;
-            margin-top: 1.25rem;
+            gap: 24px;
+            margin-top: 24px;
         }
 
         .comment-card {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 12px;
-            padding: 1rem;
+            background: transparent;
         }
 
         .comment-header {
             display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
             align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
         }
 
         .comment-author {
             display: flex;
             align-items: center;
-            gap: 10px;
-            font-weight: bold;
-            font-size: 0.95rem;
+            gap: 16px;
         }
 
         .comment-author img {
-            width: 34px;
-            height: 34px;
+            width: 40px;
+            height: 40px;
             border-radius: 50%;
+            object-fit: cover;
         }
 
-        .comment-stars { font-size: 0.85rem; color: var(--star-color, #f5a623); }
-        .comment-date { font-size: 0.75rem; color: var(--text-secondary); }
-        .comment-text { font-size: 0.9rem; color: var(--text-primary); }
+        .comment-author span {
+            font-size: 0.95rem;
+            color: var(--gp-text);
+            font-weight: 500;
+        }
 
-        /* ===== Pending Notice ===== */
-        .pending-notice {
-            background: linear-gradient(135deg, #fff3cd, #ffeeba);
-            color: #856404;
-            padding: 1rem 1.5rem;
-            border-radius: 12px;
-            margin-bottom: 1.5rem;
-            font-weight: bold;
+        .comment-meta {
             display: flex;
             align-items: center;
-            gap: 10px;
-            border: 1px solid #ffd966;
+            gap: 8px;
+            margin-bottom: 8px;
         }
+
+        .comment-stars { font-size: 0.8rem; color: var(--gp-green); }
+        .comment-date { font-size: 0.8rem; color: var(--gp-text-sec); }
+        .comment-text { font-size: 0.95rem; line-height: 1.5; color: var(--gp-text-sec); margin: 0; }
+
+        /* Meta tags */
+        .app-meta-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .app-meta-tag {
+            font-size: 0.9rem;
+            color: var(--gp-text-sec);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .app-meta-tag i { color: var(--gp-text); }
 
         /* ===== Lightbox ===== */
         .lightbox {
             display: none;
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0,0,0,0.95);
             z-index: 9999;
             align-items: center;
             justify-content: center;
         }
-
         .lightbox.active { display: flex; }
-
         .lightbox img {
             max-height: 90vh;
             max-width: 90vw;
             border-radius: 8px;
             object-fit: contain;
         }
-
         .lightbox-close {
             position: fixed;
-            top: 20px;
-            left: 20px;
-            background: white;
+            top: 24px;
+            left: 24px;
+            background: rgba(255,255,255,0.1);
+            color: white;
             border: none;
             border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            font-size: 1.2rem;
+            width: 48px;
+            height: 48px;
+            font-size: 1.5rem;
             cursor: pointer;
+            transition: background 0.2s;
+        }
+        .lightbox-close:hover { background: rgba(255,255,255,0.3); }
+
+        /* Review Form */
+        .star-selector {
             display: flex;
-            align-items: center;
-            justify-content: center;
+            flex-direction: row-reverse;
+            gap: 8px;
+            font-size: 2rem;
+            margin-bottom: 16px;
+            justify-content: flex-end;
+        }
+        .star-selector input { display: none; }
+        .star-selector label {
+            cursor: pointer;
+            color: var(--gp-border);
+            transition: color 0.1s;
+        }
+        .star-selector input:checked ~ label,
+        .star-selector label:hover,
+        .star-selector label:hover ~ label { color: var(--gp-green); }
+
+        /* ===== Features & Changelog ===== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 16px;
         }
 
-        /* ===== Changelog ===== */
-        .changelog-box {
-            background: rgba(88, 166, 255, 0.08);
-            border-right: 4px solid var(--primary-color);
-            border-radius: 8px;
-            padding: 1rem;
-            white-space: pre-wrap;
-            font-size: 0.9rem;
-            line-height: 1.7;
+        .feature-card {
+            background: var(--gp-card);
+            border: 1px solid var(--gp-border);
+            border-radius: 12px;
+            padding: 16px;
         }
+
+        .feature-icon {
+            font-size: 1.5rem;
+            color: var(--gp-green);
+            margin-bottom: 8px;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 1rem;
+            margin: 0 0 4px 0;
+            color: var(--gp-text);
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: var(--gp-text-sec);
+            margin: 0;
+        }
+
+        .changelog-box {
+            background: rgba(1, 135, 95, 0.04);
+            border-right: 4px solid var(--gp-green);
+            border-radius: 8px;
+            padding: 16px;
+            white-space: pre-wrap;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            color: var(--gp-text-sec);
+        }
+
+        .share-wrapper {
+            position: relative;
+        }
+
+        .share-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            right: 0;
+            background: var(--gp-card);
+            border: 1px solid var(--gp-border);
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            z-index: 1000;
+            min-width: 200px;
+            padding: 8px 0;
+            margin-top: 8px;
+            animation: fadeIn 0.2s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .share-menu.active {
+            display: block;
+        }
+
+        .share-menu a, .share-menu button {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            color: var(--gp-text);
+            text-decoration: none;
+            font-size: 0.95rem;
+            width: 100%;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            text-align: right;
+            transition: background 0.2s;
+            font-family: inherit;
+        }
+
+        .share-menu a:hover, .share-menu button:hover {
+            background: rgba(1, 135, 95, 0.08);
+            color: var(--gp-green);
+        }
+
+        .share-menu i {
+            width: 20px;
+            font-size: 1.2rem;
+            text-align: center;
+        }
+
+        .fa-whatsapp { color: #25D366; }
+        .fa-facebook { color: #1877F2; }
+        .fa-facebook-messenger { color: #0084FF; }
+        .fa-x-twitter { color: #000000; }
+        .dark-mode .fa-x-twitter { color: #ffffff; }
 
         /* Responsive */
-        @media (max-width: 600px) {
-            .app-hero-info h1 { font-size: 1.5rem; }
-            .app-icon-wrapper img { width: 90px; height: 90px; border-radius: 20px; }
-            .screenshot-thumb { height: 240px; min-width: 120px; }
+        @media (max-width: 768px) {
+            .app-hero-inner { flex-direction: column; gap: 16px; }
+            .app-icon-wrapper img { width: 96px; height: 96px; border-radius: 20%; }
+            .app-hero-info h1 { font-size: 1.75rem; line-height: 2.25rem; }
+            .app-stats-row { justify-content: space-between; gap: 16px; width: 100%; }
+            .btn-download-main { max-width: 100%; }
+            .screenshots-wrapper:hover .scroll-btn { display: none; } /* Touch only on mobile */
+            .screenshot-thumb { height: 280px; min-width: 158px; }
         }
-
-        /* App info meta tags */
-        .app-meta-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .app-meta-tag {
-            background: var(--bg-color);
-            border: 1px solid var(--border-color);
-            border-radius: 8px;
-            padding: 6px 14px;
-            font-size: 0.82rem;
-            color: var(--text-secondary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .app-meta-tag i { color: var(--primary-color); }
     </style>
 </head>
 
@@ -524,113 +663,134 @@
             </div>
 
             <!-- ===== APP HERO SECTION ===== -->
-            <div class="app-hero">
-                <div class="app-hero-inner container" style="padding-top:2rem;padding-bottom:2rem;">
-                    <div class="app-icon-wrapper">
-                        <img id="d-icon" src="" alt="أيقونة التطبيق" onerror="this.src='https://via.placeholder.com/130?text=App'">
-                    </div>
-                    <div class="app-hero-info">
-                        <h1 id="d-name">جاري التحميل...</h1>
-                        <div class="app-developer">
-                            <i class="fa-solid fa-user-tie"></i>
-                            <span id="d-developer">—</span>
+            <div class="container">
+                <div class="app-hero">
+                    <div class="app-hero-inner">
+                        <div class="app-icon-wrapper">
+                            <img id="d-icon" src="" alt="أيقونة التطبيق" onerror="this.src='https://via.placeholder.com/160?text=App'">
                         </div>
-                        <span id="d-category" class="app-category-badge" style="display:none;"></span>
+                        <div class="app-hero-info">
+                            <h1 id="d-name">جاري التحميل...</h1>
+                            <div class="app-developer">
+                                <span id="d-category" style="display:none; color: var(--gp-text-sec); font-size: 0.85rem;"></span>
+                            </div>
 
-                        <!-- Stats Row -->
-                        <div class="app-stats-row">
-                            <div class="stat-item">
-                                <span class="stat-value" id="d-rating-val">—</span>
-                                <span class="stat-label">التقييم</span>
+                            <!-- Stats Row -->
+                            <div class="app-stats-row">
+                                <div class="stat-item">
+                                    <span class="stat-value" id="d-rating-val">—</span>
+                                    <span class="stat-label">المراجعات</span>
+                                </div>
+                                <div class="stat-sep"></div>
+                                <div class="stat-item">
+                                    <span class="stat-value" id="d-installs">—</span>
+                                    <span class="stat-label">عمليات التنزيل</span>
+                                </div>
+                                <div class="stat-sep"></div>
+                                <div class="stat-item">
+                                    <span class="stat-value" id="d-version">—</span>
+                                    <span class="stat-label">الإصدار</span>
+                                </div>
+                                <div class="stat-sep"></div>
+                                <div class="stat-item">
+                                    <span class="stat-value" id="d-reviews-count">—</span>
+                                    <span class="stat-label">المقيّمون</span>
+                                </div>
                             </div>
-                            <div class="stat-sep"></div>
-                            <div class="stat-item">
-                                <span class="stat-value" id="d-reviews-count">—</span>
-                                <span class="stat-label">مراجعة</span>
-                            </div>
-                            <div class="stat-sep"></div>
-                            <div class="stat-item">
-                                <span class="stat-value" id="d-installs">—</span>
-                                <span class="stat-label">تحميل</span>
-                            </div>
-                            <div class="stat-sep"></div>
-                            <div class="stat-item">
-                                <span class="stat-value" id="d-version">—</span>
-                                <span class="stat-label">الإصدار</span>
-                            </div>
-                        </div>
 
-                        <!-- Action Buttons -->
-                        <div class="app-action-btns">
-                            <a id="d-download" href="#" class="btn-download-main" download>
-                                <i class="fa-solid fa-download"></i> تحميل التطبيق
-                            </a>
-                            <button id="d-share" class="btn-share">
-                                <i class="fa-solid fa-share-nodes"></i> مشاركة
-                            </button>
+                            <!-- Action Buttons -->
+                            <div class="app-action-btns">
+                                <a id="d-download" href="#" class="btn-download-main" download>تحميل</a>
+                                <div class="share-wrapper">
+                                    <button id="d-share" class="btn-share" title="مشاركة" onclick="document.getElementById('share-menu').classList.toggle('active'); event.stopPropagation();">
+                                        <i class="fa-solid fa-share-nodes"></i>
+                                    </button>
+                                    <div class="share-menu" id="share-menu">
+                                        <a href="#" id="share-wa" target="_blank"><i class="fa-brands fa-whatsapp"></i> واتساب</a>
+                                        <a href="#" id="share-fb" target="_blank"><i class="fa-brands fa-facebook"></i> فيسبوك</a>
+                                        <a href="#" id="share-ms" target="_blank"><i class="fa-brands fa-facebook-messenger"></i> ماسنجر</a>
+                                        <a href="#" id="share-tw" target="_blank"><i class="fa-brands fa-x-twitter"></i> تويتر</a>
+                                        <button id="share-copy"><i class="fa-solid fa-copy"></i> نسخ الرابط</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
 
             <!-- ===== SECTIONS BELOW HERO ===== -->
             <div class="container" style="padding-top:1.5rem;">
 
-            <!-- ===== META INFO ===== -->
-            <div id="d-meta-section" class="detail-section" style="display:none;">
-                <h2><i class="fa-solid fa-circle-info"></i> معلومات التطبيق</h2>
-                <div class="app-meta-list" id="d-meta-list"></div>
+            <!-- ===== SCREENSHOTS ===== -->
+            <div id="d-shots-section" class="detail-section" style="display:none;">
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-images" style="margin-left:8px; color:var(--gp-text-sec);"></i> لقطات الشاشة</h2>
+                </div>
+                <div class="screenshots-wrapper">
+                    <button class="scroll-btn right-btn" id="scroll-right" title="التالي"><i class="fa-solid fa-chevron-right"></i></button>
+                    <div id="d-shots" class="screenshots-scroll"></div>
+                    <button class="scroll-btn left-btn" id="scroll-left" title="السابق"><i class="fa-solid fa-chevron-left"></i></button>
+                </div>
             </div>
 
             <!-- ===== DESCRIPTION ===== -->
             <div class="detail-section">
-                <h2><i class="fa-solid fa-file-lines"></i> عن التطبيق</h2>
-                <p id="d-full-desc" style="white-space:pre-wrap; line-height:1.8; color:var(--text-primary);"></p>
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-arrow-right-long" style="margin-left:8px; color:var(--gp-text-sec);"></i> عن هذا التطبيق</h2>
+                </div>
+                <p id="d-full-desc"></p>
             </div>
 
-            <!-- ===== SCREENSHOTS ===== -->
-            <div id="d-shots-section" class="detail-section" style="display:none;">
-                <h2><i class="fa-solid fa-images"></i> لقطات الشاشة</h2>
-                <div id="d-shots" class="screenshots-scroll"></div>
+            <!-- ===== META INFO ===== -->
+            <div id="d-meta-section" class="detail-section" style="display:none;">
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-circle-info" style="margin-left:8px; color:var(--gp-text-sec);"></i> معلومات التطبيق</h2>
+                </div>
+                <div class="app-meta-list" id="d-meta-list"></div>
             </div>
 
             <!-- ===== FEATURES ===== -->
             <div id="d-features-section" class="detail-section" style="display:none;">
-                <h2><i class="fa-solid fa-wand-magic-sparkles"></i> مميزات التطبيق</h2>
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-wand-magic-sparkles" style="margin-left:8px; color:var(--gp-text-sec);"></i> مميزات التطبيق</h2>
+                </div>
                 <div id="d-features" class="features-grid"></div>
             </div>
 
             <!-- ===== CHANGELOG ===== -->
             <div id="d-changelog-section" class="detail-section" style="display:none;">
-                <h2><i class="fa-solid fa-clock-rotate-left"></i> ما الجديد في هذا الإصدار؟</h2>
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-clock-rotate-left" style="margin-left:8px; color:var(--gp-text-sec);"></i> ما الجديد؟</h2>
+                </div>
                 <div id="d-changelog" class="changelog-box"></div>
             </div>
 
             <!-- ===== RATINGS & REVIEWS ===== -->
             <div class="detail-section">
-                <h2><i class="fa-solid fa-star-half-stroke"></i> التقييمات والمراجعات</h2>
+                <div class="section-header">
+                    <h2><i class="fa-solid fa-star" style="margin-left:8px; color:var(--gp-text-sec);"></i> التقييمات والمراجعات</h2>
+                </div>
 
                 <!-- Rating Summary -->
-                <div class="rating-big">
-                    <span class="rating-number" id="d-avg-rating">0</span>
-                    <div>
-                        <div class="stars-row" id="d-stars-display"></div>
+                <div class="rating-overview">
+                    <div style="text-align:center;">
+                        <div class="rating-number-big" id="d-avg-rating">0</div>
+                        <div class="stars-row" id="d-stars-display" style="justify-content:center; margin-top:8px;"></div>
                         <div class="rating-count-text" id="d-rating-label">0 مراجعة</div>
                     </div>
                 </div>
 
                 <!-- Login to review prompt -->
-                <div id="login-to-review" style="background:var(--bg-color);border:1px dashed var(--border-color);border-radius:12px;padding:1.5rem;text-align:center; margin-bottom:1rem;">
-                    <i class="fa-solid fa-lock" style="font-size:1.5rem; color:var(--text-secondary); margin-bottom:0.5rem; display:block;"></i>
-                    <p>سجّل دخولك لتتمكن من إضافة تقييمك</p>
-                    <button id="btn-login-review" class="btn btn-primary" style="margin-top:10px;">
+                <div id="login-to-review">
+                    <p>سجّل دخولك لتتمكن من تقييم التطبيق وإضافة مراجعتك</p>
+                    <button id="btn-login-review" class="btn btn-primary" style="border-radius: 20px; padding: 8px 24px;">
                         <i class="fa-brands fa-google"></i> تسجيل الدخول
                     </button>
                 </div>
 
                 <!-- Review Form (shown when logged in) -->
                 <div id="add-review-section" style="display:none;">
-                    <p style="font-weight:bold; margin-bottom:8px;">أضف تقييمك:</p>
+                    <p style="font-weight:bold; margin-bottom:8px;">إضافة مراجعة:</p>
                     <form id="form-review">
                         <div class="star-selector">
                             <input type="radio" id="s5" name="rating" value="5" required>
@@ -644,9 +804,9 @@
                             <input type="radio" id="s1" name="rating" value="1">
                             <label for="s1"><i class="fa-solid fa-star"></i></label>
                         </div>
-                        <textarea id="review-text" class="form-control" rows="3" placeholder="اكتب تعليقك هنا..." required style="margin-bottom:12px;"></textarea>
-                        <button type="submit" id="btn-submit-review" class="btn btn-primary">
-                            <i class="fa-solid fa-paper-plane"></i> نشر التقييم
+                        <textarea id="review-text" class="form-control" rows="3" placeholder="أخبر الآخرين برأيك في هذا التطبيق" required style="margin-bottom:12px; border-radius:12px;"></textarea>
+                        <button type="submit" id="btn-submit-review" class="btn btn-primary" style="border-radius:20px; padding: 8px 24px;">
+                            نشر
                         </button>
                     </form>
                 </div>
@@ -678,8 +838,8 @@
         </div>
     </footer>
 
-    <script type="module" src="/js/app-details.js?v=40"></script>
-    <script src="/js/theme.js?v=40"></script>
+    <script type="module" src="/js/app-details.js?v=50"></script>
+    <script src="/js/theme.js?v=50"></script>
     <script src="/js/cookie.js"></script>
 </body>
 

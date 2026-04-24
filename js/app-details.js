@@ -29,10 +29,6 @@ if (!appId && window.location.pathname.includes('/item/')) {
     if (idx !== -1 && parts[idx + 1]) appId = parts[idx + 1];
 }
 
-// Redirect Al-Jame to dedicated landing page
-if (appId === 'com.elmoka.aljam3') {
-    window.location.replace('/eljam3.html');
-}
 
 // ===== State =====
 let currentUser  = null;
@@ -143,22 +139,29 @@ function renderApp(app) {
     // Rating stars (hero)
     const ratingVal = (app.rating || 0).toFixed(1);
     const rEl = $('d-rating-val');
-    if (rEl) rEl.innerHTML = `${ratingVal} <i class="fa-solid fa-star" style="color:var(--star-color,#f5a623);font-size:0.85rem;"></i>`;
+    if (rEl) rEl.innerHTML = `${ratingVal} ★`;
 
     // Reviews count
     const rc = $('d-reviews-count');
-    if (rc) rc.textContent = app.ratingCount || 0;
+    if (rc) {
+        const count = app.ratingCount || 0;
+        rc.textContent = count >= 1000 ? (count / 1000).toFixed(1) + 'K' : count;
+    }
 
     // Installs
     const inst = $('d-installs');
     if (inst) {
         const n = app.installCount || 0;
-        inst.textContent = n >= 1000 ? (n / 1000).toFixed(1) + 'K' : n;
+        let formatted = n;
+        if (n >= 1000000) formatted = (n / 1000000).toFixed(1) + 'M+';
+        else if (n >= 1000) formatted = (n / 1000).toFixed(1) + 'K+';
+        else if (n > 0) formatted = n + '+';
+        inst.textContent = formatted;
     }
 
     // Version
     const ver = $('d-version');
-    if (ver) ver.textContent = app.version ? `v${app.version}` : '—';
+    if (ver) ver.textContent = app.version || '—';
 
     // Download button
     const dlBtn = $('d-download');
@@ -172,17 +175,39 @@ function renderApp(app) {
         }, { once: true });
     }
 
-    // Share button
+    // Share button & Menu
     const shareBtn = $('d-share');
-    if (shareBtn) {
-        shareBtn.addEventListener('click', () => {
-            const url = window.location.href;
-            if (navigator.share) {
-                navigator.share({ title: app.name, text: app.shortDesc, url });
-            } else {
-                navigator.clipboard.writeText(url).then(() => alert('تم نسخ رابط التطبيق!'));
-            }
+    const shareMenu = $('share-menu');
+    if (shareBtn && shareMenu) {
+        shareBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            shareMenu.classList.toggle('active');
         });
+
+        // Close menu when clicking outside
+        document.addEventListener('click', () => shareMenu.classList.remove('active'));
+
+        const url = window.location.href;
+        const text = `ألقِ نظرة على تطبيق ${app.name} في متجر العرب: `;
+
+        $('share-wa').href = `https://api.whatsapp.com/send?text=${encodeURIComponent(text + url)}`;
+        $('share-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+        $('share-ms').href = `https://www.facebook.com/dialog/send?link=${encodeURIComponent(url)}&app_id=123456789&redirect_uri=${encodeURIComponent(url)}`; 
+        // Note: Messenger web requires app_id, but many users use mobile where fb-messenger:// works. 
+        // For simplicity, we'll use a standard FB sharer or a more generic approach if needed.
+        // Let's use the standard FB sharer for Messenger as well if it's tricky, or just the URL.
+        $('share-ms').href = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`; 
+        
+        $('share-tw').href = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&url=${encodeURIComponent(url)}`;
+        
+        $('share-copy').onclick = (e) => {
+            e.preventDefault();
+            navigator.clipboard.writeText(url).then(() => {
+                const originalText = $('share-copy').innerHTML;
+                $('share-copy').innerHTML = '<i class="fa-solid fa-check"></i> تم النسخ!';
+                setTimeout(() => { $('share-copy').innerHTML = originalText; }, 2000);
+            });
+        };
     }
 
     // Meta info (version, size, package name)
@@ -223,6 +248,14 @@ function renderApp(app) {
             shotsCont.appendChild(img);
         });
         if (shotsSec) shotsSec.style.display = 'block';
+
+        const btnRight = $('scroll-right');
+        const btnLeft = $('scroll-left');
+        if (btnRight && btnLeft) {
+            // Scroll functions (adjust for RTL)
+            btnRight.onclick = () => shotsCont.scrollBy({ left: 250, behavior: 'smooth' });
+            btnLeft.onclick = () => shotsCont.scrollBy({ left: -250, behavior: 'smooth' });
+        }
     }
 
     // Features
