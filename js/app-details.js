@@ -69,6 +69,19 @@ async function loadAppData() {
 
     currentAppRef = doc(db, "apps", appId);
 
+    // Fast-Load: Check Cache first
+    try {
+        const cachedApps = JSON.parse(localStorage.getItem('cached_apps') || '[]');
+        const cachedApp = cachedApps.find(a => a.id === appId);
+        if (cachedApp) {
+            console.log("Found app in cache, fast-loading...");
+            currentApp = cachedApp;
+            renderApp(currentApp);
+            if (appContent) appContent.style.display = 'block';
+            if (loader) loader.style.display = 'none';
+        }
+    } catch (e) { console.warn("Cache load failed:", e); }
+
     try {
         console.log("Fetching app data for:", appId);
         const docSnap = await getDoc(currentAppRef);

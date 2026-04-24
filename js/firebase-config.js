@@ -21,10 +21,12 @@ const db = getFirestore(app);
 const auth = getAuth(app);
 const storage = getStorage(app);
 
+/*
 // Initialize App Check with the user provided reCAPTCHA v3 site key
 const appCheck = initializeAppCheck(app, {
   provider: new ReCaptchaV3Provider('6Lea5MMsAAAAANs8yvhTsY-MtfBvk9L-b3Z6sgEj'),
   isTokenAutoRefreshEnabled: true
 });
+*/
 
-export { app, db, auth, storage, analytics, appCheck };
+export { app, db, auth, storage, analytics };
