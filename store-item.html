@@ -12,25 +12,8 @@
     </script>
 
     <!-- SEO Meta Tags -->
-    <meta name="description"
-        content="اكتشف تفاصيل التطبيق على متجر العرب، وقم بتحميل أحدث الإصدارات بطريقة آمنة وسريعة.">
-    <meta name="keywords" content="متجر تطبيقات, تطبيقات أندرويد, تفاصيل التطبيق, متجر العرب">
-    <meta name="author" content="عادل عمر">
+    <meta name="description" content="اكتشف تفاصيل التطبيق على متجر العرب، وقم بتحميل أحدث الإصدارات بطريقة آمنة وسريعة.">
     <meta name="robots" content="index, follow">
-
-    <!-- Open Graph for Social Media -->
-    <meta property="og:title" content="تفاصيل التطبيق | متجر العرب">
-    <meta property="og:description" content="اكتشف تفاصيل هذا التطبيق الرائع وحمله مباشرة من متجر العرب.">
-    <meta property="og:image" content="https://arab-store-c33d9.web.app/web-assets/app_icon.png">
-    <meta property="og:url" content="https://arab-store-c33d9.web.app/">
-    <meta property="og:type" content="website">
-    <meta property="og:locale" content="ar_EG">
-
-    <!-- Twitter Card -->
-    <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="تفاصيل التطبيق | متجر العرب">
-    <meta name="twitter:description" content="اكتشف تفاصيل هذا التطبيق الرائع وحمله مباشرة من متجر العرب.">
-    <meta name="twitter:image" content="https://arab-store-c33d9.web.app/web-assets/app_icon.png">
 
     <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -40,83 +23,318 @@
     <link rel="stylesheet" href="/css/style.css">
 
     <style>
-        .app-detail-header {
-            display: flex;
-            gap: 30px;
-            align-items: flex-start;
-            padding: 2rem 0;
+        /* ===== App Detail Page Styles ===== */
+        .app-hero {
+            background: var(--card-bg);
             border-bottom: 1px solid var(--border-color);
+            padding: 2rem 0;
             margin-bottom: 2rem;
         }
 
-        .detail-icon {
-            width: 150px;
-            height: 150px;
-            border-radius: 30px;
-            object-fit: cover;
-            box-shadow: var(--glass-shadow);
-        }
-
-        .detail-info h1 {
-            font-size: 2.5rem;
-            margin-bottom: 5px;
-        }
-
-        .stats-row {
+        .app-hero-inner {
             display: flex;
-            gap: 20px;
-            margin: 15px 0;
+            gap: 2rem;
+            align-items: flex-start;
+            flex-wrap: wrap;
+        }
+
+        .app-icon-wrapper {
+            position: relative;
+            flex-shrink: 0;
+        }
+
+        .app-icon-wrapper img {
+            width: 130px;
+            height: 130px;
+            border-radius: 28px;
+            object-fit: cover;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+            display: block;
+        }
+
+        .app-hero-info {
+            flex: 1;
+            min-width: 220px;
+        }
+
+        .app-hero-info h1 {
+            font-size: 2rem;
+            margin-bottom: 0.25rem;
+            color: var(--text-primary);
+        }
+
+        .app-developer {
+            color: var(--primary-color);
+            font-size: 0.95rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .app-category-badge {
+            display: inline-block;
+            background: rgba(88, 166, 255, 0.1);
+            color: var(--primary-color);
+            border: 1px solid var(--primary-color);
+            border-radius: 20px;
+            padding: 2px 12px;
+            font-size: 0.8rem;
+            margin-bottom: 1rem;
+        }
+
+        .app-stats-row {
+            display: flex;
+            gap: 1.5rem;
+            margin-bottom: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-item {
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: block;
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
             color: var(--text-secondary);
         }
 
-        .stats-item {
+        .stat-sep {
+            width: 1px;
+            background: var(--border-color);
+            align-self: stretch;
+        }
+
+        .app-action-btns {
             display: flex;
-            flex-direction: column;
-            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
         }
 
-        .stats-val {
-            font-size: 1.25rem;
+        .btn-download-main {
+            background: var(--primary-gradient);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 12px;
+            font-size: 1rem;
             font-weight: 700;
-            color: var(--text-primary);
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            text-decoration: none;
+            transition: transform 0.2s, box-shadow 0.2s;
         }
 
-        .content-section {
+        .btn-download-main:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(88,166,255,0.4);
+            color: white;
+        }
+
+        .btn-share {
+            background: transparent;
+            border: 1px solid var(--border-color);
+            color: var(--text-primary);
+            padding: 12px 18px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.9rem;
+            transition: all 0.2s;
+        }
+
+        .btn-share:hover {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+        }
+
+        /* ===== Sections ===== */
+        .detail-section {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
             border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 2rem;
-            box-shadow: var(--card-shadow);
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
         }
 
+        .detail-section h2 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: var(--text-primary);
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+        }
+
+        .detail-section h2 i {
+            color: var(--primary-color);
+        }
+
+        /* ===== Screenshots ===== */
+        .screenshots-scroll {
+            display: flex;
+            gap: 12px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+            scroll-snap-type: x mandatory;
+        }
+
+        .screenshots-scroll::-webkit-scrollbar {
+            height: 5px;
+        }
+
+        .screenshots-scroll::-webkit-scrollbar-track {
+            background: var(--border-color);
+            border-radius: 5px;
+        }
+
+        .screenshots-scroll::-webkit-scrollbar-thumb {
+            background: var(--primary-color);
+            border-radius: 5px;
+        }
+
+        .screenshot-thumb {
+            height: 340px;
+            min-width: 170px;
+            border-radius: 12px;
+            object-fit: cover;
+            cursor: pointer;
+            scroll-snap-align: start;
+            border: 1px solid var(--border-color);
+            transition: transform 0.2s;
+        }
+
+        .screenshot-thumb:hover {
+            transform: scale(1.03);
+        }
+
+        /* ===== Features Grid ===== */
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 1rem;
+        }
+
+        .feature-card {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            transition: border-color 0.2s, transform 0.2s;
+        }
+
+        .feature-card:hover {
+            border-color: var(--primary-color);
+            transform: translateY(-3px);
+        }
+
+        .feature-icon {
+            font-size: 1.75rem;
+            color: var(--primary-color);
+            margin-bottom: 0.75rem;
+            display: block;
+        }
+
+        .feature-card h3 {
+            font-size: 1rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .feature-card p {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+            margin: 0;
+        }
+
+        /* ===== Rating Stars ===== */
+        .rating-big {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 1rem;
+        }
+
+        .rating-number {
+            font-size: 3rem;
+            font-weight: 800;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stars-row {
+            display: flex;
+            gap: 4px;
+            font-size: 1.3rem;
+            color: var(--star-color, #f5a623);
+        }
+
+        .rating-count-text {
+            font-size: 0.85rem;
+            color: var(--text-secondary);
+        }
+
+        /* ===== Review Form ===== */
+        .review-form-wrapper {
+            margin-top: 1.25rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.25rem;
+        }
+
+        .star-selector {
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 6px;
+            margin-bottom: 12px;
+            font-size: 1.8rem;
+        }
+
+        .star-selector input { display: none; }
+
+        .star-selector label {
+            cursor: pointer;
+            color: var(--border-color);
+            transition: color 0.1s;
+        }
+
+        .star-selector input:checked ~ label,
+        .star-selector label:hover,
+        .star-selector label:hover ~ label {
+            color: var(--star-color, #f5a623);
+        }
+
+        /* ===== Comment Cards ===== */
         .comments-list {
             display: flex;
             flex-direction: column;
-            gap: 20px;
-            margin-top: 2rem;
+            gap: 14px;
+            margin-top: 1.25rem;
         }
 
         .comment-card {
-            background: var(--card-bg);
+            background: var(--bg-color);
             border: 1px solid var(--border-color);
             border-radius: 12px;
-            padding: 20px;
-            color: var(--text-primary);
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-            transition: var(--transition);
-        }
-
-        .comment-card:hover {
-            border-color: var(--primary-color);
-            background: var(--bg-color);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+            padding: 1rem;
         }
 
         .comment-header {
             display: flex;
             justify-content: space-between;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
+            align-items: center;
         }
 
         .comment-author {
@@ -124,55 +342,115 @@
             align-items: center;
             gap: 10px;
             font-weight: bold;
+            font-size: 0.95rem;
         }
 
         .comment-author img {
-            width: 32px;
-            height: 32px;
+            width: 34px;
+            height: 34px;
             border-radius: 50%;
         }
 
-        .star-rating-input {
+        .comment-stars { font-size: 0.85rem; color: var(--star-color, #f5a623); }
+        .comment-date { font-size: 0.75rem; color: var(--text-secondary); }
+        .comment-text { font-size: 0.9rem; color: var(--text-primary); }
+
+        /* ===== Pending Notice ===== */
+        .pending-notice {
+            background: linear-gradient(135deg, #fff3cd, #ffeeba);
+            color: #856404;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            margin-bottom: 1.5rem;
+            font-weight: bold;
             display: flex;
-            flex-direction: row-reverse;
-            justify-content: flex-end;
-            gap: 5px;
-            font-size: 1.5rem;
-            color: var(--text-secondary);
-            margin-bottom: 15px;
+            align-items: center;
+            gap: 10px;
+            border: 1px solid #ffd966;
         }
 
-        .star-rating-input input {
+        /* ===== Lightbox ===== */
+        .lightbox {
             display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.9);
+            z-index: 9999;
+            align-items: center;
+            justify-content: center;
         }
 
-        .star-rating-input label {
+        .lightbox.active { display: flex; }
+
+        .lightbox img {
+            max-height: 90vh;
+            max-width: 90vw;
+            border-radius: 8px;
+            object-fit: contain;
+        }
+
+        .lightbox-close {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            font-size: 1.2rem;
             cursor: pointer;
-            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
-        .star-rating-input label:hover,
-        .star-rating-input label:hover~label,
-        .star-rating-input input:checked~label {
-            color: var(--star-color);
+        /* ===== Changelog ===== */
+        .changelog-box {
+            background: rgba(88, 166, 255, 0.08);
+            border-right: 4px solid var(--primary-color);
+            border-radius: 8px;
+            padding: 1rem;
+            white-space: pre-wrap;
+            font-size: 0.9rem;
+            line-height: 1.7;
         }
 
-        @media (max-width: 768px) {
-            .app-detail-header {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
+        /* Responsive */
+        @media (max-width: 600px) {
+            .app-hero-info h1 { font-size: 1.5rem; }
+            .app-icon-wrapper img { width: 90px; height: 90px; border-radius: 20px; }
+            .screenshot-thumb { height: 240px; min-width: 120px; }
         }
+
+        /* App info meta tags */
+        .app-meta-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .app-meta-tag {
+            background: var(--bg-color);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            padding: 6px 14px;
+            font-size: 0.82rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .app-meta-tag i { color: var(--primary-color); }
     </style>
-    <!-- Google AdSense Auto Ads -->
-    <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4808414573627321" crossorigin="anonymous"></script>
 </head>
 
 <body>
+    <!-- ===== NAVBAR ===== -->
     <header>
         <div class="container navbar">
-            <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">
+            <div class="logo-wrapper" style="display:flex;align-items:center;gap:10px;">
                 <a href="/" class="logo">
                     <img src="/web-assets/app_icon.png" alt="متجر العرب"
                         style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
@@ -185,8 +463,7 @@
             <div class="navbar-actions">
                 <ul class="nav-links">
                     <li id="auth-section">
-                        <button id="btn-login" type="button" class="btn btn-primary">تسجيل الدخول <i
-                                class="fa-brands fa-google"></i></button>
+                        <button id="btn-login" type="button" class="btn btn-primary hidden">تسجيل الدخول <i class="fa-brands fa-google"></i></button>
                         <div id="user-info" class="user-profile hidden">
                             <div class="notif-wrapper">
                                 <button id="btn-notifications" class="notif-bell">
@@ -196,8 +473,7 @@
                                 <div class="notif-dropdown hidden" id="notif-dropdown">
                                     <div class="notif-header">الإشعارات</div>
                                     <div id="notif-list" class="notif-list">
-                                        <div style="text-align: center; color: #777; padding: 10px;">جاري التحميل...
-                                        </div>
+                                        <div style="text-align:center;color:#777;padding:10px;">جاري التحميل...</div>
                                     </div>
                                 </div>
                             </div>
@@ -223,154 +499,184 @@
         </div>
     </header>
 
-    <main class="container">
-        <div id="loader" class="loader-container">
+    <main class="container" style="padding-top: 1.5rem; padding-bottom: 3rem;">
+
+        <!-- Loading Spinner -->
+        <div id="loader" class="loader-container" style="padding: 5rem 0;">
             <span class="loader"></span>
         </div>
 
-        <div id="app-content" style="display: none;">
-            <div class="app-detail-header">
-                <div style="position: relative; display: inline-block;">
-                    <img id="d-icon" src="" alt="Icon" class="detail-icon"
-                        onerror="this.src='https://via.placeholder.com/150?text=App'">
-                    <button id="d-share" class="btn btn-outline" title="مشاركة التطبيق"
-                        style="position: absolute; bottom: 0; right: 0; background-color: var(--bg-color); border-radius: 50%; width: 36px; height: 36px; padding: 0; display: inline-flex; align-items: center; justify-content: center; font-size: 1rem; border: 2px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-                        <i class="fa-solid fa-share-nodes"></i>
-                    </button>
-                </div>
-                <div class="detail-info">
-                    <h1 id="d-name" style="margin-bottom: 8px;">جاري التحميل...</h1>
+        <!-- Error Message -->
+        <div id="error-msg" style="display:none; text-align:center; padding: 4rem 0;">
+            <i class="fa-solid fa-triangle-exclamation" style="font-size:3rem; color:var(--danger-color); margin-bottom:1rem; display:block;"></i>
+            <h2>التطبيق غير موجود</h2>
+            <p style="color:var(--text-secondary); margin: 1rem 0;">تعذر العثور على التطبيق المطلوب.</p>
+            <a href="/" class="btn btn-primary"><i class="fa-solid fa-house"></i> العودة للرئيسية</a>
+        </div>
 
-                    <div class="stats-row">
-                        <div class="stats-item">
-                            <span id="d-rating" class="stats-val">0.0 <i class="fa-solid fa-star"
-                                    style="color:var(--star-color);"></i></span>
-                            <span id="d-reviews">0 مراجعة</span>
+        <!-- App Content (hidden until data loads) -->
+        <div id="app-content" style="display:none;">
+
+            <!-- Pending Notice (only shown for pending apps) -->
+            <div id="pending-notice" class="pending-notice" style="display:none;">
+                <i class="fa-solid fa-clock fa-lg"></i>
+                <span>هذا التطبيق قيد المراجعة حالياً ولن يظهر للعامة حتى يتم قبوله.</span>
+            </div>
+
+            <!-- ===== APP HERO SECTION ===== -->
+            <div class="app-hero">
+                <div class="app-hero-inner container">
+                    <div class="app-icon-wrapper">
+                        <img id="d-icon" src="" alt="أيقونة التطبيق" onerror="this.src='https://via.placeholder.com/130?text=App'">
+                    </div>
+                    <div class="app-hero-info">
+                        <h1 id="d-name">جاري التحميل...</h1>
+                        <div class="app-developer">
+                            <i class="fa-solid fa-user-tie"></i>
+                            <span id="d-developer">—</span>
                         </div>
-                        <div class="stats-item">
-                            <span id="d-version" class="stats-val"></span>
-                            <span>الإصدار</span>
+                        <span id="d-category" class="app-category-badge" style="display:none;"></span>
+
+                        <!-- Stats Row -->
+                        <div class="app-stats-row">
+                            <div class="stat-item">
+                                <span class="stat-value" id="d-rating-val">—</span>
+                                <span class="stat-label">التقييم</span>
+                            </div>
+                            <div class="stat-sep"></div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="d-reviews-count">—</span>
+                                <span class="stat-label">مراجعة</span>
+                            </div>
+                            <div class="stat-sep"></div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="d-installs">—</span>
+                                <span class="stat-label">تحميل</span>
+                            </div>
+                            <div class="stat-sep"></div>
+                            <div class="stat-item">
+                                <span class="stat-value" id="d-version">—</span>
+                                <span class="stat-label">الإصدار</span>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="app-action-btns">
+                            <a id="d-download" href="#" class="btn-download-main" download>
+                                <i class="fa-solid fa-download"></i> تحميل التطبيق
+                            </a>
+                            <button id="d-share" class="btn-share">
+                                <i class="fa-solid fa-share-nodes"></i> مشاركة
+                            </button>
                         </div>
                     </div>
+                </div>
+            </div>
 
-                    <div style="display: flex; gap: 10px; margin-top: 10px;">
-                        <a id="d-download" href="#" target="_blank" class="btn btn-primary btn-large"
-                            style="display: inline-block; padding: 12px 24px; font-size: 1.1rem; flex: 1; text-align: center;">
-                            <i class="fa-solid fa-download"></i> تحميل (APK)
-                        </a>
+            <!-- ===== META INFO ===== -->
+            <div id="d-meta-section" class="detail-section" style="display:none;">
+                <h2><i class="fa-solid fa-circle-info"></i> معلومات التطبيق</h2>
+                <div class="app-meta-list" id="d-meta-list"></div>
+            </div>
+
+            <!-- ===== DESCRIPTION ===== -->
+            <div class="detail-section">
+                <h2><i class="fa-solid fa-file-lines"></i> عن التطبيق</h2>
+                <p id="d-full-desc" style="white-space:pre-wrap; line-height:1.8; color:var(--text-primary);"></p>
+            </div>
+
+            <!-- ===== SCREENSHOTS ===== -->
+            <div id="d-shots-section" class="detail-section" style="display:none;">
+                <h2><i class="fa-solid fa-images"></i> لقطات الشاشة</h2>
+                <div id="d-shots" class="screenshots-scroll"></div>
+            </div>
+
+            <!-- ===== FEATURES ===== -->
+            <div id="d-features-section" class="detail-section" style="display:none;">
+                <h2><i class="fa-solid fa-wand-magic-sparkles"></i> مميزات التطبيق</h2>
+                <div id="d-features" class="features-grid"></div>
+            </div>
+
+            <!-- ===== CHANGELOG ===== -->
+            <div id="d-changelog-section" class="detail-section" style="display:none;">
+                <h2><i class="fa-solid fa-clock-rotate-left"></i> ما الجديد في هذا الإصدار؟</h2>
+                <div id="d-changelog" class="changelog-box"></div>
+            </div>
+
+            <!-- ===== RATINGS & REVIEWS ===== -->
+            <div class="detail-section">
+                <h2><i class="fa-solid fa-star-half-stroke"></i> التقييمات والمراجعات</h2>
+
+                <!-- Rating Summary -->
+                <div class="rating-big">
+                    <span class="rating-number" id="d-avg-rating">0</span>
+                    <div>
+                        <div class="stars-row" id="d-stars-display"></div>
+                        <div class="rating-count-text" id="d-rating-label">0 مراجعة</div>
                     </div>
                 </div>
-            </div>
 
-            <!-- App Features -->
-            <div class="features-section" id="d-features-section" style="display: none;">
-                <h2 class="section-title" style="margin-top: 0;"><i class="fa-solid fa-wand-magic-sparkles"></i> مميزات التطبيق</h2>
-                <div class="features-grid" id="d-features">
-                    <!-- Features injected by JS -->
-                </div>
-            </div>
-
-            <div class="app-screenshots-section" id="screenshots-section" style="display: none;">
-                <div class="screenshots-wrapper">
-                    <button class="scroll-arrow scroll-arrow-right" id="scroll-right" aria-label="السابق">
-                        <i class="fa-solid fa-chevron-right"></i>
+                <!-- Login to review prompt -->
+                <div id="login-to-review" style="background:var(--bg-color);border:1px dashed var(--border-color);border-radius:12px;padding:1.5rem;text-align:center; margin-bottom:1rem;">
+                    <i class="fa-solid fa-lock" style="font-size:1.5rem; color:var(--text-secondary); margin-bottom:0.5rem; display:block;"></i>
+                    <p>سجّل دخولك لتتمكن من إضافة تقييمك</p>
+                    <button id="btn-login-review" class="btn btn-primary" style="margin-top:10px;">
+                        <i class="fa-brands fa-google"></i> تسجيل الدخول
                     </button>
-                    <div class="screenshots-container" id="d-screenshots">
-                        <!-- Screenshots injected by JS -->
-                    </div>
-                    <button class="scroll-arrow scroll-arrow-left" id="scroll-left" aria-label="التالي">
-                        <i class="fa-solid fa-chevron-left"></i>
-                    </button>
                 </div>
-            </div>
 
-            <!-- Description & Changelog -->
-            <div class="content-section">
-                <h3><i class="fa-solid fa-circle-info"></i> عن التطبيق</h3>
-                <p id="d-desc" style="white-space: pre-wrap; margin-top: 15px;"></p>
-
-                <div id="changelog-container" style="margin-top: 2rem; display: none;">
-                    <h3><i class="fa-solid fa-clock-rotate-left"></i> ما الجديد في هذا التحديث؟</h3>
-                    <div
-                        style="background: rgba(88, 166, 255, 0.1); border-right: 4px solid var(--primary-color); padding: 15px; border-radius: 8px; margin-top: 15px;">
-                        <p id="d-changelog" style="white-space: pre-wrap; margin: 0;"></p>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- Ratings and Comments -->
-            <div class="content-section">
-                <h3><i class="fa-solid fa-comments"></i> التقييمات والمراجعات</h3>
-
-                <div id="add-review-section"
-                    style="margin-top: 20px; border-bottom: 1px solid var(--border-color); padding-bottom: 2rem; display: none;">
+                <!-- Review Form (shown when logged in) -->
+                <div id="add-review-section" style="display:none;">
+                    <p style="font-weight:bold; margin-bottom:8px;">أضف تقييمك:</p>
                     <form id="form-review">
-                        <p style="margin-bottom: 10px; font-weight: bold;">أضف تقييمك:</p>
-                        <div class="star-rating-input">
-                            <input type="radio" id="star5" name="rating" value="5" required>
-                            <label for="star5" title="5 نجوم"><i class="fa-solid fa-star"></i></label>
-                            <input type="radio" id="star4" name="rating" value="4">
-                            <label for="star4" title="4 نجوم"><i class="fa-solid fa-star"></i></label>
-                            <input type="radio" id="star3" name="rating" value="3">
-                            <label for="star3" title="3 نجوم"><i class="fa-solid fa-star"></i></label>
-                            <input type="radio" id="star2" name="rating" value="2">
-                            <label for="star2" title="2 نجمتين"><i class="fa-solid fa-star"></i></label>
-                            <input type="radio" id="star1" name="rating" value="1">
-                            <label for="star1" title="نجمة واحدة"><i class="fa-solid fa-star"></i></label>
+                        <div class="star-selector">
+                            <input type="radio" id="s5" name="rating" value="5" required>
+                            <label for="s5"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="s4" name="rating" value="4">
+                            <label for="s4"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="s3" name="rating" value="3">
+                            <label for="s3"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="s2" name="rating" value="2">
+                            <label for="s2"><i class="fa-solid fa-star"></i></label>
+                            <input type="radio" id="s1" name="rating" value="1">
+                            <label for="s1"><i class="fa-solid fa-star"></i></label>
                         </div>
-                        <textarea id="review-text" class="form-control" style="margin-bottom: 15px;" rows="3"
-                            placeholder="أخبرنا برأيك في التطبيق..." required></textarea>
-                        <button type="submit" class="btn btn-primary" style="background: var(--primary-gradient);">نشر
-                            التقييم</button>
+                        <textarea id="review-text" class="form-control" rows="3" placeholder="اكتب تعليقك هنا..." required style="margin-bottom:12px;"></textarea>
+                        <button type="submit" id="btn-submit-review" class="btn btn-primary">
+                            <i class="fa-solid fa-paper-plane"></i> نشر التقييم
+                        </button>
                     </form>
                 </div>
 
-                <div id="login-to-review"
-                    style="margin-top: 20px; text-align: center; padding: 20px; background: var(--bg-color); border: 1px dashed var(--border-color); border-radius: 12px;">
-                    <p>يرجى تسجيل الدخول بكتابة تعليق وتقييم التطبيق.</p>
-                </div>
-
-                <div id="comments-list" class="comments-list">
-                    <!-- Comments injected by JS -->
-                </div>
+                <!-- Comments List -->
+                <div id="comments-list" class="comments-list"></div>
             </div>
-        </div>
 
-        <div id="error-msg" style="text-align: center; margin-top: 4rem; display: none;">
-            <h2><i class="fa-solid fa-triangle-exclamation" style="color: var(--danger-color);"></i> التطبيق غير موجود
-            </h2>
-            <p>تعذر العثور على التطبيق المطلوب.</p>
-        </div>
-
-        <!-- Lightbox Modal -->
-        <div id="lightbox" class="modal-lightbox">
-            <span class="close-lightbox" id="close-lightbox">&times;</span>
-            <img class="lightbox-content" id="lightbox-img">
-        </div>
+        </div><!-- /app-content -->
     </main>
 
-    <!-- JavaScript as module -->
-    <script type="module" src="/js/app-details.js?v=30"></script>
-    <script src="/js/theme.js?v=30"></script>
+    <!-- Lightbox -->
+    <div id="lightbox" class="lightbox">
+        <button id="lightbox-close" class="lightbox-close"><i class="fa-solid fa-xmark"></i></button>
+        <img id="lightbox-img" src="" alt="لقطة شاشة">
+    </div>
 
-    <!-- Global Footer -->
+    <!-- Footer -->
     <footer class="global-footer">
         <div class="container">
             <div class="footer-links">
-                <a href="about.html">من نحن</a>
-                <a href="privacy.html">سياسة الخصوصية</a>
-                <a href="terms.html">شروط الاستخدام</a>
-                <a href="contact.html">تواصل معنا</a>
+                <a href="/about.html">من نحن</a>
+                <a href="/privacy.html">سياسة الخصوصية</a>
+                <a href="/terms.html">شروط الاستخدام</a>
+                <a href="/contact.html">تواصل معنا</a>
             </div>
-            <div class="footer-copy">
-                &copy; 2024 Arab Store. All Rights Reserved.
-            </div>
+            <div class="footer-copy">&copy; 2024 Arab Store. All Rights Reserved.</div>
         </div>
     </footer>
 
-    <!-- Cookie Consent -->
-    <script src="js/cookie.js"></script>
+    <script type="module" src="/js/app-details.js?v=40"></script>
+    <script src="/js/theme.js?v=40"></script>
+    <script src="/js/cookie.js"></script>
 </body>
 
 </html>
