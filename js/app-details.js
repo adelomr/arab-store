@@ -291,8 +291,10 @@ function renderApp(app) {
         featCont.innerHTML = app.features.map(f => `
             <div class="feature-card">
                 <i class="fa-solid ${f.icon || 'fa-star'} feature-icon"></i>
-                <h3>${escHtml(f.title || '')}</h3>
-                <p>${escHtml(f.desc || '')}</p>
+                <div class="feature-content">
+                    <h3>${escHtml(f.title || '')}</h3>
+                    ${f.desc ? `<p>${escHtml(f.desc)}</p>` : ''}
+                </div>
             </div>
         `).join('');
         if (featSec) featSec.style.display = 'block';
