@@ -37,7 +37,7 @@ function renderApps(apps) {
         
         card.innerHTML = `
             <div class="app-header">
-                <img src="${app.iconUrl || 'https://via.placeholder.com/80?text=App'}" alt="${app.name}" class="app-icon" onerror="this.src='https://via.placeholder.com/80?text=App'">
+                <img src="${app.iconUrl || 'https://via.placeholder.com/80?text=App'}" alt="${app.name}" class="app-icon" onerror="this.src='https://via.placeholder.com/80?text=App'" width="80" height="80" loading="lazy">
                 <div class="app-info">
                     <h3>${app.name}</h3>
                     <div class="app-rating">

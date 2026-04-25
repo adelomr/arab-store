@@ -16,7 +16,8 @@
     <meta name="robots" content="index, follow">
 
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="/web-assets/app_icon.png">
     <!-- Custom CSS -->
@@ -691,7 +692,7 @@
         <div class="container navbar">
             <div class="logo-wrapper" style="display:flex;align-items:center;gap:10px;">
                 <a href="/" class="logo">
-                    <img src="/web-assets/app_icon.png" alt="متجر العرب"
+                    <img src="/web-assets/app_icon.png" alt="متجر العرب" width="36" height="36"
                         style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
                     متجر العرب
                 </a>
@@ -767,7 +768,7 @@
                 <div class="app-hero">
                     <div class="app-hero-inner">
                         <div class="app-icon-wrapper">
-                            <img id="d-icon" src="" alt="أيقونة التطبيق" onerror="this.src='https://via.placeholder.com/160?text=App'">
+                            <img id="d-icon" src="" alt="أيقونة التطبيق" width="120" height="120" onerror="this.src='https://via.placeholder.com/160?text=App'">
                         </div>
                         <div class="app-hero-info">
                             <h1 id="d-name">جاري التحميل...</h1>

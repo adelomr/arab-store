@@ -35,7 +35,8 @@
     <!-- Favicon -->
     <link rel="icon" type="image/png" href="web-assets/app_icon.png">
     <!-- Font Awesome -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <link rel="preload" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"></noscript>
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
 
@@ -48,7 +49,7 @@
         <div class="container navbar">
             <div class="logo-wrapper" style="display: flex; align-items: center; gap: 10px;">
                 <a href="index.html" class="logo">
-                    <img src="web-assets/app_icon.png" alt="متجر العرب"
+                    <img src="web-assets/app_icon.png" alt="متجر العرب" width="36" height="36"
                         style="width:36px;height:36px;border-radius:10px;margin-left:8px;vertical-align:middle;">
                     متجر العرب
                 </a>
