@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://arab-store.allqaqasyana.com/sitemap.xml

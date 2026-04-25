@@ -254,17 +254,16 @@
         .screenshots-scroll::-webkit-scrollbar { display: none; }
 
         .screenshot-thumb {
-            height: 380px;
+            height: 480px;
             width: auto;
-            min-width: 100px;
-            max-width: 600px;
+            max-width: 800px;
             border-radius: 12px;
             object-fit: contain; /* Don't crop icons/images */
             scroll-snap-align: center;
             cursor: pointer;
             border: 1px solid var(--gp-border);
             transition: all 0.2s;
-            background-color: #f9f9f9;
+            background-color: transparent;
             flex-shrink: 0;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
         }
@@ -664,13 +663,14 @@
                 margin-top: 40px;
             }
         }
+        @media (max-width: 768px) {
             .app-hero-inner { flex-direction: column; gap: 16px; }
             .app-icon-wrapper img { width: 96px; height: 96px; border-radius: 20%; }
             .app-hero-info h1 { font-size: 1.75rem; line-height: 2.25rem; }
             .app-stats-row { justify-content: space-between; gap: 16px; width: 100%; }
             .btn-download-main { max-width: 100%; }
-            .screenshots-wrapper:hover .scroll-btn { display: none; } /* Touch only on mobile */
-            .screenshot-thumb { height: 280px; min-width: 158px; }
+            .scroll-btn { display: none !important; }
+            .screenshot-thumb { height: 360px; }
         }
     </style>
 </head>

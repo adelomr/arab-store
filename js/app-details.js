@@ -117,6 +117,25 @@ function renderApp(app) {
     // Title
     document.title = `${app.name || 'التطبيق'} | متجر العرب`;
 
+    // SEO Meta Updates
+    const updateMeta = (name, content, isProperty = false) => {
+        let tag = document.querySelector(`meta[${isProperty ? 'property' : 'name'}="${name}"]`);
+        if (!tag) {
+            tag = document.createElement('meta');
+            if (isProperty) tag.setAttribute('property', name);
+            else tag.setAttribute('name', name);
+            document.head.appendChild(tag);
+        }
+        tag.setAttribute('content', content);
+    };
+
+    const descText = (app.shortDesc || app.fullDesc || `تحميل تطبيق ${app.name} من متجر العرب`).substring(0, 160);
+    updateMeta('description', descText);
+    updateMeta('og:title', `${app.name} | متجر العرب`, true);
+    updateMeta('og:description', descText, true);
+    updateMeta('og:image', app.iconUrl || 'https://arab-store.allqaqasyana.com/web-assets/app_icon.png', true);
+    updateMeta('og:url', window.location.href, true);
+
     // Icon
     const icon = $('d-icon');
     if (icon) icon.src = app.iconUrl || 'https://via.placeholder.com/130?text=App';
@@ -254,13 +273,13 @@ function renderApp(app) {
         if (btnRight && btnLeft) {
             btnRight.onclick = (e) => {
                 e.stopPropagation();
-                // In RTL, scrolling "Forward" (to the next images) usually means negative left
-                shotsCont.scrollBy({ left: -300, behavior: 'smooth' });
+                // In RTL, clicking Right arrow means moving viewport Right (towards start)
+                shotsCont.scrollBy({ left: 300, behavior: 'smooth' });
             };
             btnLeft.onclick = (e) => {
                 e.stopPropagation();
-                // In RTL, scrolling "Backward" means positive left
-                shotsCont.scrollBy({ left: 300, behavior: 'smooth' });
+                // In RTL, clicking Left arrow means moving viewport Left (towards end)
+                shotsCont.scrollBy({ left: -300, behavior: 'smooth' });
             };
         }
     }
