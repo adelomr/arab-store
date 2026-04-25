@@ -40,7 +40,6 @@ function renderApps(apps) {
                 <img src="${app.iconUrl || 'https://via.placeholder.com/80?text=App'}" alt="${app.name}" class="app-icon" onerror="this.src='https://via.placeholder.com/80?text=App'">
                 <div class="app-info">
                     <h3>${app.name}</h3>
-                    <p>${app.developer || 'El-Moka'}</p>
                     <div class="app-rating">
                         ${starsHtml} <span>(${app.ratingCount || 0})</span>
                     </div>
