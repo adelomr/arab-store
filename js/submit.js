@@ -264,12 +264,20 @@ formSubmit.addEventListener('submit', async (e) => {
             screenshots: screenshotUrls,
             downloadUrl: downloadUrl,
             features: document.getElementById('app-features').value.split('\n').filter(line => line.trim() !== '').map(line => {
-                const parts = line.split('|');
-                return {
-                    icon: parts[0] ? parts[0].trim() : 'fa-star',
-                    title: parts[1] ? parts[1].trim() : 'ميزة جديدة',
-                    desc: parts[2] ? parts[2].trim() : ''
-                };
+                if (line.includes('|')) {
+                    const parts = line.split('|');
+                    return {
+                        icon: parts[0] && parts[0].trim() !== '' ? parts[0].trim() : 'fa-star',
+                        title: parts[1] ? parts[1].trim() : '',
+                        desc: parts[2] ? parts[2].trim() : ''
+                    };
+                } else {
+                    return {
+                        icon: 'fa-circle-check',
+                        title: line.trim(),
+                        desc: ''
+                    };
+                }
             }),
             version: document.getElementById('app-version').value,
             versionCode: parseInt(document.getElementById('app-versioncode').value),
