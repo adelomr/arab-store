@@ -13,10 +13,12 @@ const formSection = document.getElementById('form-section');
 
 const formSubmit = document.getElementById('form-submit');
 const iconInput = document.getElementById('app-icon');
+const shareIconInput = document.getElementById('app-share-icon');
 const shotInput = document.getElementById('app-screenshots');
 const apkInput = document.getElementById('app-download');
 
 const iconPreview = document.getElementById('icon-preview');
+const shareIconPreview = document.getElementById('share-icon-preview');
 const shotPreview = document.getElementById('screenshots-preview');
 const apkInfo = document.getElementById('apk-info');
 
@@ -226,6 +228,7 @@ async function loadExistingAppForUpdate(id, col) {
 
             // Previews
             iconPreview.innerHTML = existingAppData.iconUrl ? `<img src="${existingAppData.iconUrl}" class="preview-thumb">` : "";
+            shareIconPreview.innerHTML = existingAppData.sharingIconUrl ? `<img src="${existingAppData.sharingIconUrl}" class="preview-thumb">` : "";
             shotPreview.innerHTML = "";
             if (existingAppData.screenshots) {
                 existingAppData.screenshots.forEach(url => {
@@ -256,6 +259,16 @@ iconInput.addEventListener('change', () => {
             iconPreview.innerHTML = `<img src="${e.target.result}" class="preview-thumb">`;
         };
         reader.readAsDataURL(iconInput.files[0]);
+    }
+});
+
+shareIconInput.addEventListener('change', () => {
+    if (shareIconInput.files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            shareIconPreview.innerHTML = `<img src="${e.target.result}" class="preview-thumb">`;
+        };
+        reader.readAsDataURL(shareIconInput.files[0]);
     }
 });
 
@@ -319,6 +332,12 @@ formSubmit.addEventListener('submit', async (e) => {
             iconUrl = await uploadWithProgress(iconInput.files[0], `${basePath}/icon_${Date.now()}`);
         }
 
+        let sharingIconUrl = existingAppData.sharingIconUrl || null;
+        if (shareIconInput.files.length > 0) {
+            statusText.textContent = "جاري رفع أيقونة المشاركة...";
+            sharingIconUrl = await uploadWithProgress(shareIconInput.files[0], `${basePath}/share_icon_${Date.now()}`);
+        }
+
         let screenshotUrls = existingAppData.screenshots || [];
         const shotFiles = Array.from(shotInput.files);
         if (shotFiles.length > 0) {
@@ -345,6 +364,7 @@ formSubmit.addEventListener('submit', async (e) => {
             category: document.getElementById('app-category').value,
             size: size,
             iconUrl: iconUrl,
+            sharingIconUrl: sharingIconUrl,
             screenshots: screenshotUrls,
             downloadUrl: downloadUrl,
             version: document.getElementById('app-version').value,

@@ -132,7 +132,7 @@ function renderApp(app) {
     const descText = (app.shortDesc || app.fullDesc || `تحميل تطبيق ${app.name} من متجر العرب`).substring(0, 160);
     const appTitle = `${app.name} | متجر العرب`;
     const appUrl = window.location.href;
-    const appImg = app.iconUrl || 'https://arab-store.allqaqasyana.com/web-assets/app_icon.png';
+    const appImg = app.sharingIconUrl || app.iconUrl || 'https://arab-store.allqaqasyana.com/web-assets/app_icon.png';
 
     updateMeta('description', descText);
     

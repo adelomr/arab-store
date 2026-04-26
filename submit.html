@@ -188,6 +188,19 @@
                     </div>
 
                     <div style="margin-bottom: 20px;">
+                        <label><i class="fa-solid fa-share-nodes"></i> أيقونة المشاركة (لوسائل التواصل):</label>
+                        <div class="file-upload-wrapper">
+                            <input type="file" id="app-share-icon" class="hidden" accept="image/*">
+                            <button type="button" class="btn btn-outline"
+                                onclick="document.getElementById('app-share-icon').click()">
+                                <i class="fa-solid fa-image"></i> اختر أيقونة المشاركة
+                            </button>
+                            <div id="share-icon-preview" class="file-preview"></div>
+                            <p class="file-info-text">يفضل أن تكون بحجم 500x500 بكسل وتظهر بشكل جيد عند المشاركة.</p>
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 20px;">
                         <label><i class="fa-solid fa-images"></i> لقطات الشاشة (Screenshots):</label>
                         <div class="file-upload-wrapper">
                             <input type="file" id="app-screenshots" class="hidden" accept="image/*" multiple required>

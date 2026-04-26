@@ -12,10 +12,12 @@ const unauthorizedMsg = document.getElementById('unauthorized-msg');
 
 const formSubmit = document.getElementById('form-submit');
 const iconInput = document.getElementById('app-icon');
+const shareIconInput = document.getElementById('app-share-icon');
 const shotInput = document.getElementById('app-screenshots');
 const apkInput = document.getElementById('app-download');
 
 const iconPreview = document.getElementById('icon-preview');
+const shareIconPreview = document.getElementById('share-icon-preview');
 const shotPreview = document.getElementById('screenshots-preview');
 const apkInfo = document.getElementById('apk-info');
 
@@ -168,6 +170,20 @@ iconInput.addEventListener('change', () => {
     }
 });
 
+shareIconInput.addEventListener('change', () => {
+    shareIconPreview.innerHTML = '';
+    if (shareIconInput.files.length > 0) {
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            const img = document.createElement('img');
+            img.src = e.target.result;
+            img.className = 'preview-thumb';
+            shareIconPreview.appendChild(img);
+        };
+        reader.readAsDataURL(shareIconInput.files[0]);
+    }
+});
+
 shotInput.addEventListener('change', () => {
     shotPreview.innerHTML = '';
     const files = Array.from(shotInput.files);
@@ -239,6 +255,13 @@ formSubmit.addEventListener('submit', async (e) => {
         statusText.textContent = "جاري رفع الأيقونة...";
         const iconUrl = await uploadWithProgress(iconInput.files[0], `${basePath}/icon_${Date.now()}`);
 
+        // 1.5 Upload Sharing Icon (optional)
+        let sharingIconUrl = null;
+        if (shareIconInput.files.length > 0) {
+            statusText.textContent = "جاري رفع أيقونة المشاركة...";
+            sharingIconUrl = await uploadWithProgress(shareIconInput.files[0], `${basePath}/share_icon_${Date.now()}`);
+        }
+
         // 2. Upload Screenshots
         const screenshotUrls = [];
         const shotFiles = Array.from(shotInput.files);
@@ -261,6 +284,7 @@ formSubmit.addEventListener('submit', async (e) => {
             category: document.getElementById('app-category').value,
             size: size,
             iconUrl: iconUrl,
+            sharingIconUrl: sharingIconUrl,
             screenshots: screenshotUrls,
             downloadUrl: downloadUrl,
             features: document.getElementById('app-features').value.split('\n').filter(line => line.trim() !== '').map(line => {
