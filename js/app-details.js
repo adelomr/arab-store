@@ -140,6 +140,7 @@ function renderApp(app) {
     updateMeta('og:title', appTitle, true);
     updateMeta('og:description', descText, true);
     updateMeta('og:image', appImg, true);
+    updateMeta('og:image:secure_url', appImg, true);
     updateMeta('og:url', appUrl, true);
 
     // Twitter Tags
