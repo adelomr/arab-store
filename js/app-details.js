@@ -130,11 +130,23 @@ function renderApp(app) {
     };
 
     const descText = (app.shortDesc || app.fullDesc || `تحميل تطبيق ${app.name} من متجر العرب`).substring(0, 160);
+    const appTitle = `${app.name} | متجر العرب`;
+    const appUrl = window.location.href;
+    const appImg = app.iconUrl || 'https://arab-store.allqaqasyana.com/web-assets/app_icon.png';
+
     updateMeta('description', descText);
-    updateMeta('og:title', `${app.name} | متجر العرب`, true);
+    
+    // OG Tags
+    updateMeta('og:title', appTitle, true);
     updateMeta('og:description', descText, true);
-    updateMeta('og:image', app.iconUrl || 'https://arab-store.allqaqasyana.com/web-assets/app_icon.png', true);
-    updateMeta('og:url', window.location.href, true);
+    updateMeta('og:image', appImg, true);
+    updateMeta('og:url', appUrl, true);
+
+    // Twitter Tags
+    updateMeta('twitter:title', appTitle);
+    updateMeta('twitter:description', descText);
+    updateMeta('twitter:image', appImg);
+    updateMeta('twitter:url', appUrl);
 
     // Icon
     const icon = $('d-icon');
