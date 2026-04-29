@@ -82,7 +82,6 @@ public class MainActivity extends AppCompatActivity {
         initUI();
         loadApps();
         updateUI(mAuth.getCurrentUser());
-        checkForUpdates();
 
         MobileAds.initialize(this, initializationStatus -> {
         });
@@ -103,7 +102,22 @@ public class MainActivity extends AppCompatActivity {
 
         appList = new ArrayList<>();
         adapter = new AppAdapter(appList, this);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        
+        // Responsive Layout: Use Grid on tablets/landscape, List on phones
+        int spanCount = 1;
+        int screenWidthDp = getResources().getConfiguration().screenWidthDp;
+        if (screenWidthDp >= 720) {
+            spanCount = 3; // Large tablets
+        } else if (screenWidthDp >= 600) {
+            spanCount = 2; // Small tablets
+        }
+
+        if (spanCount > 1) {
+            recyclerView.setLayoutManager(new androidx.recyclerview.widget.GridLayoutManager(this, spanCount));
+        } else {
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        }
+        
         recyclerView.setAdapter(adapter);
 
         // Pull-to-refresh setup
@@ -308,54 +322,4 @@ public class MainActivity extends AppCompatActivity {
         dialog.show();
     }
 
-    private void checkForUpdates() {
-        Executors.newSingleThreadExecutor().execute(() -> {
-            try {
-                URL url = new URL("https://arab-store-c33d9.web.app/update.json");
-                HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-                try {
-                    connection.setRequestMethod("GET");
-                    connection.setConnectTimeout(10000);
-                    connection.setReadTimeout(10000);
-                    
-                    try (BufferedReader reader = new BufferedReader(
-                            new InputStreamReader(connection.getInputStream()))) {
-                        StringBuilder response = new StringBuilder();
-                        String line;
-                        while ((line = reader.readLine()) != null) {
-                            response.append(line);
-                        }
-
-                        JSONObject json = new JSONObject(response.toString());
-                        int latestBuild = json.optInt("build_number", 0);
-                        String releaseNotes = json.optString("release_notes", "تحسينات جديدة");
-                        String downloadUrl = json.optString("download_url", "");
-
-                        int currentBuild = BuildConfig.VERSION_CODE;
-
-                        if (latestBuild > currentBuild && !downloadUrl.isEmpty()) {
-                            runOnUiThread(() -> showUpdateDialog(releaseNotes, downloadUrl));
-                        }
-                    }
-                } finally {
-                    connection.disconnect();
-                }
-            } catch (Exception e) {
-                Log.e("MainActivity", "Error checking for updates", e);
-            }
-        });
-    }
-
-    private void showUpdateDialog(String notes, String downloadUrl) {
-        new com.google.android.material.dialog.MaterialAlertDialogBuilder(this)
-                .setTitle("تحديث جديد متوفر")
-                .setMessage("يوجد إصدار جديد من متجر العرب!\n\nما الجديد:\n" + notes)
-                .setCancelable(false)
-                .setPositiveButton("تحديث الآن", (dialog, which) -> {
-                    Intent intent = new Intent(Intent.ACTION_VIEW, android.net.Uri.parse(downloadUrl));
-                    startActivity(intent);
-                })
-                .setNegativeButton("لاحقاً", null)
-                .show();
-    }
 }
