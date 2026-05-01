@@ -26,10 +26,15 @@
 
     <style>
         .ql-toolbar {
-            background: #f8f9fa;
+            background: var(--card-bg) !important;
             border-top-left-radius: 8px;
             border-top-right-radius: 8px;
             direction: ltr;
+            position: sticky;
+            top: 72px; /* Offset for the sticky header */
+            z-index: 100;
+            border-bottom: 1px solid var(--border-color) !important;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
         .ql-container {
             border-bottom-left-radius: 8px;
@@ -42,7 +47,7 @@
             direction: rtl;
             text-align: right;
             background: var(--card-bg);
-            color: var(--text-color);
+            color: var(--text-primary);
         }
         .admin-form {
             background: var(--card-bg);
@@ -595,7 +600,7 @@
                 <a href="contact.html">تواصل معنا</a>
             </div>
             <div class="footer-copy">
-                &copy; 2024 Arab Store. All Rights Reserved.
+                <a href="contact.html" style="color: inherit; text-decoration: none;">Designed and developed by adel gouda nouh</a>
             </div>
         </div>
     </footer>

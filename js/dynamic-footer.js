@@ -11,9 +11,12 @@ async function loadDynamicFooter() {
             const settingsSnap = await getDoc(doc(db, "site_settings", "footer_settings"));
             if (settingsSnap.exists()) {
                 const settings = settingsSnap.data();
-                if (settings.copyright && footerCopyContainer) {
-                    footerCopyContainer.innerHTML = settings.copyright;
+                if (footerCopyContainer) {
+                    // Use the custom text and link as requested by the user
+                    footerCopyContainer.innerHTML = `<a href="contact.html" style="color: inherit; text-decoration: none;">Designed and developed by adel gouda nouh</a>`;
                 }
+            } else if (footerCopyContainer) {
+                 footerCopyContainer.innerHTML = `<a href="contact.html" style="color: inherit; text-decoration: none;">Designed and developed by adel gouda nouh</a>`;
             }
         } catch (settingsErr) {
             console.error("Error loading copyright settings:", settingsErr);

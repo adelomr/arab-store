@@ -913,6 +913,34 @@ quill.getModule('toolbar').addHandler('image', () => {
     quillImageInput.click();
 });
 
+// تحسين ظهور اللون المختار في شريط الأدوات أثناء الكتابة والتعديل
+quill.on('selection-change', function(range) {
+    if (range) {
+        const format = quill.getFormat(range);
+        const colorPicker = document.querySelector('.ql-color .ql-picker-label');
+        if (colorPicker) {
+            const color = format.color || '';
+            const svg = colorPicker.querySelector('svg');
+            if (svg) {
+                 svg.style.borderBottom = color ? `3px solid ${color}` : 'none';
+                 svg.style.paddingBottom = color ? `2px` : '0';
+            }
+        }
+    }
+});
+
+quill.on('text-change', function() {
+    const format = quill.getFormat();
+    const colorPicker = document.querySelector('.ql-color .ql-picker-label');
+    if (colorPicker) {
+        const color = format.color || '';
+        const svg = colorPicker.querySelector('svg');
+        if (svg) {
+             svg.style.borderBottom = color ? `3px solid ${color}` : 'none';
+        }
+    }
+});
+
 quillImageInput.addEventListener('change', async (e) => {
     const file = e.target.files[0];
     if (file) {
