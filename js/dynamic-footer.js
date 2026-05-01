@@ -51,12 +51,14 @@ async function loadDynamicFooter() {
         const q = query(collection(db, "site_pages"), where("show_in_footer", "==", true));
         const querySnapshot = await getDocs(q);
         
+        let contactAdded = false;
         querySnapshot.forEach((doc) => {
             const data = doc.data();
             // Don't display drafts in the footer
             if (data.status === 'draft') return;
             
             const id = doc.id;
+            if (id === 'contact') contactAdded = true;
             const newHref = ['about', 'privacy', 'terms', 'contact'].includes(id) ? `${id}.html` : `page.html?id=${id}`;
             
             const a = document.createElement('a');
@@ -64,6 +66,14 @@ async function loadDynamicFooter() {
             a.textContent = data.title || id;
             footerLinksContainer.appendChild(a);
         });
+
+        // Always ensure Contact Us is in the footer as per user request
+        if (!contactAdded) {
+            const a = document.createElement('a');
+            a.href = 'contact.html';
+            a.textContent = 'تواصل معنا';
+            footerLinksContainer.appendChild(a);
+        }
     } catch (err) {
         console.error("Error loading dynamic footer links:", err);
     }

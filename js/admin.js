@@ -877,6 +877,7 @@ const editPageStatus = document.getElementById('edit-page-status');
 const editPageFooter = document.getElementById('edit-page-footer');
 const editPageDesc = document.getElementById('edit-page-desc');
 const editPageKeywords = document.getElementById('edit-page-keywords');
+const editPageTitleInput = document.getElementById('edit-page-title-input');
 const quillImageInput = document.getElementById('quill-image-input');
 
 // Create page elements
@@ -1021,12 +1022,14 @@ window.editPage = async function(pageId, pageTitle) {
             editPageFooter.checked = !!data.show_in_footer;
             editPageDesc.value = data.meta_desc || '';
             editPageKeywords.value = data.meta_keywords || '';
+            editPageTitleInput.value = data.title || pageTitle;
         } else {
             quill.root.innerHTML = '<p>لا يوجد محتوى مخصص لهذه الصفحة بعد. اكتب محتواك هنا.</p>';
             editPageStatus.value = 'published';
             editPageFooter.checked = false;
             editPageDesc.value = '';
             editPageKeywords.value = '';
+            editPageTitleInput.value = pageTitle;
         }
     } catch (error) {
         console.error("Error loading page content:", error);
@@ -1145,8 +1148,9 @@ btnSavePage.addEventListener('click', async () => {
     btnSavePage.disabled = true;
     
     try {
+        const newTitle = editPageTitleInput.value.trim() || currentEditingTitle;
         await setDoc(doc(db, "site_pages", currentEditingPage), {
-            title: currentEditingTitle, // Keep title for core pages too
+            title: newTitle, // Save the new title
             content: content,
             status: editPageStatus.value,
             show_in_footer: editPageFooter.checked,
@@ -1154,6 +1158,9 @@ btnSavePage.addEventListener('click', async () => {
             meta_keywords: editPageKeywords.value.trim(),
             lastUpdated: serverTimestamp()
         }, { merge: true });
+        
+        // Update local variable for preview/ui
+        currentEditingTitle = newTitle;
         
         alert("تم حفظ التغييرات بنجاح!");
         pageEditorContainer.classList.add('hidden');
