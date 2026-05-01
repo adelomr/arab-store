@@ -14,6 +14,7 @@
             document.documentElement.classList.add('dark-mode');
         }
     </script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         .page-content {
             background: var(--card-bg);
@@ -99,21 +100,68 @@
             <h1>تواصل معنا</h1>
             <p>هل تواجه مشكلة أو لديك استفسار؟ لا تتردد في مراسلتنا!</p>
             
-            <form onsubmit="event.preventDefault(); alert('عذراً، نظام الرسائل قيد التطوير. يمكنك التواصل عبر بريد الدعم المذكور بالأسفل.');">
+            <form id="contact-form">
                 <div class="form-group">
                     <label>الاسم</label>
-                    <input type="text" placeholder="أدخل اسمك الكريم" required>
+                    <input type="text" name="name" id="name" placeholder="أدخل اسمك الكريم" required>
                 </div>
                 <div class="form-group">
                     <label>البريد الإلكتروني</label>
-                    <input type="email" placeholder="أدخل بريدك الإلكتروني" required>
+                    <input type="email" name="email" id="email" placeholder="أدخل بريدك الإلكتروني" required>
+                </div>
+                <div class="form-group">
+                    <label>الموضوع</label>
+                    <input type="text" name="subject" id="subject" placeholder="كيف يمكننا مساعدتك؟" required>
                 </div>
                 <div class="form-group">
                     <label>الرسالة</label>
-                    <textarea rows="5" placeholder="اكتب رسالتك هنا..." required></textarea>
+                    <textarea rows="5" name="message" id="message" placeholder="اكتب رسالتك هنا..." required minlength="10"></textarea>
                 </div>
-                <button type="submit" class="btn-submit"><i class="fa-solid fa-paper-plane"></i> إرسال الرسالة</button>
+                <button type="submit" id="btn-submit" class="btn-submit"><i class="fa-solid fa-paper-plane"></i> إرسال الرسالة</button>
             </form>
+
+            <div id="form-success" style="display: none; background: #d4edda; color: #155724; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; border: 1px solid #c3e6cb;">
+                <strong>تم إرسال الرسالة بنجاح!</strong> شكرًا لتواصلك معنا. سنرد عليك قريبًا.
+            </div>
+            <div id="form-error" style="display: none; background: #f8d7da; color: #721c24; padding: 15px; border-radius: 8px; margin-top: 20px; text-align: center; border: 1px solid #f5c6cb;">
+                <strong>فشل الإرسال:</strong> حدث خطأ أثناء إرسال رسالتك. يرجى المحاولة مرة أخرى أو مراسلتنا عبر البريد أدناه.
+            </div>
+
+            <script>
+                // إعدادات EmailJS
+                const EMAILJS_SERVICE_ID = "service_fp8wrkh";
+                const EMAILJS_TEMPLATE_ID = "template_s1qudba";
+                const EMAILJS_PUBLIC_KEY = "PKqcekN0SliKgKXrd";
+
+                emailjs.init(EMAILJS_PUBLIC_KEY);
+
+                document.getElementById('contact-form').addEventListener('submit', function(event) {
+                    event.preventDefault();
+                    
+                    const btn = document.getElementById('btn-submit');
+                    const formSuccess = document.getElementById('form-success');
+                    const formError = document.getElementById('form-error');
+                    
+                    btn.disabled = true;
+                    btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الإرسال...';
+                    formSuccess.style.display = 'none';
+                    formError.style.display = 'none';
+
+                    // Using sendForm to automatically pull fields from the form element
+                    emailjs.sendForm(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, this)
+                        .then(() => {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> إرسال الرسالة';
+                            formSuccess.style.display = 'block';
+                            this.reset();
+                        }, (error) => {
+                            btn.disabled = false;
+                            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> إرسال الرسالة';
+                            formError.style.display = 'block';
+                            console.error('FAILED...', error);
+                        });
+                });
+            </script>
 
             <div class="contact-info">
                 <h3>أو عبر البريد الإلكتروني المباشر:</h3>

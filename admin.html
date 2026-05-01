@@ -21,8 +21,29 @@
     <link rel="icon" type="image/png" href="web-assets/app_icon.png">
     <!-- Custom CSS -->
     <link rel="stylesheet" href="css/style.css">
+    <!-- Quill Editor CSS -->
+    <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 
     <style>
+        .ql-toolbar {
+            background: #f8f9fa;
+            border-top-left-radius: 8px;
+            border-top-right-radius: 8px;
+            direction: ltr;
+        }
+        .ql-container {
+            border-bottom-left-radius: 8px;
+            border-bottom-right-radius: 8px;
+            font-family: inherit;
+        }
+        .ql-editor {
+            min-height: 300px;
+            font-size: 1.1rem;
+            direction: rtl;
+            text-align: right;
+            background: var(--card-bg);
+            color: var(--text-color);
+        }
         .admin-form {
             background: var(--card-bg);
             border: 1px solid var(--border-color);
@@ -171,6 +192,31 @@
             cursor: pointer;
             text-decoration: none;
         }
+        .settings-box {
+            background: var(--bg-color);
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-bottom: 20px;
+        }
+        .script-item {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+        .script-item-delete {
+            position: absolute;
+            top: 15px;
+            left: 15px; /* RTL layout */
+            color: var(--danger-color);
+            cursor: pointer;
+            background: none;
+            border: none;
+            font-size: 1.2rem;
+        }
     </style>
     <!-- Google AdSense Auto Ads -->
     <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-4808414573627321" crossorigin="anonymous"></script>
@@ -261,6 +307,16 @@
                 <i class="fa-solid fa-users-gear"></i>
                 <h3>إدارة المستخدمين</h3>
                 <p>حظر، تعليق، أو حذف حسابات المستخدمين</p>
+            </div>
+            <div class="dash-card" id="card-pages">
+                <i class="fa-solid fa-file-signature"></i>
+                <h3>إدارة الصفحات</h3>
+                <p>إضافة، تعديل أو حذف صفحات الموقع</p>
+            </div>
+            <div class="dash-card" id="card-footer">
+                <i class="fa-solid fa-shoe-prints"></i>
+                <h3>إدارة الفوتر (أسفل الموقع)</h3>
+                <p>تعديل نصوص الفوتر وأكواد الإعلانات</p>
             </div>
             <div class="dash-card" id="card-delete">
                 <i class="fa-solid fa-trash-can"></i>
@@ -386,6 +442,132 @@
             </div>
         </div>
 
+        <!-- Pages Management Section -->
+        <div id="section-pages" class="admin-form hidden" style="max-width: 900px;">
+            <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 10px;">
+                <h3 style="margin: 0;"><i class="fa-solid fa-file-lines"></i> إدارة صفحات الموقع</h3>
+                <button id="btn-show-create-page" class="btn btn-primary btn-sm"><i class="fa-solid fa-plus"></i> إضافة صفحة جديدة</button>
+            </div>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">اختر الصفحة التي ترغب في تعديل محتواها أو قم بإنشاء صفحة جديدة.</p>
+            
+            <!-- Create Page Form -->
+            <div id="create-page-container" class="hidden" style="background: var(--bg-color); padding: 20px; border-radius: 12px; margin-bottom: 20px; border: 1px solid var(--border-color);">
+                <h4>إنشاء صفحة جديدة</h4>
+                <div class="form-group">
+                    <label>عنوان الصفحة (مثال: اتصل بنا)</label>
+                    <input type="text" id="new-page-title" class="form-control" placeholder="أدخل عنوان الصفحة المخصص للزوار">
+                </div>
+                <div class="form-group hidden" id="page-id-group">
+                    <label>معرف الصفحة (الرابط)</label>
+                    <input type="text" id="new-page-id" class="form-control" placeholder="يتم توليده تلقائياً (يدعم العربية والإنجليزية)" style="direction: ltr; text-align: left;">
+                </div>
+                <div style="display: flex; gap: 10px;">
+                    <button id="btn-confirm-create-page" class="btn btn-primary">إنشاء والبدء بالتعديل</button>
+                    <button id="btn-cancel-create-page" class="btn btn-outline">إلغاء</button>
+                </div>
+            </div>
+
+            <div id="pages-list" class="admin-categories-list">
+                <div style="text-align: center;"><span class="loader"></span></div>
+            </div>
+
+            <!-- Page Editor (Hidden by default) -->
+            <div id="page-editor-container" class="hidden" style="margin-top: 30px; border-top: 1px solid var(--border-color); padding-top: 20px;">
+                <h4 id="editing-page-title" style="margin-bottom: 15px;">تعديل صفحة: <span></span></h4>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+                    <div class="form-group" style="margin: 0;">
+                        <label>حالة النشر</label>
+                        <select id="edit-page-status" class="form-control">
+                            <option value="published">منشور (يظهر للزوار)</option>
+                            <option value="draft">مسودة (مخفي)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="margin: 0; display: flex; align-items: flex-end; padding-bottom: 10px;">
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="edit-page-footer" style="width: 20px; height: 20px;">
+                            إظهار رابط الصفحة في الفوتر (أسفل الموقع)
+                        </label>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>وصف الصفحة لمحركات البحث (SEO Description)</label>
+                    <textarea id="edit-page-desc" class="form-control" rows="2" placeholder="وصف قصير يظهر في نتائج بحث جوجل..."></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label>الكلمات المفتاحية (SEO Keywords)</label>
+                    <input type="text" id="edit-page-keywords" class="form-control" placeholder="مثال: تطبيقات، متجر العرب، مجانا (مفصولة بفاصلة)">
+                </div>
+
+                <div class="form-group">
+                    <label>محتوى الصفحة</label>
+                    <!-- Quill Editor -->
+                    <div id="quill-editor-container"></div>
+                    <!-- Hidden file input for custom image uploads -->
+                    <input type="file" id="quill-image-input" accept="image/*" style="display: none;">
+                </div>
+                <div style="display: flex; gap: 10px; margin-top: 20px;">
+                    <button id="btn-save-page" class="btn btn-primary" style="flex: 1;"><i class="fa-solid fa-floppy-disk"></i> حفظ التغييرات</button>
+                    <button id="btn-preview-page" class="btn btn-outline" style="flex: 1;"><i class="fa-solid fa-eye"></i> معاينة</button>
+                    <button id="btn-cancel-page" class="btn btn-outline" style="flex: 1;">إلغاء</button>
+                </div>
+                <div id="page-save-loader" class="hidden" style="text-align: center; margin-top: 15px;">
+                    <span class="loader" style="width: 24px; height:24px; border-width: 3px;"></span> جاري الحفظ...
+                </div>
+            </div>
+        </div>
+
+        <!-- Customization Management Section -->
+        <div id="section-footer" class="admin-form hidden" style="max-width: 900px;">
+            <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
+            <h3><i class="fa-solid fa-shoe-prints"></i> التنسيق والإضافات</h3>
+            <p style="color: var(--text-secondary); margin-bottom: 1.5rem;">إدارة الروابط السفلية وإضافة أكواد خارجية مثل الإعلانات والتتبع.</p>
+            
+            <!-- Footer Links Box -->
+            <div class="settings-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <label style="margin: 0; font-weight: bold; display: block;"><i class="fa-solid fa-link"></i> روابط الفوتر</label>
+                        <small style="color: var(--text-secondary);">حدد الصفحات للظهور أسفل الموقع.</small>
+                    </div>
+                    <button id="btn-save-footer-links" class="btn btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> حفظ الروابط</button>
+                </div>
+                <div id="footer-pages-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 10px;">
+                    <div style="text-align: center;"><span class="loader" style="width:20px;height:20px;border-width:2px;"></span></div>
+                </div>
+            </div>
+
+            <!-- Copyright Box -->
+            <div class="settings-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                    <label style="margin: 0; font-weight: bold;"><i class="fa-solid fa-copyright"></i> حقوق الملكية</label>
+                    <button id="btn-save-copyright" class="btn btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> حفظ الحقوق</button>
+                </div>
+                <input type="text" id="footer-copyright" class="form-control" placeholder="مثال: © 2024 متجر العرب. جميع الحقوق محفوظة.">
+            </div>
+            
+            <!-- Custom Scripts Box -->
+            <div class="settings-box">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; gap: 10px;">
+                    <div>
+                        <label style="margin: 0; font-weight: bold; display: block;"><i class="fa-solid fa-code"></i> أكواد مخصصة (إعلانات/إضافات)</label>
+                        <small style="color: var(--text-secondary);">أضف أكواد متعددة وحدد مكان عرضها.</small>
+                    </div>
+                    <div>
+                        <button id="btn-add-script" class="btn btn-outline btn-sm"><i class="fa-solid fa-plus"></i> إضافة كود جديد</button>
+                        <button id="btn-save-scripts" class="btn btn-primary btn-sm"><i class="fa-solid fa-floppy-disk"></i> حفظ الأكواد</button>
+                    </div>
+                </div>
+                
+                <div id="scripts-list-container">
+                    <div style="text-align: center;"><span class="loader" style="width:20px;height:20px;border-width:2px;"></span></div>
+                </div>
+            </div>
+        </div>
+
     </main>
 
     <div id="unauthorized-msg" style="text-align: center; margin-top: 4rem; display: none; flex: 1;">
@@ -393,6 +575,8 @@
         <p>هذه الصفحة مخصصة لمدير الموقع فقط.</p>
     </div>
 
+    <!-- Quill JS -->
+    <script src="https://cdn.quilljs.com/1.3.6/quill.min.js"></script>
     <!-- JavaScript as module -->
     <script type="module" src="js/admin.js"></script>
     <script src="js/theme.js"></script>

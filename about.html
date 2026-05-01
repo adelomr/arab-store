@@ -84,7 +84,7 @@
     </header>
 
     <main class="container">
-        <div class="page-content">
+        <div class="page-content" id="dynamic-content">
             <h1>من نحن</h1>
             <img src="web-assets/app_icon.png" alt="شعار متجر العرب" style="width: 120px; height: 120px; border-radius: 30px; margin-bottom: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);">
             <p><strong>متجر العرب</strong> هو مشروع عربي طموح يهدف إلى توفير بيئة آمنة وسهلة لرفع وتحميل تطبيقات الأندرويد. تم تصميم المتجر ليقدم تجربة مستخدم سلسلة للمطورين الراغبين بنشر أعمالهم، وللمستخدمين الباحثين عن برمجيات مفيدة، آمنة ومجانية.</p>
@@ -99,5 +99,22 @@
             </div>
         </div>
     </main>
+
+    <script type="module">
+        import { db } from './js/firebase-config.js';
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        async function loadContent() {
+            try {
+                const docSnap = await getDoc(doc(db, "site_pages", "about"));
+                if (docSnap.exists() && docSnap.data().content) {
+                    document.getElementById('dynamic-content').innerHTML = docSnap.data().content;
+                }
+            } catch (error) {
+                console.error("Error loading dynamic content:", error);
+            }
+        }
+        loadContent();
+    </script>
 </body>
 </html>

@@ -1,7 +1,7 @@
 import { db, storage } from './firebase-config.js';
-import { loginWithGoogle, logoutUser, observeAuthState } from './auth.js';
+import { loginWithGoogle, logout as logoutUser, observeAuthState } from './auth.js';
 import { collection, doc, setDoc, getDoc, getDocs, updateDoc, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
-import { ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import { ref, uploadBytes, getDownloadURL, uploadBytesResumable } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
 
 // DOM Elements
 const authSection = document.getElementById('auth-section');
@@ -21,7 +21,9 @@ const cards = {
     categories: document.getElementById('card-categories'),
     statistics: document.getElementById('card-statistics'),
     users: document.getElementById('card-users'),
-    delete: document.getElementById('card-delete')
+    delete: document.getElementById('card-delete'),
+    pages: document.getElementById('card-pages'),
+    footer: document.getElementById('card-footer')
 };
 
 const sections = {
@@ -30,7 +32,9 @@ const sections = {
     categories: document.getElementById('section-categories'),
     statistics: document.getElementById('section-statistics'),
     users: document.getElementById('section-users'),
-    delete: document.getElementById('section-delete')
+    delete: document.getElementById('section-delete'),
+    pages: document.getElementById('section-pages'),
+    footer: document.getElementById('section-footer')
 };
 
 const backBtns = document.querySelectorAll('.back-btn');
@@ -79,6 +83,7 @@ observeAuthState((user, isAdmin) => {
         if (avatar) avatar.src = user.photoURL;
         if (name) name.textContent = user.displayName;
 
+        console.log("Auth State Changed:", { email: user?.email, isAdmin });
         if (isAdmin) {
             adminContent.style.display = 'block';
             unauthorizedMsg.style.display = 'none';
@@ -90,6 +95,7 @@ observeAuthState((user, isAdmin) => {
             if (adminDashboardBtn) adminDashboardBtn.classList.add('hidden');
         }
     } else {
+        console.log("No user logged in");
         btnLogin.classList.remove('hidden');
         userInfo.classList.add('hidden');
         adminContent.style.display = 'none';
@@ -154,34 +160,267 @@ function showDashboard() {
 
 backBtns.forEach(btn => btn.addEventListener('click', showDashboard));
 
-cards.users.addEventListener('click', () => {
-    showSection('users');
-    loadUsers();
-});
+if (cards.users) {
+    cards.users.addEventListener('click', () => {
+        showSection('users');
+        loadUsers();
+    });
+}
 
-cards.delete.addEventListener('click', () => {
-    showSection('delete');
-    loadAppsDropdown();
-});
+if (cards.delete) {
+    cards.delete.addEventListener('click', () => {
+        showSection('delete');
+        loadAppsDropdown();
+    });
+}
 
-cards.review.addEventListener('click', () => {
-    showSection('review');
-    loadPendingApps();
-});
+if (cards.review) {
+    cards.review.addEventListener('click', () => {
+        showSection('review');
+        loadPendingApps();
+    });
+}
 
-cards.categories.addEventListener('click', () => {
-    showSection('categories');
-    loadCategories();
-});
+if (cards.categories) {
+    cards.categories.addEventListener('click', () => {
+        showSection('categories');
+        loadCategories();
+    });
+}
 
-cards.notifications.addEventListener('click', () => {
-    showSection('notifications');
-});
+if (cards.notifications) {
+    cards.notifications.addEventListener('click', () => {
+        showSection('notifications');
+    });
+}
 
-cards.statistics.addEventListener('click', () => {
-    showSection('statistics');
-    loadStatistics();
-});
+if (cards.statistics) {
+    cards.statistics.addEventListener('click', () => {
+        showSection('statistics');
+        loadStatistics();
+    });
+}
+
+if (cards.pages) {
+    cards.pages.addEventListener('click', () => {
+        showSection('pages');
+        document.getElementById('page-editor-container').classList.add('hidden');
+        document.getElementById('create-page-container').classList.add('hidden');
+        window.loadPagesList(); // Load dynamic list
+    });
+}
+
+// ====== Footer & Customization Management Logic ======
+const footerCopyright = document.getElementById('footer-copyright');
+const scriptsListContainer = document.getElementById('scripts-list-container');
+
+const btnSaveFooterLinks = document.getElementById('btn-save-footer-links');
+const btnSaveCopyright = document.getElementById('btn-save-copyright');
+const btnSaveScripts = document.getElementById('btn-save-scripts');
+const btnAddScript = document.getElementById('btn-add-script');
+
+let currentScripts = [];
+
+if (cards.footer) {
+    cards.footer.addEventListener('click', async () => {
+        showSection('footer');
+        loadFooterPagesList(); // Load pages for checkboxes
+        
+        // Load Copyright
+        try {
+            const docSnap = await getDoc(doc(db, "site_settings", "footer_settings"));
+            if (docSnap.exists()) {
+                footerCopyright.value = docSnap.data().copyright || '';
+            }
+        } catch(err) {
+            console.error("Error loading copyright settings:", err);
+        }
+
+        // Load Custom Scripts
+        try {
+            const scriptsSnap = await getDoc(doc(db, "site_settings", "custom_scripts"));
+            if (scriptsSnap.exists() && Array.isArray(scriptsSnap.data().scripts)) {
+                currentScripts = scriptsSnap.data().scripts;
+            } else {
+                currentScripts = [];
+            }
+            renderScriptsList();
+        } catch(err) {
+            console.error("Error loading custom scripts:", err);
+        }
+    });
+}
+
+async function loadFooterPagesList() {
+    const footerPagesList = document.getElementById('footer-pages-list');
+    if (!footerPagesList) return;
+    
+    footerPagesList.innerHTML = '<div style="text-align: center; grid-column: 1 / -1;"><span class="loader" style="width:20px;height:20px;border-width:2px;"></span></div>';
+    
+    try {
+        const querySnapshot = await getDocs(collection(db, "site_pages"));
+        footerPagesList.innerHTML = '';
+        
+        if (querySnapshot.empty) {
+            footerPagesList.innerHTML = '<p style="color:var(--text-secondary); margin:0; grid-column: 1 / -1;">لا توجد صفحات حالياً.</p>';
+            return;
+        }
+        
+        let dbPages = {};
+        querySnapshot.forEach(docSnap => {
+            dbPages[docSnap.id] = docSnap.data();
+        });
+        
+        for (const [id, data] of Object.entries(dbPages)) {
+            const title = data.title || id;
+            const isChecked = data.show_in_footer ? 'checked' : '';
+            
+            const div = document.createElement('div');
+            div.innerHTML = `
+                <label style="display: flex; align-items: center; gap: 8px; cursor: pointer; padding: 8px; background: var(--card-bg); border-radius: 6px; border: 1px solid var(--border-color);">
+                    <input type="checkbox" class="footer-page-checkbox" data-id="${id}" ${isChecked} style="width: 16px; height: 16px;">
+                    <span style="font-size: 0.95rem;">${title}</span>
+                </label>
+            `;
+            footerPagesList.appendChild(div);
+        }
+    } catch(err) {
+        console.error("Error loading pages for footer:", err);
+        footerPagesList.innerHTML = '<p class="text-danger" style="grid-column: 1 / -1;">خطأ في جلب الصفحات</p>';
+    }
+}
+
+if (btnSaveFooterLinks) {
+    btnSaveFooterLinks.addEventListener('click', async () => {
+        const originalText = btnSaveFooterLinks.innerHTML;
+        btnSaveFooterLinks.disabled = true;
+        btnSaveFooterLinks.innerHTML = '<span class="loader" style="width: 15px; height: 15px; border-width: 2px;"></span> جاري الحفظ...';
+        try {
+            const checkboxes = document.querySelectorAll('.footer-page-checkbox');
+            for (const checkbox of checkboxes) {
+                const pageId = checkbox.dataset.id;
+                const isChecked = checkbox.checked;
+                await setDoc(doc(db, "site_pages", pageId), {
+                    show_in_footer: isChecked
+                }, { merge: true });
+            }
+            alert('تم حفظ الروابط بنجاح!');
+        } catch(err) {
+            console.error(err);
+            alert('حدث خطأ أثناء الحفظ: ' + err.message);
+        } finally {
+            btnSaveFooterLinks.disabled = false;
+            btnSaveFooterLinks.innerHTML = originalText;
+        }
+    });
+}
+
+if (btnSaveCopyright) {
+    btnSaveCopyright.addEventListener('click', async () => {
+        const originalText = btnSaveCopyright.innerHTML;
+        btnSaveCopyright.disabled = true;
+        btnSaveCopyright.innerHTML = '<span class="loader" style="width: 15px; height: 15px; border-width: 2px;"></span> جاري الحفظ...';
+        try {
+            await setDoc(doc(db, "site_settings", "footer_settings"), {
+                copyright: footerCopyright.value,
+                updatedAt: serverTimestamp()
+            }, { merge: true });
+            alert('تم حفظ حقوق الملكية بنجاح!');
+        } catch(err) {
+            console.error(err);
+            alert('حدث خطأ أثناء الحفظ: ' + err.message);
+        } finally {
+            btnSaveCopyright.disabled = false;
+            btnSaveCopyright.innerHTML = originalText;
+        }
+    });
+}
+
+// ---- Custom Scripts Logic ----
+function renderScriptsList() {
+    scriptsListContainer.innerHTML = '';
+    if (currentScripts.length === 0) {
+        scriptsListContainer.innerHTML = '<p style="color:var(--text-secondary); text-align:center;">لا توجد أكواد مضافة حالياً. اضغط على "إضافة كود جديد".</p>';
+        return;
+    }
+
+    currentScripts.forEach((scriptObj, index) => {
+        const div = document.createElement('div');
+        div.className = 'script-item';
+        div.innerHTML = `
+            <button class="script-item-delete" onclick="window.removeScript(${index})" title="حذف الكود"><i class="fa-solid fa-xmark"></i></button>
+            <div class="form-group">
+                <label>اسم الكود (للتمييز فقط)</label>
+                <input type="text" class="form-control script-name" value="${scriptObj.name || ''}" placeholder="مثال: Google Analytics">
+            </div>
+            <div class="form-group">
+                <label>مكان عرض الكود</label>
+                <select class="form-control script-placement">
+                    <option value="head" ${scriptObj.placement === 'head' ? 'selected' : ''}>بين وسوم &lt;head&gt; (للتحليلات)</option>
+                    <option value="body_start" ${scriptObj.placement === 'body_start' ? 'selected' : ''}>أول الـ &lt;body&gt; (GTM وغيرها)</option>
+                    <option value="body_end" ${scriptObj.placement === 'body_end' ? 'selected' : ''}>آخر الـ &lt;body&gt; (للإعلانات والودجات)</option>
+                </select>
+            </div>
+            <div class="form-group" style="margin:0;">
+                <label>الكود (HTML / JS)</label>
+                <textarea class="form-control script-code" rows="4" placeholder="الصق الكود هنا..." style="direction: ltr; text-align: left; font-family: monospace;">${scriptObj.code || ''}</textarea>
+            </div>
+        `;
+        scriptsListContainer.appendChild(div);
+    });
+}
+
+if (btnAddScript) {
+    btnAddScript.addEventListener('click', () => {
+        currentScripts.push({
+            name: '',
+            placement: 'body_end',
+            code: ''
+        });
+        renderScriptsList();
+    });
+}
+
+window.removeScript = function(index) {
+    if(confirm("هل أنت متأكد من حذف هذا الكود؟")) {
+        currentScripts.splice(index, 1);
+        renderScriptsList();
+    }
+};
+
+if (btnSaveScripts) {
+    btnSaveScripts.addEventListener('click', async () => {
+        const originalText = btnSaveScripts.innerHTML;
+        btnSaveScripts.disabled = true;
+        btnSaveScripts.innerHTML = '<span class="loader" style="width: 15px; height: 15px; border-width: 2px;"></span> جاري الحفظ...';
+        
+        // Gather data from DOM
+        const scriptItems = scriptsListContainer.querySelectorAll('.script-item');
+        const newScripts = [];
+        scriptItems.forEach(item => {
+            newScripts.push({
+                name: item.querySelector('.script-name').value.trim(),
+                placement: item.querySelector('.script-placement').value,
+                code: item.querySelector('.script-code').value.trim()
+            });
+        });
+        currentScripts = newScripts;
+
+        try {
+            await setDoc(doc(db, "site_settings", "custom_scripts"), {
+                scripts: currentScripts,
+                updatedAt: serverTimestamp()
+            });
+            alert('تم حفظ جميع الأكواد بنجاح!');
+        } catch(err) {
+            console.error(err);
+            alert('حدث خطأ أثناء الحفظ: ' + err.message);
+        } finally {
+            btnSaveScripts.disabled = false;
+            btnSaveScripts.innerHTML = originalText;
+        }
+    });
+}
 
 // Load Pending Apps for Review
 async function loadPendingApps() {
@@ -619,6 +858,319 @@ document.getElementById('form-notification').addEventListener('submit', async (e
     } catch (error) {
         console.error("Error sending notification:", error);
         alert("حدث خطأ أثناء الإرسال: " + error.message);
+    }
+});
+
+// =============================================
+// PAGES MANAGEMENT LOGIC
+// =============================================
+
+const pageEditorContainer = document.getElementById('page-editor-container');
+const editingPageTitle = document.getElementById('editing-page-title').querySelector('span');
+const btnSavePage = document.getElementById('btn-save-page');
+const btnPreviewPage = document.getElementById('btn-preview-page');
+const btnCancelPage = document.getElementById('btn-cancel-page');
+const pageSaveLoader = document.getElementById('page-save-loader');
+
+// Advanced Fields
+const editPageStatus = document.getElementById('edit-page-status');
+const editPageFooter = document.getElementById('edit-page-footer');
+const editPageDesc = document.getElementById('edit-page-desc');
+const editPageKeywords = document.getElementById('edit-page-keywords');
+const quillImageInput = document.getElementById('quill-image-input');
+
+// Create page elements
+const createPageContainer = document.getElementById('create-page-container');
+const btnShowCreatePage = document.getElementById('btn-show-create-page');
+const btnConfirmCreatePage = document.getElementById('btn-confirm-create-page');
+const btnCancelCreatePage = document.getElementById('btn-cancel-create-page');
+const newPageTitleInput = document.getElementById('new-page-title');
+const newPageIdInput = document.getElementById('new-page-id');
+const pagesListContainer = document.getElementById('pages-list');
+
+let currentEditingPage = '';
+let currentEditingTitle = '';
+
+// Initialize Quill
+const quill = new Quill('#quill-editor-container', {
+    theme: 'snow',
+    modules: {
+        toolbar: [
+            [{ 'header': [1, 2, 3, false] }],
+            [{ 'direction': 'rtl' }, { 'align': [] }],
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+            ['link', 'image', 'video'],
+            ['clean']
+        ]
+    }
+});
+
+// Custom Image Handler for Quill
+quill.getModule('toolbar').addHandler('image', () => {
+    quillImageInput.click();
+});
+
+quillImageInput.addEventListener('change', async (e) => {
+    const file = e.target.files[0];
+    if (file) {
+        const range = quill.getSelection(true);
+        quill.insertText(range.index, 'جاري رفع الصورة...', { 'color': '#007bff' });
+        
+        try {
+            const path = `site_pages_images/${Date.now()}_${file.name}`;
+            const storageRef = ref(storage, path);
+            const uploadTask = await uploadBytesResumable(storageRef, file);
+            const downloadURL = await getDownloadURL(uploadTask.ref);
+            
+            quill.deleteText(range.index, 19); // Remove "uploading..." text
+            quill.insertEmbed(range.index, 'image', downloadURL);
+        } catch(err) {
+            console.error('Image upload failed', err);
+            quill.deleteText(range.index, 19);
+            alert('فشل رفع الصورة: ' + err.message);
+        }
+        quillImageInput.value = '';
+    }
+});
+
+// Load pages list dynamically
+window.loadPagesList = async function() {
+    pagesListContainer.innerHTML = '<div style="text-align: center;"><span class="loader"></span></div>';
+    
+    const corePagesKeys = ['about', 'privacy', 'terms', 'contact'];
+    
+    try {
+        const querySnapshot = await getDocs(collection(db, "site_pages"));
+        
+        pagesListContainer.innerHTML = '';
+        
+        if (querySnapshot.empty) {
+            pagesListContainer.innerHTML = '<p class="text-center" style="color:var(--text-secondary);">لا توجد صفحات حالياً.</p>';
+            return;
+        }
+
+        querySnapshot.forEach(docSnap => {
+            const id = docSnap.id;
+            const data = docSnap.data();
+            const isCore = corePagesKeys.includes(id);
+            renderPageListItem(id, data, isCore);
+        });
+    } catch (error) {
+        console.error("Error loading pages list:", error);
+        pagesListContainer.innerHTML = '<p class="text-danger text-center">حدث خطأ أثناء جلب الصفحات.</p>';
+    }
+};
+
+function renderPageListItem(id, data, isCore) {
+    const title = data.title || id;
+    const views = data.views || 0;
+    const isDraft = data.status === 'draft';
+    
+    const div = document.createElement('div');
+    div.className = 'category-list-item';
+    div.style.padding = '15px';
+    div.style.marginBottom = '10px';
+    div.style.display = 'flex';
+    div.style.justifyContent = 'space-between';
+    div.style.alignItems = 'center';
+    div.style.background = 'var(--card-bg)';
+    div.style.borderRadius = '12px';
+    div.style.boxShadow = '0 2px 8px rgba(0,0,0,0.05)';
+    
+    const isCoreTag = isCore ? '<span style="color:var(--primary-color); font-size: 0.8rem; margin-right:10px;">(صفحة أساسية)</span>' : '<span style="color:var(--text-secondary); font-size: 0.8rem; margin-right:10px;">(صفحة مخصصة)</span>';
+    const draftTag = isDraft ? '<span style="background:var(--danger-color); color:#fff; padding:2px 6px; border-radius:4px; font-size:0.7rem; margin-right:5px;">مسودة</span>' : '';
+    const viewsTag = `<span style="color:var(--text-secondary); font-size:0.8rem; margin-right:15px;"><i class="fa-solid fa-eye"></i> ${views}</span>`;
+    
+    const viewUrl = isCore ? `${id}.html` : `page.html?id=${id}`;
+    
+    let actions = `
+        <div style="display:flex; gap: 8px;">
+            <a href="${viewUrl}" target="_blank" class="btn btn-outline btn-sm" title="عرض الصفحة"><i class="fa-solid fa-external-link-alt"></i></a>
+            <button class="btn btn-primary btn-sm" onclick="window.editPage('${id}', '${title}')" title="تعديل">تعديل <i class="fa-solid fa-pen"></i></button>
+            <button class="btn btn-danger btn-sm" onclick="window.deletePage('${id}', ${isCore})" title="حذف"><i class="fa-solid fa-trash"></i></button>
+        </div>
+    `;
+    
+    div.innerHTML = `<div style="font-weight: bold; display: flex; align-items: center;">${title} ${isCoreTag} ${draftTag} ${viewsTag}</div> ${actions}`;
+    pagesListContainer.appendChild(div);
+}
+
+// Edit Page Action
+window.editPage = async function(pageId, pageTitle) {
+    currentEditingPage = pageId;
+    currentEditingTitle = pageTitle;
+    
+    editingPageTitle.textContent = pageTitle;
+    pageEditorContainer.classList.remove('hidden');
+    createPageContainer.classList.add('hidden');
+    
+    // Smooth scroll to editor
+    pageEditorContainer.scrollIntoView({ behavior: 'smooth' });
+    
+    quill.root.innerHTML = '<p>جاري التحميل...</p>';
+    quill.disable();
+    
+    try {
+        const docSnap = await getDoc(doc(db, "site_pages", pageId));
+        if (docSnap.exists() && docSnap.data().content) {
+            const data = docSnap.data();
+            quill.root.innerHTML = data.content;
+            editPageStatus.value = data.status || 'published';
+            editPageFooter.checked = !!data.show_in_footer;
+            editPageDesc.value = data.meta_desc || '';
+            editPageKeywords.value = data.meta_keywords || '';
+        } else {
+            quill.root.innerHTML = '<p>لا يوجد محتوى مخصص لهذه الصفحة بعد. اكتب محتواك هنا.</p>';
+            editPageStatus.value = 'published';
+            editPageFooter.checked = false;
+            editPageDesc.value = '';
+            editPageKeywords.value = '';
+        }
+    } catch (error) {
+        console.error("Error loading page content:", error);
+        alert("حدث خطأ أثناء تحميل محتوى الصفحة.");
+    } finally {
+        quill.enable();
+    }
+};
+
+// Delete Page Action
+window.deletePage = async function(pageId, isCore) {
+    const confirmMsg = isCore 
+        ? `تحذير: "${pageId}" هي صفحة أساسية في الموقع. حذفها قد يؤدي لكسر بعض الروابط ما لم تقم بإنشائها مجدداً. هل أنت متأكد من الحذف؟`
+        : `هل أنت متأكد من حذف الصفحة "${pageId}" نهائياً؟`;
+        
+    if (!confirm(confirmMsg)) return;
+    
+    try {
+        await deleteDoc(doc(db, "site_pages", pageId));
+        alert("تم الحذف بنجاح!");
+        if (currentEditingPage === pageId) {
+            pageEditorContainer.classList.add('hidden');
+        }
+        window.loadPagesList();
+    } catch (err) {
+        console.error("Error deleting page:", err);
+        alert("خطأ أثناء الحذف: " + err.message);
+    }
+};
+
+// Create New Page UI
+btnShowCreatePage.addEventListener('click', () => {
+    createPageContainer.classList.remove('hidden');
+    pageEditorContainer.classList.add('hidden');
+    newPageTitleInput.value = '';
+    newPageIdInput.value = '';
+    newPageIdInput.dataset.manuallyEdited = "false";
+    createPageContainer.scrollIntoView({ behavior: 'smooth' });
+});
+
+// Auto-generate Slug (ID) from Title
+newPageTitleInput.addEventListener('input', () => {
+    if (newPageIdInput.dataset.manuallyEdited !== "true") {
+        let slug = newPageTitleInput.value.trim()
+            .toLowerCase()
+            .replace(/\s+/g, '-') // Replace spaces with dashes
+            .replace(/[^\w\u0621-\u064A0-9-]/g, ''); // Allow English, Arabic, Numbers, and Dashes
+        newPageIdInput.value = slug;
+    }
+});
+
+newPageIdInput.addEventListener('input', () => {
+    newPageIdInput.dataset.manuallyEdited = "true";
+});
+
+btnCancelCreatePage.addEventListener('click', () => {
+    createPageContainer.classList.add('hidden');
+});
+
+btnConfirmCreatePage.addEventListener('click', async () => {
+    const title = newPageTitleInput.value.trim();
+    // Allow Arabic, English, Numbers, and dashes
+    const id = newPageIdInput.value.trim().toLowerCase().replace(/[^\w\u0621-\u064A0-9-]/g, ''); 
+    
+    if (!title || !id) {
+        alert("يرجى إدخال عنوان الصفحة.");
+        return;
+    }
+    
+    try {
+        // Automatically handle duplicate IDs since the input is hidden
+        let finalId = id;
+        let counter = 1;
+        while (true) {
+            const docSnap = await getDoc(doc(db, "site_pages", finalId));
+            if (docSnap.exists()) {
+                finalId = `${id}-${counter}`;
+                counter++;
+            } else {
+                break;
+            }
+        }
+        
+        // Save empty page to register it
+        await setDoc(doc(db, "site_pages", finalId), {
+            title: title,
+            content: '<p>اكتب محتوى صفحتك الجديدة هنا...</p>',
+            status: 'draft',
+            show_in_footer: false,
+            views: 0,
+            createdAt: serverTimestamp()
+        });
+        
+        alert("تم إنشاء الصفحة! جاري فتح المحرر...");
+        createPageContainer.classList.add('hidden');
+        window.loadPagesList();
+        window.editPage(finalId, title);
+    } catch (err) {
+        console.error("Error creating page:", err);
+        alert("خطأ أثناء إنشاء الصفحة: " + err.message);
+    }
+});
+
+btnPreviewPage.addEventListener('click', () => {
+    // Save to sessionStorage and open in new tab
+    sessionStorage.setItem('page_preview_content', quill.root.innerHTML);
+    sessionStorage.setItem('page_preview_title', currentEditingTitle);
+    window.open('page.html?preview=true', '_blank');
+});
+
+btnSavePage.addEventListener('click', async () => {
+    if (!currentEditingPage) return;
+    
+    const content = quill.root.innerHTML;
+    pageSaveLoader.classList.remove('hidden');
+    btnSavePage.disabled = true;
+    
+    try {
+        await setDoc(doc(db, "site_pages", currentEditingPage), {
+            title: currentEditingTitle, // Keep title for core pages too
+            content: content,
+            status: editPageStatus.value,
+            show_in_footer: editPageFooter.checked,
+            meta_desc: editPageDesc.value.trim(),
+            meta_keywords: editPageKeywords.value.trim(),
+            lastUpdated: serverTimestamp()
+        }, { merge: true });
+        
+        alert("تم حفظ التغييرات بنجاح!");
+        pageEditorContainer.classList.add('hidden');
+        window.loadPagesList();
+    } catch (error) {
+        console.error("Error saving page content:", error);
+        alert("حدث خطأ أثناء الحفظ: " + error.message);
+    } finally {
+        pageSaveLoader.classList.add('hidden');
+        btnSavePage.disabled = false;
+    }
+});
+
+btnCancelPage.addEventListener('click', () => {
+    if (confirm("هل أنت متأكد من إلغاء التغييرات؟")) {
+        pageEditorContainer.classList.add('hidden');
+        currentEditingPage = '';
     }
 });
 

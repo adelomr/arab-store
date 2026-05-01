@@ -36,7 +36,7 @@ export function observeAuthState(callback) {
     onAuthStateChanged(auth, async (user) => {
         let isAdmin = false;
         if (user) {
-            if (user.email === ADMIN_EMAIL) {
+            if (user.email && user.email.trim().toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
                 isAdmin = true;
             }
 

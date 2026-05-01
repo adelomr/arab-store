@@ -1,7 +1,7 @@
 {
-  "version": "1.2.7",
-  "build_number": 10,
-  "release_notes": "تحديثات أمان هامة وإصلاح لبعض الأخطاء.",
-  "download_url": "https://firebasestorage.googleapis.com/v0/b/arab-store-c33d9.firebasestorage.app/o/apps%2Fcom.arb.soq%2Freleases%2FArbSoq.apk?alt=media",
+  "version": "1.2.8",
+  "build_number": 11,
+  "release_notes": "تحديث أمني هام! يرجى التحديث الآن من متجر العرب للحصول على آخر الإصدارات وسد الثغرات.",
+  "download_url": "https://arab-store-c33d9.web.app/item/com.arb.soq",
   "force_update": true
 }

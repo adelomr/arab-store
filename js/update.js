@@ -2,6 +2,7 @@ import { db, storage } from './firebase-config.js';
 import { loginWithGoogle, logout, observeAuthState } from './auth.js';
 import { collection, doc, getDoc, updateDoc, serverTimestamp, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
+import JSZip from "https://cdn.jsdelivr.net/npm/jszip@3.10.1/+esm";
 
 // DOM Elements
 const btnLogin = document.getElementById('btn-login');
@@ -206,8 +207,21 @@ async function loadExistingAppForUpdate(id, col) {
             document.getElementById('app-package').value = existingAppData.packageName || "";
             document.getElementById('app-short').value = existingAppData.shortDesc || "";
             document.getElementById('app-full').value = existingAppData.fullDesc || "";
-            document.getElementById('app-version').value = existingAppData.version || "";
-            document.getElementById('app-versioncode').value = existingAppData.versionCode || "";
+            // تعبئة الحقول المخفية
+            const hiddenVersion = document.getElementById('app-version');
+            const hiddenCode = document.getElementById('app-versioncode');
+            if (hiddenVersion) hiddenVersion.value = existingAppData.version || "";
+            if (hiddenCode) hiddenCode.value = existingAppData.versionCode || "";
+
+            // تعبئة بطاقات العرض بالبيانات الحالية
+            const displayVersion = document.getElementById('display-version');
+            const displayCode = document.getElementById('display-versioncode');
+            const cardVersion = document.getElementById('card-version');
+            const cardCode = document.getElementById('card-versioncode');
+            if (displayVersion) displayVersion.textContent = existingAppData.version ? `v${existingAppData.version}` : '--';
+            if (displayCode) displayCode.textContent = existingAppData.versionCode || '--';
+            if (existingAppData.version && cardVersion) cardVersion.classList.add('detected');
+            if (existingAppData.versionCode && cardCode) cardCode.classList.add('detected');
             document.getElementById('app-changelog').value = existingAppData.changelog || "";
 
             // Features
@@ -286,14 +300,176 @@ shotInput.addEventListener('change', () => {
     });
 });
 
-apkInput.addEventListener('change', () => {
+apkInput.addEventListener('change', async () => {
     if (apkInput.files.length > 0) {
         const file = apkInput.files[0];
         const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
-        apkInfo.textContent = `تم اختيار: ${file.name} (${sizeInMB} ميغابايت)`;
+        apkInfo.textContent = `⏳ جاري تحليل ملف APK...`;
         apkInfo.setAttribute('data-size', sizeInMB + ' ميغابايت');
+
+        // إعادة البطاقات لحالة الانتظار
+        const cardVersion = document.getElementById('card-version');
+        const cardCode = document.getElementById('card-versioncode');
+        const displayVersion = document.getElementById('display-version');
+        const displayCode = document.getElementById('display-versioncode');
+        if (cardVersion) cardVersion.classList.remove('detected');
+        if (cardCode) cardCode.classList.remove('detected');
+        if (displayVersion) displayVersion.textContent = '⏳';
+        if (displayCode) displayCode.textContent = '⏳';
+
+        try {
+            const apkInfo_result = await extractApkVersionInfo(file);
+            if (apkInfo_result) {
+                const { versionCode, versionName } = apkInfo_result;
+
+                // ملء الحقول المخفية (للإرسال)
+                const hiddenVersion = document.getElementById('app-version');
+                const hiddenCode = document.getElementById('app-versioncode');
+                if (hiddenVersion) hiddenVersion.value = versionName;
+                if (hiddenCode) hiddenCode.value = versionCode;
+
+                // تحديث بطاقات العرض
+                if (displayVersion) displayVersion.textContent = `v${versionName}`;
+                if (displayCode) displayCode.textContent = versionCode;
+                if (cardVersion) cardVersion.classList.add('detected');
+                if (cardCode) cardCode.classList.add('detected');
+
+                apkInfo.innerHTML = `✅ <strong>${file.name}</strong> (${sizeInMB} ميغابايت) — تم اكتشاف الإصدار الجديد تلقائياً`;
+            } else {
+                if (displayVersion) displayVersion.textContent = '--';
+                if (displayCode) displayCode.textContent = '--';
+                apkInfo.textContent = `تم اختيار: ${file.name} (${sizeInMB} ميغابايت) - لم يتم اكتشاف الإصدار`;
+            }
+        } catch (err) {
+            console.warn('APK version extraction failed:', err);
+            apkInfo.textContent = `تم اختيار: ${file.name} (${sizeInMB} ميغابايت)`;
+        }
     }
 });
+
+/**
+ * استخراج versionCode و versionName من ملف APK
+ * APK هو ملف ZIP يحتوي على AndroidManifest.xml بصيغة ثنائية (Binary XML)
+ */
+async function extractApkVersionInfo(apkFile) {
+    try {
+        const zip = await JSZip.loadAsync(apkFile);
+        const manifestFile = zip.file('AndroidManifest.xml');
+        if (!manifestFile) return null;
+
+        const manifestBuffer = await manifestFile.async('arraybuffer');
+        return parseBinaryAndroidManifest(manifestBuffer);
+    } catch (e) {
+        console.warn('Error reading APK ZIP:', e);
+        return null;
+    }
+}
+
+/**
+ * تحليل ملف AndroidManifest.xml الثنائي (Binary XML) لاستخراج versionCode و versionName
+ */
+function parseBinaryAndroidManifest(buffer) {
+    try {
+        const bytes = new Uint8Array(buffer);
+        const view = new DataView(buffer);
+
+        // التحقق من التوقيع الصحيح لـ Binary XML (0x00080003)
+        if (view.getUint16(0, true) !== 0x0003 || view.getUint16(2, true) !== 0x0008) {
+            console.warn('Not a valid Binary XML file');
+            return null;
+        }
+
+        // استخراج جدول السلاسل النصية (String Pool)
+        const stringPoolOffset = 8;
+        const stringPoolSize = view.getUint32(stringPoolOffset + 4, true);
+        const stringCount = view.getUint32(stringPoolOffset + 8, true);
+        const stringsStart = view.getUint32(stringPoolOffset + 20, true);
+        const isUtf8 = (view.getUint32(stringPoolOffset + 16, true) & (1 << 8)) !== 0;
+
+        const stringsAbsoluteStart = stringPoolOffset + stringsStart;
+
+        function getString(index) {
+            if (index < 0 || index >= stringCount) return null;
+            try {
+                const offsBase = stringPoolOffset + 28;
+                const strOffset = view.getUint32(offsBase + index * 4, true);
+                const absPos = stringsAbsoluteStart + strOffset;
+
+                if (isUtf8) {
+                    let len = bytes[absPos + 1];
+                    let str = '';
+                    for (let i = 0; i < len; i++) {
+                        str += String.fromCharCode(bytes[absPos + 2 + i]);
+                    }
+                    return str;
+                } else {
+                    const charCount = view.getUint16(absPos, true);
+                    let str = '';
+                    for (let i = 0; i < charCount; i++) {
+                        str += String.fromCharCode(view.getUint16(absPos + 2 + i * 2, true));
+                    }
+                    return str;
+                }
+            } catch (e) {
+                return null;
+            }
+        }
+
+        // البحث عن كتلة XML_START_ELEMENT (0x00100102) وإيجاد العلامة <manifest>
+        let pos = stringPoolOffset + stringPoolSize;
+        let versionCode = null;
+        let versionName = null;
+
+        while (pos < bytes.length - 4) {
+            const chunkType = view.getUint16(pos, true);
+            const chunkSize = view.getUint32(pos + 4, true);
+
+            if (chunkType === 0x0102) { // XML_START_ELEMENT
+                const attrStart = view.getUint16(pos + 20, true);
+                const attrSize = view.getUint16(pos + 22, true);
+                const attrCount = view.getUint16(pos + 24, true);
+
+                const nameIdx = view.getInt32(pos + 16, true);
+                const elementName = getString(nameIdx);
+
+                if (elementName === 'manifest') {
+                    const attrsBase = pos + 8 + attrStart;
+                    for (let i = 0; i < attrCount; i++) {
+                        const attrPos = attrsBase + i * attrSize;
+                        if (attrPos + 20 > bytes.length) break;
+
+                        const attrNameIdx = view.getInt32(attrPos + 4, true);
+                        const attrName = getString(attrNameIdx);
+                        const attrValueIdx = view.getInt32(attrPos + 8, true);
+                        const attrDataType = bytes[attrPos + 15];
+                        const attrValue = view.getInt32(attrPos + 16, true);
+
+                        if (attrName === 'versionCode' && attrDataType === 0x10) {
+                            versionCode = attrValue;
+                        } else if (attrName === 'versionName') {
+                            versionName = attrDataType === 0x03
+                                ? getString(attrValue)
+                                : getString(attrValueIdx);
+                        }
+                    }
+
+                    if (versionCode !== null) break;
+                }
+            }
+
+            if (chunkSize <= 0 || chunkSize > bytes.length) break;
+            pos += chunkSize;
+        }
+
+        if (versionCode !== null) {
+            return { versionCode, versionName: versionName || String(versionCode) };
+        }
+        return null;
+    } catch (e) {
+        console.warn('Error parsing Binary XML manifest:', e);
+        return null;
+    }
+}
 
 function uploadWithProgress(file, path) {
     return new Promise((resolve, reject) => {

@@ -61,10 +61,10 @@
     </header>
 
     <main class="container">
-        <div class="page-content">
+        <div class="page-content" id="dynamic-content">
             <h1>سياسة الخصوصية</h1>
             <p>في <strong>متجر العرب</strong>، نعتبر خصوصية زوارنا ومستخدمينا من أهم أولوياتنا. توضح وثيقة سياسة الخصوصية هذه أنواع المعلومات الشخصية التي نجمعها وكيفية استخدامها.</p>
-
+<!-- ... -->
             <h3>1. المعلومات التي نجمعها</h3>
             <ul>
                 <li><strong>بيانات الحساب:</strong> عند التسجيل أو تسجيل الدخول باستخدام Google، نقوم بجمع اسمك، وعنوان بريدك الإلكتروني، وصورة ملفك الشخصي.</li>
@@ -91,5 +91,22 @@
             <p>باستخدامك لموقعنا، فإنك توافق على سياسة الخصوصية الخاصة بنا وتوافق على شروطها.</p>
         </div>
     </main>
+
+    <script type="module">
+        import { db } from './js/firebase-config.js';
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        async function loadContent() {
+            try {
+                const docSnap = await getDoc(doc(db, "site_pages", "privacy"));
+                if (docSnap.exists() && docSnap.data().content) {
+                    document.getElementById('dynamic-content').innerHTML = docSnap.data().content;
+                }
+            } catch (error) {
+                console.error("Error loading dynamic content:", error);
+            }
+        }
+        loadContent();
+    </script>
 </body>
 </html>

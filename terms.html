@@ -61,7 +61,7 @@
     </header>
 
     <main class="container">
-        <div class="page-content">
+        <div class="page-content" id="dynamic-content">
             <h1>شروط الاستخدام</h1>
             <p>مرحباً بك في <strong>متجر العرب</strong>. باستخدامك لموقعنا، فإنك توافق على الامتثال والالتزام بشروط وأحكام الاستخدام التالية.</p>
 
@@ -87,5 +87,22 @@
             <p>نحتفظ بالحق في تعديل شروط الاستخدام هذه في أي وقت. تعتبر الشروط المعدلة سارية المفعول فور نشرها على هذه الصفحة.</p>
         </div>
     </main>
+
+    <script type="module">
+        import { db } from './js/firebase-config.js';
+        import { doc, getDoc } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+        async function loadContent() {
+            try {
+                const docSnap = await getDoc(doc(db, "site_pages", "terms"));
+                if (docSnap.exists() && docSnap.data().content) {
+                    document.getElementById('dynamic-content').innerHTML = docSnap.data().content;
+                }
+            } catch (error) {
+                console.error("Error loading dynamic content:", error);
+            }
+        }
+        loadContent();
+    </script>
 </body>
 </html>
