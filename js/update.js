@@ -208,13 +208,14 @@ async function loadExistingAppForUpdate(id, col) {
             document.getElementById('app-short').value = existingAppData.shortDesc || "";
             document.getElementById('app-full').value = existingAppData.fullDesc || "";
             
-            const inputVersion = document.getElementById('app-version');
-            const inputCode = document.getElementById('app-versioncode');
-            if (inputVersion) inputVersion.value = existingAppData.version || "";
-            if (inputCode) inputCode.value = existingAppData.versionCode || "";
-
+            const displayVersion = document.getElementById('display-version');
+            const displayCode = document.getElementById('display-versioncode');
             const cardVersion = document.getElementById('card-version');
-            const cardCode = document.getElementById('card-versioncode');
+            const cardCode = document.getElementById('card-code'); // Note: previously it was card-versioncode, but let's check HTML
+            
+            if (displayVersion) displayVersion.textContent = existingAppData.version ? `v${existingAppData.version}` : '--';
+            if (displayCode) displayCode.textContent = existingAppData.versionCode || '--';
+
             if (existingAppData.version && cardVersion) {
                 cardVersion.classList.add('detected');
             }
@@ -323,15 +324,20 @@ apkInput.addEventListener('change', async () => {
 
                 const inputVersion = document.getElementById('app-version');
                 const inputCode = document.getElementById('app-versioncode');
+                const displayVersion = document.getElementById('display-version');
+                const displayCode = document.getElementById('display-versioncode');
+
                 if (inputVersion) inputVersion.value = versionName;
                 if (inputCode) inputCode.value = versionCode;
+                if (displayVersion) displayVersion.textContent = `v${versionName}`;
+                if (displayCode) displayCode.textContent = versionCode;
 
                 if (cardVersion) cardVersion.classList.add('detected');
                 if (cardCode) cardCode.classList.add('detected');
 
                 apkInfo.innerHTML = `✅ <strong>${file.name}</strong> (${sizeInMB} ميغابايت) — تم اكتشاف الإصدار الجديد تلقائياً`;
             } else {
-                apkInfo.textContent = `تم اختيار: ${file.name} (${sizeInMB} ميغابايت) - لم يتم اكتشاف الإصدار`;
+                apkInfo.textContent = `❌ فشل استخراج بيانات الإصدار من ملف APK. تأكد من أن الملف سليم.`;
             }
         } catch (err) {
             console.warn('APK version extraction failed:', err);
@@ -490,6 +496,17 @@ formSubmit.addEventListener('submit', async (e) => {
     btnSubmit.style.opacity = '0.7';
     btnSubmit.style.cursor = 'not-allowed';
     btnSubmit.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري حفظ التعديلات...';
+
+    const verCodeVal = parseInt(document.getElementById('app-versioncode').value);
+    if (apkInput.files.length > 0 && (!verCodeVal || isNaN(verCodeVal))) {
+        alert("عذراً، لم نتمكن من قراءة رقم الإصدار من ملف APK. لا يمكن إرسال التحديث بدون هذه المعلومة.");
+        loader.classList.add('hidden');
+        btnSubmit.disabled = false;
+        btnSubmit.style.opacity = '1';
+        btnSubmit.style.cursor = 'pointer';
+        btnSubmit.innerHTML = '<i class="fa-solid fa-check-circle"></i> حفظ التحديثات وإرسالها';
+        return;
+    }
 
     try {
         const pkgName = existingAppData.packageName;
