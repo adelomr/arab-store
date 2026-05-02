@@ -369,105 +369,83 @@ async function extractApkVersionInfo(apkFile) {
  */
 function parseBinaryAndroidManifest(buffer) {
     try {
-        const bytes = new Uint8Array(buffer);
         const view = new DataView(buffer);
+        const bytes = new Uint8Array(buffer);
 
-        // التحقق من التوقيع الصحيح لـ Binary XML (0x00080003)
-        if (view.getUint16(0, true) !== 0x0003 || view.getUint16(2, true) !== 0x0008) {
-            console.warn('Not a valid Binary XML file');
-            return null;
-        }
+        if (view.getUint32(0, true) !== 0x00080003) return null;
 
-        // استخراج جدول السلاسل النصية (String Pool)
         const stringPoolOffset = 8;
         const stringPoolSize = view.getUint32(stringPoolOffset + 4, true);
         const stringCount = view.getUint32(stringPoolOffset + 8, true);
         const stringsStart = view.getUint32(stringPoolOffset + 20, true);
         const isUtf8 = (view.getUint32(stringPoolOffset + 16, true) & (1 << 8)) !== 0;
 
-        const stringsAbsoluteStart = stringPoolOffset + stringsStart;
-
         function getString(index) {
             if (index < 0 || index >= stringCount) return null;
-            try {
-                const offsBase = stringPoolOffset + 28;
-                const strOffset = view.getUint32(offsBase + index * 4, true);
-                const absPos = stringsAbsoluteStart + strOffset;
-
-                if (isUtf8) {
-                    let len = bytes[absPos + 1];
-                    let str = '';
-                    for (let i = 0; i < len; i++) {
-                        str += String.fromCharCode(bytes[absPos + 2 + i]);
-                    }
-                    return str;
-                } else {
-                    const charCount = view.getUint16(absPos, true);
-                    let str = '';
-                    for (let i = 0; i < charCount; i++) {
-                        str += String.fromCharCode(view.getUint16(absPos + 2 + i * 2, true));
-                    }
-                    return str;
+            const strOffset = view.getUint32(stringPoolOffset + 28 + index * 4, true);
+            const absPos = stringPoolOffset + stringsStart + strOffset;
+            if (isUtf8) {
+                let lenPos = absPos;
+                function readLen() {
+                    let len = bytes[lenPos++];
+                    if ((len & 0x80) !== 0) len = ((len & 0x7F) << 8) | bytes[lenPos++];
+                    return len;
                 }
-            } catch (e) {
-                return null;
+                readLen(); // char length
+                const byteLen = readLen();
+                return new TextDecoder('utf-8').decode(bytes.slice(lenPos, lenPos + byteLen));
+            } else {
+                const charLen = view.getUint16(absPos, true);
+                let realLen = charLen;
+                if ((charLen & 0x8000) !== 0) realLen = ((charLen & 0x7FFF) << 16) | view.getUint16(absPos + 2, true);
+                const offset = (charLen & 0x8000) !== 0 ? 4 : 2;
+                return new TextDecoder('utf-16le').decode(bytes.slice(absPos + offset, absPos + offset + realLen * 2));
             }
         }
 
-        // البحث عن كتلة XML_START_ELEMENT (0x00100102) وإيجاد العلامة <manifest>
-        let pos = stringPoolOffset + stringPoolSize;
-        let versionCode = null;
-        let versionName = null;
+        const resourceMapOffset = stringPoolOffset + stringPoolSize;
+        const resourceMapType = view.getUint32(resourceMapOffset, true);
+        const resourceMapSize = view.getUint32(resourceMapOffset + 4, true);
+        const resourceIds = [];
+        if (resourceMapType === 0x00080180) {
+            for (let i = 0; i < (resourceMapSize - 8) / 4; i++) {
+                resourceIds.push(view.getUint32(resourceMapOffset + 8 + i * 4, true));
+            }
+        }
 
-        while (pos < bytes.length - 4) {
-            const chunkType = view.getUint16(pos, true);
+        let pos = resourceMapOffset + resourceMapSize;
+        let versionCode = null, versionName = null;
+
+        while (pos < bytes.length - 8) {
+            const chunkType = view.getUint32(pos, true);
             const chunkSize = view.getUint32(pos + 4, true);
-
-            if (chunkType === 0x0102) { // XML_START_ELEMENT
-                const attrStart = view.getUint16(pos + 20, true);
-                const attrSize = view.getUint16(pos + 22, true);
+            if (chunkType === 0x00100102) { // XML_START_ELEMENT
                 const attrCount = view.getUint16(pos + 24, true);
+                const attrSize = view.getUint16(pos + 22, true);
+                const attrsBase = pos + 28;
+                for (let i = 0; i < attrCount; i++) {
+                    const attrPos = attrsBase + i * attrSize;
+                    const nameIdx = view.getUint32(attrPos + 4, true);
+                    const resId = resourceIds[nameIdx];
+                    const attrDataType = bytes[attrPos + 15];
+                    const attrValue = view.getUint32(attrPos + 16, true);
 
-                const nameIdx = view.getInt32(pos + 16, true);
-                const elementName = getString(nameIdx);
-
-                if (elementName === 'manifest') {
-                    const attrsBase = pos + 8 + attrStart;
-                    for (let i = 0; i < attrCount; i++) {
-                        const attrPos = attrsBase + i * attrSize;
-                        if (attrPos + 20 > bytes.length) break;
-
-                        const attrNameIdx = view.getInt32(attrPos + 4, true);
-                        const attrName = getString(attrNameIdx);
-                        const attrValueIdx = view.getInt32(attrPos + 8, true);
-                        const attrDataType = bytes[attrPos + 15];
-                        const attrValue = view.getInt32(attrPos + 16, true);
-
-                        if (attrName === 'versionCode' && attrDataType === 0x10) {
-                            versionCode = attrValue;
-                        } else if (attrName === 'versionName') {
-                            versionName = attrDataType === 0x03
-                                ? getString(attrValue)
-                                : getString(attrValueIdx);
-                        }
+                    if (resId === 0x0101021b) versionCode = attrValue;
+                    else if (resId === 0x0101021c) versionName = (attrDataType === 0x03) ? getString(attrValue) : getString(view.getUint32(attrPos + 8, true));
+                    
+                    if (!versionCode || !versionName) {
+                        const name = getString(nameIdx);
+                        if (name === 'versionCode') versionCode = attrValue;
+                        else if (name === 'versionName') versionName = (attrDataType === 0x03) ? getString(attrValue) : getString(view.getUint32(attrPos + 8, true));
                     }
-
-                    if (versionCode !== null) break;
                 }
+                if (versionCode) break;
             }
-
-            if (chunkSize <= 0 || chunkSize > bytes.length) break;
             pos += chunkSize;
+            if (chunkSize <= 0) break;
         }
-
-        if (versionCode !== null) {
-            return { versionCode, versionName: versionName || String(versionCode) };
-        }
-        return null;
-    } catch (e) {
-        console.warn('Error parsing Binary XML manifest:', e);
-        return null;
-    }
+        return versionCode ? { versionCode, versionName: versionName || String(versionCode) } : null;
+    } catch (e) { return null; }
 }
 
 function uploadWithProgress(file, path) {
