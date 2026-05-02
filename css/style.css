@@ -19,13 +19,14 @@
 }
 
 :root.dark-mode {
-    --bg-color: #0a0a0a;
-    --card-bg: #171717;
-    --input-bg: #262626;
-    --border-color: #333333;
-    --text-primary: #ededed;
-    --text-secondary: #a3a3a3;
-    --card-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+    --bg-color: #050508; /* Deep space black */
+    --card-bg: rgba(23, 23, 27, 0.8); /* Glassmorphism card */
+    --input-bg: #1c1c21;
+    --border-color: rgba(255, 255, 255, 0.1);
+    --text-primary: #f0f0f3;
+    --text-secondary: #b0b0b8;
+    --card-shadow: 0 10px 40px rgba(0, 0, 0, 0.7);
+    --glass-border: rgba(255, 255, 255, 0.08);
 }
 
 :root.dark-mode header {
@@ -64,10 +65,57 @@ body::before {
     left: 0;
     width: 100%;
     height: 100%;
-    background: radial-gradient(circle at 10% 10%, rgba(26, 115, 232, 0.02) 0%, transparent 40%),
-        radial-gradient(circle at 90% 90%, rgba(26, 115, 232, 0.02) 0%, transparent 40%);
+    background: radial-gradient(circle at 10% 10%, rgba(26, 115, 232, 0.04) 0%, transparent 40%),
+        radial-gradient(circle at 90% 90%, rgba(26, 115, 232, 0.04) 0%, transparent 40%);
     z-index: -1;
     pointer-events: none;
+    transition: var(--transition);
+}
+
+:root.dark-mode body::before {
+    background: radial-gradient(circle at 20% 30%, rgba(26, 115, 232, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(138, 43, 226, 0.08) 0%, transparent 50%),
+                #050508;
+}
+
+/* Star Particles */
+.stars-container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: -1;
+    pointer-events: none;
+    overflow: hidden;
+    display: none;
+}
+
+:root.dark-mode .stars-container {
+    display: block;
+}
+
+.star {
+    position: absolute;
+    background: #fff;
+    border-radius: 50%;
+    opacity: 0;
+    animation: twinkle var(--duration) infinite ease-in-out;
+}
+
+@keyframes twinkle {
+    0%, 100% { opacity: 0; transform: scale(0.5); }
+    50% { opacity: var(--opacity); transform: scale(1.2); }
+}
+
+/* Glassmorphism for cards in dark mode */
+:root.dark-mode .app-card, 
+:root.dark-mode .admin-form,
+:root.dark-mode .user-dropdown-menu {
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    background: var(--card-bg);
+    border: 1px solid var(--glass-border);
 }
 
 a {
