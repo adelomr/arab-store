@@ -109,6 +109,8 @@
                     <label>البريد الإلكتروني</label>
                     <input type="email" name="email" id="email" placeholder="أدخل بريدك الإلكتروني" required>
                 </div>
+                <!-- Hidden subject field to maintain compatibility with EmailJS template -->
+                <input type="hidden" name="subject" value="رسالة جديدة من متجر العرب">
                 <div class="form-group">
                     <label>الرسالة</label>
                     <textarea rows="5" name="message" id="message" placeholder="اكتب رسالتك هنا..." required minlength="10"></textarea>
@@ -143,8 +145,15 @@
                     formSuccess.style.display = 'none';
                     formError.style.display = 'none';
 
-                    // Using sendForm to automatically pull fields from the form element
-                    emailjs.sendForm(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, this)
+                    // إرسال البيانات يدوياً لضمان التوافق مع القالب
+                    const templateParams = {
+                        name: document.getElementById('name').value,
+                        email: document.getElementById('email').value,
+                        message: document.getElementById('message').value,
+                        subject: "رسالة جديدة من نموذج الاتصال"
+                    };
+
+                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
                         .then(() => {
                             btn.disabled = false;
                             btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> إرسال الرسالة';
@@ -155,6 +164,10 @@
                             btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> إرسال الرسالة';
                             formError.style.display = 'block';
                             console.error('FAILED...', error);
+                            // عرض تفاصيل الخطأ في الكونسول للمساعدة في التشخيص
+                            if (error.status === 403) {
+                                console.warn("يرجى التأكد من أن الـ Public Key صحيح وأن الدومين مسموح به في إعدادات EmailJS.");
+                            }
                         });
                 });
             </script>
