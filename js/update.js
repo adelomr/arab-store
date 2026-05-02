@@ -456,7 +456,7 @@ function parseBinaryAndroidManifest(buffer) {
                 }
             }
 
-            if (chunkSize <= 0 || chunkSize > bytes.length || pos + chunkSize > bytes.length) break;
+            if (chunkSize <= 0 || chunkSize > bytes.length) break;
             pos += chunkSize;
         }
 
