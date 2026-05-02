@@ -27,6 +27,8 @@ public class AppModel implements Serializable {
     private String changelog;
     private String category;
     private String status;
+    private String sharingIconUrl;
+    private List<FeatureModel> features;
 
     public AppModel() {
     } // Required for Firebase
@@ -206,5 +208,21 @@ public class AppModel implements Serializable {
 
     public void setStatus(String status) {
         this.status = status;
+    }
+
+    public String getSharingIconUrl() {
+        return sharingIconUrl;
+    }
+
+    public void setSharingIconUrl(String sharingIconUrl) {
+        this.sharingIconUrl = sharingIconUrl;
+    }
+
+    public List<FeatureModel> getFeatures() {
+        return features;
+    }
+
+    public void setFeatures(List<FeatureModel> features) {
+        this.features = features;
     }
 }
