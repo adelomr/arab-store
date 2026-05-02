@@ -58,6 +58,7 @@
                 <data android:scheme="https" />
                 <data android:host="arab-store-c33d9.web.app" />
                 <data android:pathPrefix="/item/" />
+                <data android:pathPrefix="/store-item.html" />
             </intent-filter>
         </activity>
 

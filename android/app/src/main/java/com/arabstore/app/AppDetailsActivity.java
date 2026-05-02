@@ -140,15 +140,20 @@ public class AppDetailsActivity extends AppCompatActivity {
         } else {
             // Check for deep link
             Uri data = getIntent().getData();
-            if (data != null && data.getPath() != null && data.getPath().startsWith("/item/")) {
-                String packageName = data.getLastPathSegment();
-                if (packageName != null) {
-                    loadAppDetails(packageName);
+            if (data != null) {
+                String path = data.getPath();
+                if (path != null) {
+                    if (path.startsWith("/item/")) {
+                        String packageName = data.getLastPathSegment();
+                        if (packageName != null) loadAppDetails(packageName);
+                    } else if (path.contains("store-item.html")) {
+                        String id = data.getQueryParameter("id");
+                        if (id != null) loadAppDetailsById(id);
+                    }
                 }
             } else {
                 String appId = getIntent().getStringExtra("appId");
-                if (appId != null)
-                    loadAppDetails(appId);
+                if (appId != null) loadAppDetailsById(appId);
             }
         }
 
@@ -173,6 +178,20 @@ public class AppDetailsActivity extends AppCompatActivity {
                     if (!queryDocumentSnapshots.isEmpty()) {
                         appModel = queryDocumentSnapshots.getDocuments().get(0).toObject(AppModel.class);
                         appModel.setId(queryDocumentSnapshots.getDocuments().get(0).getId());
+                        updateUI();
+                        loadReviews();
+                        checkIfUserReviewed();
+                    }
+                });
+    }
+
+    private void loadAppDetailsById(String id) {
+        db.collection("apps").document(id)
+                .get()
+                .addOnSuccessListener(documentSnapshot -> {
+                    if (documentSnapshot.exists()) {
+                        appModel = documentSnapshot.toObject(AppModel.class);
+                        appModel.setId(documentSnapshot.getId());
                         updateUI();
                         loadReviews();
                         checkIfUserReviewed();
