@@ -2,7 +2,6 @@ import { db, storage } from './firebase-config.js';
 import { loginWithGoogle, logout, observeAuthState } from './auth.js';
 import { collection, doc, getDoc, updateDoc, serverTimestamp, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 import { ref, uploadBytesResumable, getDownloadURL } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-storage.js";
-import AppInfoParser from "https://cdn.jsdelivr.net/npm/app-info-parser@1.1.2/+esm";
 
 // DOM Elements
 const btnLogin = document.getElementById('btn-login');
