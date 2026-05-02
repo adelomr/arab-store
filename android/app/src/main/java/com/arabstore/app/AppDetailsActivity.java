@@ -138,9 +138,18 @@ public class AppDetailsActivity extends AppCompatActivity {
             updateUI();
             loadReviews();
         } else {
-            String appId = getIntent().getStringExtra("appId");
-            if (appId != null)
-                loadAppDetails(appId);
+            // Check for deep link
+            Uri data = getIntent().getData();
+            if (data != null && data.getPath() != null && data.getPath().startsWith("/item/")) {
+                String packageName = data.getLastPathSegment();
+                if (packageName != null) {
+                    loadAppDetails(packageName);
+                }
+            } else {
+                String appId = getIntent().getStringExtra("appId");
+                if (appId != null)
+                    loadAppDetails(appId);
+            }
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
@@ -183,8 +192,54 @@ public class AppDetailsActivity extends AppCompatActivity {
                             newList.add(review);
                         }
                         reviewAdapter.updateList(newList);
+                        updateRatingSummary(newList);
                     }
                 });
+    }
+
+    private void updateRatingSummary(List<ReviewModel> reviews) {
+        if (reviews == null || reviews.isEmpty()) {
+            findViewById(R.id.layout_rating_summary).setVisibility(android.view.View.GONE);
+            return;
+        }
+
+        findViewById(R.id.layout_rating_summary).setVisibility(android.view.View.VISIBLE);
+
+        int count5 = 0, count4 = 0, count3 = 0, count2 = 0, count1 = 0;
+        float totalRating = 0;
+
+        for (ReviewModel r : reviews) {
+            totalRating += r.getRating();
+            int rating = Math.round(r.getRating());
+            if (rating == 5) count5++;
+            else if (rating == 4) count4++;
+            else if (rating == 3) count3++;
+            else if (rating == 2) count2++;
+            else if (rating == 1) count1++;
+        }
+
+        int total = reviews.size();
+        float avg = totalRating / total;
+
+        TextView textAvg = findViewById(R.id.text_avg_rating);
+        RatingBar barAvg = findViewById(R.id.rating_bar_avg);
+        TextView textTotal = findViewById(R.id.text_total_reviews);
+
+        textAvg.setText(String.format(java.util.Locale.US, "%.1f", avg));
+        barAvg.setRating(avg);
+        textTotal.setText(total + " تقييم");
+
+        com.google.android.material.progressindicator.LinearProgressIndicator p5 = findViewById(R.id.progress_5_star);
+        com.google.android.material.progressindicator.LinearProgressIndicator p4 = findViewById(R.id.progress_4_star);
+        com.google.android.material.progressindicator.LinearProgressIndicator p3 = findViewById(R.id.progress_3_star);
+        com.google.android.material.progressindicator.LinearProgressIndicator p2 = findViewById(R.id.progress_2_star);
+        com.google.android.material.progressindicator.LinearProgressIndicator p1 = findViewById(R.id.progress_1_star);
+
+        p5.setProgress((count5 * 100) / total);
+        p4.setProgress((count4 * 100) / total);
+        p3.setProgress((count3 * 100) / total);
+        p2.setProgress((count2 * 100) / total);
+        p1.setProgress((count1 * 100) / total);
     }
 
     private void updateUI() {

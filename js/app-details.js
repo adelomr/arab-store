@@ -420,24 +420,32 @@ async function loadReviews() {
             return;
         }
 
+        let totalReviews = 0;
+        let sumRating = 0;
+        const counts = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+
         commentsList.innerHTML = '';
         snap.forEach(docSnap => {
             const r = docSnap.data();
+            totalReviews++;
+            sumRating += (r.rating || 0);
+            const rInt = Math.round(r.rating || 0);
+            if (counts[rInt] !== undefined) counts[rInt]++;
+
             const dateStr = r.createdAt?.toDate ? r.createdAt.toDate().toLocaleDateString('ar-EG') : '';
             const isMine  = currentUser && r.userId === currentUser.uid;
 
             const card = document.createElement('div');
             card.className = 'comment-card';
-            if (isMine) card.style.borderColor = 'var(--primary-color)';
             card.innerHTML = `
                 <div class="comment-header">
                     <div class="comment-author">
                         <img src="${r.userPhoto || 'https://via.placeholder.com/34?text=U'}" alt="${escHtml(r.userName || 'مستخدم')}" onerror="this.src='https://via.placeholder.com/34?text=U'">
                         <span>${escHtml(r.userName || 'مستخدم')}</span>
                     </div>
-                    <div>
-                        <div class="comment-stars">${buildStarsHtml(r.rating || 0)}</div>
-                        <div class="comment-date">${dateStr}</div>
+                    <div style="text-align: left;">
+                        <div class="comment-stars" style="font-size: 0.75rem; color: var(--gp-green);">${buildStarsHtml(r.rating || 0)}</div>
+                        <div class="comment-date" style="font-size: 0.75rem; color: var(--gp-text-sec); margin-top: 2px;">${dateStr}</div>
                     </div>
                 </div>
                 <p class="comment-text">${escHtml(r.text || '')}</p>
@@ -448,6 +456,23 @@ async function loadReviews() {
             `;
             commentsList.appendChild(card);
         });
+
+        // Update Summary
+        if (totalReviews > 0) {
+            const avg = (sumRating / totalReviews).toFixed(1);
+            if (avgEl) avgEl.textContent = avg;
+            if (lblEl) lblEl.textContent = `${totalReviews} مراجعة`;
+            if (starEl) starEl.innerHTML = buildStarsHtml(avg);
+
+            // Update Bars
+            for (let i = 1; i <= 5; i++) {
+                const bar = $(`bar-${i}`);
+                if (bar) {
+                    const pct = (counts[i] / totalReviews) * 100;
+                    bar.style.width = pct + '%';
+                }
+            }
+        }
     } catch (err) {
         console.error('loadReviews error:', err);
     }

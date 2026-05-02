@@ -49,8 +49,17 @@
 
         <activity
             android:name=".AppDetailsActivity"
-            android:exported="false"
-            android:theme="@style/Theme.Eljam3.NoActionBar" />
+            android:exported="true"
+            android:theme="@style/Theme.Eljam3.NoActionBar">
+            <intent-filter android:autoVerify="true">
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+                <data android:scheme="https" />
+                <data android:host="arab-store-c33d9.web.app" />
+                <data android:pathPrefix="/item/" />
+            </intent-filter>
+        </activity>
 
         <provider
             android:name="androidx.core.content.FileProvider"

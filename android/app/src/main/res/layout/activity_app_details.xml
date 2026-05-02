@@ -175,6 +175,158 @@
                     android:textStyle="bold" />
             </LinearLayout>
 
+            <!-- Rating Summary Section -->
+            <LinearLayout
+                android:id="@+id/layout_rating_summary"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:orientation="horizontal"
+                android:gravity="center_vertical"
+                android:padding="8dp">
+
+                <LinearLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center_horizontal"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/text_avg_rating"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="0.0"
+                        android:textColor="@color/textPrimary"
+                        android:textSize="48sp"
+                        android:textStyle="bold" />
+
+                    <RatingBar
+                        android:id="@+id/rating_bar_avg"
+                        style="@android:style/Widget.DeviceDefault.RatingBar.Small"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:numStars="5"
+                        android:rating="0"
+                        android:progressTint="@color/google_blue" />
+
+                    <TextView
+                        android:id="@+id/text_total_reviews"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:text="0 تقييم"
+                        android:textColor="@color/textSecondary"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:orientation="vertical">
+
+                    <!-- 5 Stars Bar -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="12dp" android:layout_height="wrap_content" android:text="5" android:textSize="12sp" android:textColor="@color/textSecondary" />
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/progress_5_star"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            app:trackThickness="8dp"
+                            app:trackCornerRadius="4dp"
+                            app:indicatorColor="@color/google_blue"
+                            app:trackColor="@color/borderColor"
+                            android:progress="0" />
+                    </LinearLayout>
+
+                    <!-- 4 Stars Bar -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="12dp" android:layout_height="wrap_content" android:text="4" android:textSize="12sp" android:textColor="@color/textSecondary" />
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/progress_4_star"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            app:trackThickness="8dp"
+                            app:trackCornerRadius="4dp"
+                            app:indicatorColor="@color/google_blue"
+                            app:trackColor="@color/borderColor"
+                            android:progress="0" />
+                    </LinearLayout>
+
+                    <!-- 3 Stars Bar -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="12dp" android:layout_height="wrap_content" android:text="3" android:textSize="12sp" android:textColor="@color/textSecondary" />
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/progress_3_star"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            app:trackThickness="8dp"
+                            app:trackCornerRadius="4dp"
+                            app:indicatorColor="@color/google_blue"
+                            app:trackColor="@color/borderColor"
+                            android:progress="0" />
+                    </LinearLayout>
+
+                    <!-- 2 Stars Bar -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="12dp" android:layout_height="wrap_content" android:text="2" android:textSize="12sp" android:textColor="@color/textSecondary" />
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/progress_2_star"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            app:trackThickness="8dp"
+                            app:trackCornerRadius="4dp"
+                            app:indicatorColor="@color/google_blue"
+                            app:trackColor="@color/borderColor"
+                            android:progress="0" />
+                    </LinearLayout>
+
+                    <!-- 1 Star Bar -->
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginTop="4dp"
+                        android:gravity="center_vertical"
+                        android:orientation="horizontal">
+                        <TextView android:layout_width="12dp" android:layout_height="wrap_content" android:text="1" android:textSize="12sp" android:textColor="@color/textSecondary" />
+                        <com.google.android.material.progressindicator.LinearProgressIndicator
+                            android:id="@+id/progress_1_star"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:layout_marginStart="8dp"
+                            app:trackThickness="8dp"
+                            app:trackCornerRadius="4dp"
+                            app:indicatorColor="@color/google_blue"
+                            app:trackColor="@color/borderColor"
+                            android:progress="0" />
+                    </LinearLayout>
+                </LinearLayout>
+            </LinearLayout>
+
             <!-- Add Review Section -->
             <TextView
                 android:id="@+id/text_install_to_review"

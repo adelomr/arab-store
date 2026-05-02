@@ -894,11 +894,48 @@
                             </div>
 
                             <!-- Rating Summary -->
-                            <div class="rating-overview">
-                                <div style="text-align:center;">
-                                    <div class="rating-number-big" id="d-avg-rating">0</div>
-                                    <div class="stars-row" id="d-stars-display" style="justify-content:center; margin-top:8px;"></div>
-                                    <div class="rating-count-text" id="d-rating-label">0 مراجعة</div>
+                            <div class="rating-overview" style="display: flex; align-items: center; gap: 40px; margin-bottom: 30px;">
+                                <div style="text-align:center; min-width: 120px;">
+                                    <div class="rating-number-big" id="d-avg-rating" style="font-size: 4.5rem; font-weight: 500; color: var(--gp-text);">0</div>
+                                    <div class="stars-row" id="d-stars-display" style="justify-content:center; margin-top:8px; font-size: 0.9rem;"></div>
+                                    <div class="rating-count-text" id="d-rating-label" style="font-size: 0.8rem; margin-top: 4px; color: var(--gp-text-sec);">0 مراجعة</div>
+                                </div>
+                                <div class="rating-bars" style="flex: 1; max-width: 350px;">
+                                    <!-- 5 stars -->
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                                        <span style="font-size: 0.8rem; width: 8px;">5</span>
+                                        <div style="flex: 1; height: 8px; background: var(--gp-border); border-radius: 4px; overflow: hidden;">
+                                            <div id="bar-5" style="width: 0%; height: 100%; background: var(--gp-green); border-radius: 4px;"></div>
+                                        </div>
+                                    </div>
+                                    <!-- 4 stars -->
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                                        <span style="font-size: 0.8rem; width: 8px;">4</span>
+                                        <div style="flex: 1; height: 8px; background: var(--gp-border); border-radius: 4px; overflow: hidden;">
+                                            <div id="bar-4" style="width: 0%; height: 100%; background: var(--gp-green); border-radius: 4px;"></div>
+                                        </div>
+                                    </div>
+                                    <!-- 3 stars -->
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                                        <span style="font-size: 0.8rem; width: 8px;">3</span>
+                                        <div style="flex: 1; height: 8px; background: var(--gp-border); border-radius: 4px; overflow: hidden;">
+                                            <div id="bar-3" style="width: 0%; height: 100%; background: var(--gp-green); border-radius: 4px;"></div>
+                                        </div>
+                                    </div>
+                                    <!-- 2 stars -->
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                                        <span style="font-size: 0.8rem; width: 8px;">2</span>
+                                        <div style="flex: 1; height: 8px; background: var(--gp-border); border-radius: 4px; overflow: hidden;">
+                                            <div id="bar-2" style="width: 0%; height: 100%; background: var(--gp-green); border-radius: 4px;"></div>
+                                        </div>
+                                    </div>
+                                    <!-- 1 stars -->
+                                    <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 4px;">
+                                        <span style="font-size: 0.8rem; width: 8px;">1</span>
+                                        <div style="flex: 1; height: 8px; background: var(--gp-border); border-radius: 4px; overflow: hidden;">
+                                            <div id="bar-1" style="width: 0%; height: 100%; background: var(--gp-green); border-radius: 4px;"></div>
+                                        </div>
+                                    </div>
                                 </div>
                             </div>
 
