@@ -211,7 +211,7 @@ async function loadExistingAppForUpdate(id, col) {
             const displayVersion = document.getElementById('display-version');
             const displayCode = document.getElementById('display-versioncode');
             const cardVersion = document.getElementById('card-version');
-            const cardCode = document.getElementById('card-code'); // Note: previously it was card-versioncode, but let's check HTML
+            const cardCode = document.getElementById('card-versioncode');
             
             if (displayVersion) displayVersion.textContent = existingAppData.version ? `v${existingAppData.version}` : '--';
             if (displayCode) displayCode.textContent = existingAppData.versionCode || '--';
