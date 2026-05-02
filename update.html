@@ -279,19 +279,20 @@
                                 </div>
                             </div>
 
-                            <!-- Version Display Cards (auto-filled from APK or existing data) -->
-                            <input type="hidden" id="app-version" value="">
-                            <input type="hidden" id="app-versioncode" value="">
                             <div class="version-display-grid">
                                 <div class="version-badge-card" id="card-version">
                                     <div class="vb-label"><i class="fa-solid fa-code-branch"></i> اسم الإصدار</div>
-                                    <div class="vb-value" id="display-version">--</div>
-                                    <div class="vb-hint">يُحدّث تلقائياً عند اختيار APK جديد</div>
+                                    <input type="text" id="app-version" class="form-control" 
+                                           style="text-align: center; font-weight: bold; border: none; background: transparent; font-size: 1.5rem; color: var(--text-primary);" 
+                                           placeholder="مثلاً: 1.0.0">
+                                    <div class="vb-hint">يُحدّث تلقائياً (ويمكنك تعديله)</div>
                                 </div>
                                 <div class="version-badge-card" id="card-versioncode">
                                     <div class="vb-label"><i class="fa-solid fa-hashtag"></i> كود الإصدار</div>
-                                    <div class="vb-value" id="display-versioncode">--</div>
-                                    <div class="vb-hint">يُحدّث تلقائياً عند اختيار APK جديد</div>
+                                    <input type="number" id="app-versioncode" class="form-control" 
+                                           style="text-align: center; font-weight: bold; border: none; background: transparent; font-size: 1.5rem; color: var(--text-primary);" 
+                                           placeholder="مثلاً: 1">
+                                    <div class="vb-hint">يُحدّث تلقائياً (ويمكنك تعديله)</div>
                                 </div>
                             </div>
 

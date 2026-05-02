@@ -207,21 +207,20 @@ async function loadExistingAppForUpdate(id, col) {
             document.getElementById('app-package').value = existingAppData.packageName || "";
             document.getElementById('app-short').value = existingAppData.shortDesc || "";
             document.getElementById('app-full').value = existingAppData.fullDesc || "";
-            // تعبئة الحقول المخفية
-            const hiddenVersion = document.getElementById('app-version');
-            const hiddenCode = document.getElementById('app-versioncode');
-            if (hiddenVersion) hiddenVersion.value = existingAppData.version || "";
-            if (hiddenCode) hiddenCode.value = existingAppData.versionCode || "";
+            
+            const inputVersion = document.getElementById('app-version');
+            const inputCode = document.getElementById('app-versioncode');
+            if (inputVersion) inputVersion.value = existingAppData.version || "";
+            if (inputCode) inputCode.value = existingAppData.versionCode || "";
 
-            // تعبئة بطاقات العرض بالبيانات الحالية
-            const displayVersion = document.getElementById('display-version');
-            const displayCode = document.getElementById('display-versioncode');
             const cardVersion = document.getElementById('card-version');
             const cardCode = document.getElementById('card-versioncode');
-            if (displayVersion) displayVersion.textContent = existingAppData.version ? `v${existingAppData.version}` : '--';
-            if (displayCode) displayCode.textContent = existingAppData.versionCode || '--';
-            if (existingAppData.version && cardVersion) cardVersion.classList.add('detected');
-            if (existingAppData.versionCode && cardCode) cardCode.classList.add('detected');
+            if (existingAppData.version && cardVersion) {
+                cardVersion.classList.add('detected');
+            }
+            if (existingAppData.versionCode && cardCode) {
+                cardCode.classList.add('detected');
+            }
             document.getElementById('app-changelog').value = existingAppData.changelog || "";
 
             // Features
@@ -322,22 +321,16 @@ apkInput.addEventListener('change', async () => {
             if (apkInfo_result) {
                 const { versionCode, versionName } = apkInfo_result;
 
-                // ملء الحقول المخفية (للإرسال)
-                const hiddenVersion = document.getElementById('app-version');
-                const hiddenCode = document.getElementById('app-versioncode');
-                if (hiddenVersion) hiddenVersion.value = versionName;
-                if (hiddenCode) hiddenCode.value = versionCode;
+                const inputVersion = document.getElementById('app-version');
+                const inputCode = document.getElementById('app-versioncode');
+                if (inputVersion) inputVersion.value = versionName;
+                if (inputCode) inputCode.value = versionCode;
 
-                // تحديث بطاقات العرض
-                if (displayVersion) displayVersion.textContent = `v${versionName}`;
-                if (displayCode) displayCode.textContent = versionCode;
                 if (cardVersion) cardVersion.classList.add('detected');
                 if (cardCode) cardCode.classList.add('detected');
 
                 apkInfo.innerHTML = `✅ <strong>${file.name}</strong> (${sizeInMB} ميغابايت) — تم اكتشاف الإصدار الجديد تلقائياً`;
             } else {
-                if (displayVersion) displayVersion.textContent = '--';
-                if (displayCode) displayCode.textContent = '--';
                 apkInfo.textContent = `تم اختيار: ${file.name} (${sizeInMB} ميغابايت) - لم يتم اكتشاف الإصدار`;
             }
         } catch (err) {
@@ -457,7 +450,7 @@ function parseBinaryAndroidManifest(buffer) {
                 }
             }
 
-            if (chunkSize <= 0 || chunkSize > bytes.length) break;
+            if (chunkSize <= 0 || chunkSize > bytes.length || pos + chunkSize > bytes.length) break;
             pos += chunkSize;
         }
 
@@ -543,8 +536,8 @@ formSubmit.addEventListener('submit', async (e) => {
             sharingIconUrl: sharingIconUrl,
             screenshots: screenshotUrls,
             downloadUrl: downloadUrl,
-            version: document.getElementById('app-version').value,
-            versionCode: parseInt(document.getElementById('app-versioncode').value),
+            version: document.getElementById('app-version').value || existingAppData.version || "",
+            versionCode: parseInt(document.getElementById('app-versioncode').value) || 0,
             changelog: document.getElementById('app-changelog').value,
             features: document.getElementById('app-features').value.split('\n').filter(line => line.trim() !== '').map(line => {
                 if (line.includes('|')) {
