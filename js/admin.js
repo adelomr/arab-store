@@ -23,6 +23,7 @@ const cards = {
     users: document.getElementById('card-users'),
     delete: document.getElementById('card-delete'),
     pages: document.getElementById('card-pages'),
+    messages: document.getElementById('card-messages'),
     footer: document.getElementById('card-footer')
 };
 
@@ -34,6 +35,7 @@ const sections = {
     users: document.getElementById('section-users'),
     delete: document.getElementById('section-delete'),
     pages: document.getElementById('section-pages'),
+    messages: document.getElementById('section-messages'),
     footer: document.getElementById('section-footer')
 };
 
@@ -207,6 +209,13 @@ if (cards.pages) {
         document.getElementById('page-editor-container').classList.add('hidden');
         document.getElementById('create-page-container').classList.add('hidden');
         window.loadPagesList(); // Load dynamic list
+    });
+}
+
+if (cards.messages) {
+    cards.messages.addEventListener('click', () => {
+        showSection('messages');
+        loadMessages();
     });
 }
 
@@ -1272,3 +1281,124 @@ function updateCustomSelectUI(selectEl) {
         container.classList.remove('open');
     });
 }
+
+// =============================================
+// MESSAGES MANAGEMENT LOGIC
+// =============================================
+
+async function loadMessages() {
+    const messagesList = document.getElementById('messages-list');
+    const messagesLoader = document.getElementById('messages-loader');
+    const noMessagesMsg = document.getElementById('no-messages-msg');
+    
+    if(!messagesList) return;
+    
+    messagesLoader.classList.remove('hidden');
+    messagesList.innerHTML = '';
+    noMessagesMsg.classList.add('hidden');
+
+    try {
+        const querySnapshot = await getDocs(collection(db, "contact_messages"));
+        messagesLoader.classList.add('hidden');
+
+        if (querySnapshot.empty) {
+            noMessagesMsg.classList.remove('hidden');
+            return;
+        }
+
+        // Sort by timestamp descending in memory since we might not have an index
+        let messagesArray = [];
+        querySnapshot.forEach((docSnap) => {
+            messagesArray.push({ id: docSnap.id, ...docSnap.data() });
+        });
+        
+        messagesArray.sort((a, b) => {
+            const timeA = a.timestamp ? a.timestamp.toMillis() : 0;
+            const timeB = b.timestamp ? b.timestamp.toMillis() : 0;
+            return timeB - timeA;
+        });
+
+        messagesArray.forEach((msg) => {
+            const card = document.createElement('div');
+            card.className = 'app-card';
+            card.style.flexDirection = 'column';
+            card.style.alignItems = 'stretch';
+            card.style.background = 'var(--card-bg)';
+            card.style.border = '1px solid var(--border-color)';
+            card.style.padding = '20px';
+            card.style.borderRadius = '12px';
+            
+            const dateStr = msg.timestamp ? new Date(msg.timestamp.toDate()).toLocaleString('ar-EG') : 'غير معروف';
+            const isUnread = msg.status === 'unread';
+
+            card.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border-color); padding-bottom: 10px; margin-bottom: 10px;">
+                    <div>
+                        <h4 style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                            ${isUnread ? '<span style="width:10px;height:10px;border-radius:50%;background:var(--primary-color);"></span>' : ''}
+                            ${msg.name}
+                        </h4>
+                        <a href="mailto:${msg.email}" style="font-size: 0.85rem; color: var(--primary-color);">${msg.email}</a>
+                    </div>
+                    <span style="font-size: 0.8rem; color: var(--text-secondary);">${dateStr}</span>
+                </div>
+                <p style="margin-bottom: 15px; white-space: pre-wrap; font-size: 0.95rem; color: var(--text-primary); line-height: 1.6;">${msg.message}</p>
+                <div style="display: flex; justify-content: flex-end; gap: 10px;">
+                    ${isUnread ? `<button class="btn btn-outline btn-sm btn-mark-read" data-id="${msg.id}"><i class="fa-solid fa-check-double"></i> تحديد كمقروء</button>` : ''}
+                    <button class="btn btn-danger btn-sm btn-delete-msg" data-id="${msg.id}"><i class="fa-solid fa-trash-can"></i> حذف</button>
+                </div>
+            `;
+            messagesList.appendChild(card);
+
+            if (isUnread) {
+                card.querySelector('.btn-mark-read').addEventListener('click', async () => {
+                    try {
+                        await updateDoc(doc(db, "contact_messages", msg.id), { status: 'read' });
+                        loadMessages();
+                        updateMessagesCount();
+                    } catch(err) {
+                        alert("خطأ: " + err.message);
+                    }
+                });
+            }
+
+            card.querySelector('.btn-delete-msg').addEventListener('click', async () => {
+                if(!confirm("هل أنت متأكد من حذف هذه الرسالة؟")) return;
+                try {
+                    await deleteDoc(doc(db, "contact_messages", msg.id));
+                    loadMessages();
+                    updateMessagesCount();
+                } catch(err) {
+                    alert("خطأ: " + err.message);
+                }
+            });
+        });
+    } catch (error) {
+        console.error("Error loading messages:", error);
+        messagesLoader.classList.add('hidden');
+        alert("حدث خطأ في جلب الرسائل.");
+    }
+}
+
+async function updateMessagesCount() {
+    try {
+        const querySnapshot = await getDocs(collection(db, "contact_messages"));
+        const badge = document.getElementById('messages-count-badge');
+        if (!badge) return;
+        
+        let unreadCount = 0;
+        querySnapshot.forEach(doc => {
+            if(doc.data().status === 'unread') unreadCount++;
+        });
+
+        if (unreadCount > 0) {
+            badge.textContent = unreadCount;
+            badge.classList.remove('hidden');
+        } else {
+            badge.classList.add('hidden');
+        }
+    } catch (e) { console.error(e); }
+}
+
+// Call initially
+updateMessagesCount();

@@ -318,6 +318,12 @@
                 <h3>إدارة الصفحات</h3>
                 <p>إضافة، تعديل أو حذف صفحات الموقع</p>
             </div>
+            <div class="dash-card" id="card-messages">
+                <i class="fa-solid fa-envelope"></i>
+                <h3>رسائل الزوار</h3>
+                <p>قراءة الرسائل الواردة من صفحة اتصل بنا</p>
+                <span id="messages-count-badge" class="badge hidden">0</span>
+            </div>
             <div class="dash-card" id="card-footer">
                 <i class="fa-solid fa-shoe-prints"></i>
                 <h3>إدارة الفوتر (أسفل الموقع)</h3>
@@ -426,6 +432,20 @@
                 <div id="del-loader" class="hidden" style="text-align: center; margin-top: 15px;"><span class="loader"
                         style="width: 24px; height:24px; margin:0; border-width: 3px;"></span></div>
             </form>
+        </div>
+
+        <!-- Messages Section -->
+        <div id="section-messages" class="admin-form hidden" style="max-width: 900px;">
+            <a class="back-btn"><i class="fa-solid fa-arrow-right"></i> عودة للوحة التحكم</a>
+            <h3><i class="fa-solid fa-envelope"></i> رسائل الزوار</h3>
+            <div id="messages-loader" class="hidden" style="text-align: center; margin: 2rem 0;"><span class="loader"></span></div>
+            <div id="no-messages-msg" class="hidden" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
+                <i class="fa-regular fa-envelope-open" style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;"></i>
+                <p>لا توجد رسائل جديدة.</p>
+            </div>
+            <div id="messages-list" style="display: flex; flex-direction: column; gap: 15px; margin-top: 20px;">
+                <!-- Messages items injected by JS -->
+            </div>
         </div>
 
         <!-- Categories Management Section -->

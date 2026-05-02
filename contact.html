@@ -14,7 +14,6 @@
             document.documentElement.classList.add('dark-mode');
         }
     </script>
-    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
     <style>
         .page-content {
             background: var(--card-bg);
@@ -125,15 +124,11 @@
                 <strong>فشل الإرسال:</strong> حدث خطأ أثناء إرسال رسالتك. يرجى المحاولة مرة أخرى.
             </div>
 
-            <script>
-                // إعدادات EmailJS
-                const EMAILJS_SERVICE_ID = "service_fp8wrkh";
-                const EMAILJS_TEMPLATE_ID = "template_s1qudba";
-                const EMAILJS_PUBLIC_KEY = "PKqcekN0SliKgKXrd";
+            <script type="module">
+                import { db } from './js/firebase-config.js';
+                import { collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
 
-                emailjs.init(EMAILJS_PUBLIC_KEY);
-
-                document.getElementById('contact-form').addEventListener('submit', function(event) {
+                document.getElementById('contact-form').addEventListener('submit', async function(event) {
                     event.preventDefault();
                     
                     const btn = document.getElementById('btn-submit');
@@ -145,30 +140,29 @@
                     formSuccess.style.display = 'none';
                     formError.style.display = 'none';
 
-                    // إرسال البيانات يدوياً لضمان التوافق مع القالب
-                    const templateParams = {
-                        name: document.getElementById('name').value,
-                        email: document.getElementById('email').value,
-                        message: document.getElementById('message').value,
-                        subject: "رسالة جديدة من نموذج الاتصال"
-                    };
+                    try {
+                        const name = document.getElementById('name').value;
+                        const email = document.getElementById('email').value;
+                        const message = document.getElementById('message').value;
 
-                    emailjs.send(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, templateParams)
-                        .then(() => {
-                            btn.disabled = false;
-                            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> إرسال الرسالة';
-                            formSuccess.style.display = 'block';
-                            this.reset();
-                        }, (error) => {
-                            btn.disabled = false;
-                            btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> إرسال الرسالة';
-                            formError.style.display = 'block';
-                            console.error('FAILED...', error);
-                            // عرض تفاصيل الخطأ في الكونسول للمساعدة في التشخيص
-                            if (error.status === 403) {
-                                console.warn("يرجى التأكد من أن الـ Public Key صحيح وأن الدومين مسموح به في إعدادات EmailJS.");
-                            }
+                        await addDoc(collection(db, "contact_messages"), {
+                            name: name,
+                            email: email,
+                            message: message,
+                            timestamp: serverTimestamp(),
+                            status: 'unread'
                         });
+
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> إرسال الرسالة';
+                        formSuccess.style.display = 'block';
+                        this.reset();
+                    } catch (error) {
+                        console.error('Error adding document: ', error);
+                        btn.disabled = false;
+                        btn.innerHTML = '<i class="fa-solid fa-paper-plane"></i> إرسال الرسالة';
+                        formError.style.display = 'block';
+                    }
                 });
             </script>
         </div>
